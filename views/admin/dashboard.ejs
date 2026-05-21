@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" crossorigin></script>
+</head>
+<body class="admin-body">
+  <div class="admin-app">
+    <aside class="admin-sidebar" aria-label="Admin navigation">
+      <a class="admin-brand" href="/admin"><%= brand %></a>
+      <p class="admin-sidebar-tag">Control center</p>
+      <nav class="admin-side-nav">
+        <a href="#overview">Overview</a>
+        <a href="#activity">Activity chart</a>
+        <a href="#inbox-contact">Contact inbox</a>
+        <a href="#inbox-work">Work applications</a>
+        <a href="#users">Users</a>
+      </nav>
+      <div class="admin-sidebar-foot">
+        <a class="admin-sidebar-link" href="/">View site</a>
+        <a class="admin-sidebar-link" href="/auth/logout">Logout</a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div>
+          <h1 class="admin-title">Dashboard</h1>
+          <p class="admin-sub">Signed in as <%= authUser && authUser.name ? authUser.name : "Admin" %></p>
+        </div>
+        <button class="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-icon" aria-hidden="true">
+            <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 14.5a8.5 8.5 0 0 1-11.6-11A9.5 9.5 0 1 0 21 14.5Z"/></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24"><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12Zm0-16a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm0 18a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1ZM3 11h1a1 1 0 1 1 0 2H3a1 1 0 1 1 0-2Zm17 0h1a1 1 0 1 1 0 2h-1a1 1 0 1 1 0-2ZM5.6 4.2a1 1 0 0 1 1.4 0l.7.7a1 1 0 0 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4Zm10.7 10.7a1 1 0 0 1 1.4 0l.7.7a1 1 0 0 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4ZM18.4 4.2a1 1 0 0 1 0 1.4l-.7.7a1 1 0 0 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0ZM7.7 14.9a1 1 0 0 1 0 1.4l-.7.7a1 1 0 1 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0Z"/></svg>
+          </span>
+        </button>
+      </header>
+
+      <div class="admin-content">
+        <% const flashText = { roleupdated: 'User role updated.' }; %>
+        <% if (flash && flashText[flash]) { %>
+          <p class="admin-flash admin-flash-ok" role="status"><%= flashText[flash] %></p>
+        <% } %>
+        <% if (err) { %>
+          <p class="admin-flash admin-flash-err" role="alert">
+            <% if (err === 'invalid') { %>
+              That action was not valid.
+            <% } else if (err === 'selfdemote') { %>
+              You cannot remove your own admin role.
+            <% } else { %>
+              <%= err %>
+            <% } %>
+          </p>
+        <% } %>
+
+        <section class="admin-section" id="overview">
+          <h2 class="admin-h2">Overview</h2>
+          <div class="admin-kpi-grid">
+            <article class="admin-kpi">
+              <span class="admin-kpi-label">Total users</span>
+              <strong class="admin-kpi-value"><%= stats.users %></strong>
+              <span class="admin-kpi-meta"><%= stats.usersWeek %> new (7 days)</span>
+            </article>
+            <article class="admin-kpi">
+              <span class="admin-kpi-label">Contact messages</span>
+              <strong class="admin-kpi-value"><%= stats.contacts %></strong>
+              <span class="admin-kpi-meta admin-kpi-warn"><%= stats.contactsNew %> new</span>
+            </article>
+            <article class="admin-kpi">
+              <span class="admin-kpi-label">Work applications</span>
+              <strong class="admin-kpi-value"><%= stats.work %></strong>
+              <span class="admin-kpi-meta admin-kpi-warn"><%= stats.workNew %> new</span>
+            </article>
+            <article class="admin-kpi admin-kpi-accent">
+              <span class="admin-kpi-label">Pipeline</span>
+              <strong class="admin-kpi-value"><%= stats.contactsNew + stats.workNew %></strong>
+              <span class="admin-kpi-meta">Open items</span>
+            </article>
+          </div>
+        </section>
+
+        <section class="admin-section" id="activity">
+          <h2 class="admin-h2">Submissions (last 14 days)</h2>
+          <div class="admin-chart-card">
+            <canvas id="adminChart" height="120" aria-label="Submissions chart"></canvas>
+          </div>
+        </section>
+
+        <section class="admin-section" id="inbox-contact">
+          <h2 class="admin-h2">Contact inbox</h2>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>When</th>
+                  <th>Status</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Message</th>
+                  <th class="admin-th-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentContact.forEach((row) => { %>
+                  <tr>
+                    <td><%= row.id %></td>
+                    <td class="admin-nowrap"><%= row.created_at %></td>
+                    <td><span class="admin-pill admin-pill-<%= row.status %>"><%= row.status %></span></td>
+                    <td><%= row.name %></td>
+                    <td><a href="mailto:<%= row.email %>"><%= row.email %></a></td>
+                    <td class="admin-cell-msg"><%= row.message %></td>
+                    <td class="admin-actions">
+                      <form method="post" action="/admin/submissions/contact/<%= row.id %>/status" class="admin-inline-form">
+                        <select name="status" class="admin-select" aria-label="Status for contact <%= row.id %>">
+                          <option value="new" <%= row.status === 'new' ? 'selected' : '' %>>new</option>
+                          <option value="read" <%= row.status === 'read' ? 'selected' : '' %>>read</option>
+                          <option value="archived" <%= row.status === 'archived' ? 'selected' : '' %>>archived</option>
+                        </select>
+                        <button type="submit" class="btn btn-small">Save</button>
+                      </form>
+                      <form method="post" action="/admin/submissions/contact/<%= row.id %>/delete" class="admin-inline-form" onsubmit="return confirm('Delete this message?');">
+                        <button type="submit" class="btn btn-small btn-danger-outline">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+                <% if (!recentContact.length) { %>
+                  <tr><td colspan="7" class="admin-empty">No contact messages yet.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="admin-section" id="inbox-work">
+          <h2 class="admin-h2">Work applications</h2>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>When</th>
+                  <th>Status</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Skill</th>
+                  <th>Resume</th>
+                  <th class="admin-th-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentWork.forEach((row) => { %>
+                  <tr>
+                    <td><%= row.id %></td>
+                    <td class="admin-nowrap"><%= row.created_at %></td>
+                    <td><span class="admin-pill admin-pill-<%= row.status %>"><%= row.status %></span></td>
+                    <td><%= row.full_name %></td>
+                    <td><a href="mailto:<%= row.email %>"><%= row.email %></a></td>
+                    <td><%= row.skill || "—" %></td>
+                    <td class="admin-cell-msg">
+                      <% if (row.resume) { %><a href="<%= row.resume %>" target="_blank" rel="noopener">Link</a><% } else { %>—<% } %>
+                    </td>
+                    <td class="admin-actions">
+                      <form method="post" action="/admin/submissions/work/<%= row.id %>/status" class="admin-inline-form">
+                        <select name="status" class="admin-select" aria-label="Status for application <%= row.id %>">
+                          <option value="new" <%= row.status === 'new' ? 'selected' : '' %>>new</option>
+                          <option value="read" <%= row.status === 'read' ? 'selected' : '' %>>read</option>
+                          <option value="archived" <%= row.status === 'archived' ? 'selected' : '' %>>archived</option>
+                        </select>
+                        <button type="submit" class="btn btn-small">Save</button>
+                      </form>
+                      <form method="post" action="/admin/submissions/work/<%= row.id %>/delete" class="admin-inline-form" onsubmit="return confirm('Delete this application?');">
+                        <button type="submit" class="btn btn-small btn-danger-outline">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+                <% if (!recentWork.length) { %>
+                  <tr><td colspan="8" class="admin-empty">No applications yet.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="admin-section" id="users">
+          <h2 class="admin-h2">Users</h2>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Joined</th>
+                  <th>Role</th>
+                  <th>Provider</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th class="admin-th-actions">Role actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach((u) => { %>
+                  <tr class="<%= u.id === currentAdminId ? 'admin-row-self' : '' %>">
+                    <td><%= u.id %></td>
+                    <td class="admin-nowrap"><%= u.created_at %></td>
+                    <td><span class="admin-pill <%= u.role === 'admin' ? 'admin-pill-admin' : 'admin-pill-user' %>"><%= u.role %></span></td>
+                    <td><%= u.provider %></td>
+                    <td><%= u.name %></td>
+                    <td><%= u.email %></td>
+                    <td class="admin-actions">
+                      <% if (u.id === currentAdminId) { %>
+                        <span class="admin-muted">You</span>
+                      <% } else { %>
+                        <form method="post" action="/admin/users/<%= u.id %>/role" class="admin-inline-form">
+                          <select name="role" class="admin-select" aria-label="Role for user <%= u.id %>">
+                            <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>user</option>
+                            <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>admin</option>
+                          </select>
+                          <button type="submit" class="btn btn-small">Update</button>
+                        </form>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }) %>
+                <% if (!users.length) { %>
+                  <tr><td colspan="7" class="admin-empty">No users.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <%- include("../partials/whatsapp-float") %>
+  <script src="/main.js"></script>
+  <script>
+    (function () {
+      var el = document.getElementById("adminChart");
+      if (!el || typeof Chart === "undefined") return;
+      var labels = <%- JSON.stringify(chartLabels) %>;
+      var contact = <%- JSON.stringify(chartSeries.contact) %>;
+      var work = <%- JSON.stringify(chartSeries.work) %>;
+      var root = document.documentElement;
+      var muted = getComputedStyle(root).getPropertyValue("--muted").trim() || "#a8b4d7";
+      var brand = getComputedStyle(root).getPropertyValue("--brand").trim() || "#2f6efb";
+      var text = getComputedStyle(root).getPropertyValue("--text").trim() || "#f3f6ff";
+      new Chart(el, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Contact",
+              data: contact,
+              borderColor: brand,
+              backgroundColor: "rgba(47, 110, 251, 0.12)",
+              tension: 0.35,
+              fill: true,
+            },
+            {
+              label: "Work",
+              data: work,
+              borderColor: muted,
+              backgroundColor: "rgba(168, 180, 215, 0.15)",
+              tension: 0.35,
+              fill: true,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: text } },
+          },
+          scales: {
+            x: {
+              ticks: { color: muted, maxRotation: 0 },
+              grid: { color: "rgba(128, 140, 180, 0.15)" },
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: muted, precision: 0 },
+              grid: { color: "rgba(128, 140, 180, 0.15)" },
+            },
+          },
+        },
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Health — static file</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: #0a1628; color: #e8f0ff;
+    }
+    .card {
+      background: #132042; border: 2px solid #2f6efb; border-radius: 16px;
+      padding: 2rem 2.5rem; max-width: 420px; text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,.45);
+    }
+    h1 { color: #7dffb3; margin: 0 0 0.5rem; font-size: 1.75rem; }
+    p { margin: 0.75rem 0; line-height: 1.5; opacity: 0.95; }
+    code { background: #0006; padding: 0.2em 0.5em; border-radius: 6px; }
+    a { color: #8eb7ff; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>OK — file served</h1>
+    <p>If you see this, <strong>Node + static files</strong> are working.</p>
+    <p>This is <code>/health.html</code> (real file on disk).</p>
+    <p><a href="/">Go to home</a></p>
+  </div>
+</body>
+</html>

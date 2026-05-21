@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="admin-forbidden-body">
+  <div class="admin-forbidden-card">
+    <h1>403</h1>
+    <p>You do not have access to the admin dashboard.</p>
+    <p class="admin-forbidden-hint">
+      Fix: add your login email to <code>ADMIN_EMAILS</code> in <code>.env</code>, or run
+      <code>npm run grant-admin -- your@email.com</code> in the project folder (same email you use to log in).
+    </p>
+    <a class="btn" href="/">Back to site</a>
+  </div>
+  <%- include("../partials/whatsapp-float") %>
+</body>
+</html>

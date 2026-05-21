@@ -1,0 +1,42 @@
+  <header class="site-header">
+    <nav class="container navbar">
+      <a href="/" class="logo"><%= brand %></a>
+      <ul class="nav-links">
+        <% navItems.forEach((item) => { %>
+          <li>
+            <a href="<%= item.href %>" <%= page.key === item.key ? 'aria-current="page"' : "" %>><%= item.label %></a>
+          </li>
+        <% }) %>
+        <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+          <li class="only-mobile"><a href="/admin">Admin</a></li>
+        <% } %>
+        <% if (authUser) { %>
+          <li class="only-mobile"><a href="/"><%= authUser.name %></a></li>
+          <li class="only-mobile"><a href="/auth/logout">Logout</a></li>
+        <% } else { %>
+          <li class="only-mobile"><a href="/login">Login</a></li>
+          <li class="only-mobile"><a href="/signup">Signup</a></li>
+        <% } %>
+      </ul>
+      <div class="nav-actions only-desktop">
+        <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+          <a class="btn btn-small admin-nav-btn" href="/admin" title="Admin dashboard">Admin</a>
+        <% } %>
+        <% if (authUser) { %>
+          <span class="auth-user">Hi, <%= authUser.name %></span>
+          <a class="btn btn-outline btn-small" href="/auth/logout">Logout</a>
+        <% } else { %>
+          <a class="btn btn-outline btn-small" href="/login">Login</a>
+          <a class="btn btn-outline btn-small" href="/signup">Signup</a>
+        <% } %>
+      </div>
+      <button class="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme">
+        <span class="theme-icon" aria-hidden="true">
+          <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 14.5a8.5 8.5 0 0 1-11.6-11A9.5 9.5 0 1 0 21 14.5Z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24"><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12Zm0-16a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm0 18a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1ZM3 11h1a1 1 0 1 1 0 2H3a1 1 0 1 1 0-2Zm17 0h1a1 1 0 1 1 0 2h-1a1 1 0 1 1 0-2ZM5.6 4.2a1 1 0 0 1 1.4 0l.7.7a1 1 0 0 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4Zm10.7 10.7a1 1 0 0 1 1.4 0l.7.7a1 1 0 0 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4ZM18.4 4.2a1 1 0 0 1 0 1.4l-.7.7a1 1 0 0 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0ZM7.7 14.9a1 1 0 0 1 0 1.4l-.7.7a1 1 0 1 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0Z"/></svg>
+        </span>
+      </button>
+      <button class="menu-toggle" type="button" aria-label="Toggle navigation">&#8942;</button>
+    </nav>
+  </header>
+

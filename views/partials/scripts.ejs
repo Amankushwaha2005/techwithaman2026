@@ -1,0 +1,40 @@
+  <%- include("whatsapp-float") %>
+  <script src="/main.js"></script>
+  <% if (page && page.key === 'pricing') { %>
+  <script src="/pricing-data.js"></script>
+  <script src="/pricing-page.js"></script>
+  <% } %>
+  <% if (page && page.key === 'home') { %>
+  <script src="/home-data.js"></script>
+  <script src="/home-page.js"></script>
+  <% } %>
+  <% if (page && page.key === 'portfolio') { %>
+  <script src="/portfolio-data.js"></script>
+  <script src="/portfolio-page.js"></script>
+  <% } %>
+
+  <!-- React (CDN) widget: demo + easy to upgrade later -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script>
+    (function () {
+      var mount = document.getElementById("react-widget");
+      if (!mount || (mount.closest && mount.closest(".pricing-main"))) return;
+
+      var e = React.createElement;
+      function Widget(props) {
+        return e(
+          "div",
+          { className: "card", style: { marginTop: "18px" } },
+          e("h3", null, "React Widget"),
+          e("p", null, "Current page: ", props.pageLabel),
+          e("p", null, "This widget is rendered by React.")
+        );
+      }
+
+      ReactDOM.createRoot(mount).render(e(Widget, { pageLabel: mount.getAttribute("data-page") || "Unknown" }));
+    })();
+  </script>
+</body>
+</html>
+

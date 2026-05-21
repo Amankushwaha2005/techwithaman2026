@@ -1,0 +1,37 @@
+{
+  "name": "web-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "grant-admin": "node scripts/grant-admin.js",
+    "sync-pages": "node scripts/sync-html-to-ejs.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": "20,x"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "better-sqlite3": "^12.10.0",
+    "dotenv": "^17.4.2",
+    "ejs": "^5.0.2",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "sqlite3": "^6.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Amankushwaha2005/techwithaman-website.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Amankushwaha2005/techwithaman-website/issues"
+  },
+  "homepage": "https://github.com/Amankushwaha2005/techwithaman-website#readme"
+}

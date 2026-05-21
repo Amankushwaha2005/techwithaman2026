@@ -1,0 +1,77 @@
+<%- include("../partials/head", { page }) %>
+<%- include("../partials/navbar", { navItems, brand, page }) %>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <span class="chip">Work</span>
+        <h1>We are hiring!</h1>
+        <p>Apply to work with <%= brand %></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="work-grid">
+          <div class="work-left">
+            <h2>We are hiring!</h2>
+            <p>
+              We are looking for freelance Developers, Subtitle writers, Content writers, and Video editors.
+              If you think you are fit for the role, submit the form. Make sure you have a valid email so we can
+              contact you in case your application gets selected.
+            </p>
+          </div>
+
+          <div class="work-right">
+            <form class="card work-form" action="/work" method="post">
+              <p class="work-tag">India Only</p>
+              <h3>Apply Now</h3>
+
+              <div class="form-row">
+                <label for="fullName">Full Name</label>
+                <input id="fullName" name="fullName" type="text" placeholder="Full Name" required>
+              </div>
+
+              <div class="form-row">
+                <label for="workEmail">Email</label>
+                <input id="workEmail" name="email" type="email" placeholder="Email" required>
+              </div>
+
+              <div class="form-row">
+                <label for="workPhone">Phone Number</label>
+                <input id="workPhone" name="phone" type="tel" placeholder="Phone Number">
+              </div>
+
+              <div class="form-row">
+                <label for="resume">Link to your Resume</label>
+                <input id="resume" name="resume" type="url" placeholder="https://...">
+              </div>
+
+              <fieldset class="work-skills">
+                <legend>Skill</legend>
+                <label><input type="radio" name="skill" value="Subtitle Writer" required> Subtitle Writer</label>
+                <label><input type="radio" name="skill" value="Content Writer"> Content Writer</label>
+                <label><input type="radio" name="skill" value="Video Editor"> Video Editor</label>
+                <label><input type="radio" name="skill" value="MERN Developer"> MERN Developer</label>
+                <label><input type="radio" name="skill" value="Python Developer"> Python Developer</label>
+                <label><input type="radio" name="skill" value="PHP Developer"> PHP Developer</label>
+                <label><input type="radio" name="skill" value="JavaScript Developer"> JavaScript Developer</label>
+                <label><input type="radio" name="skill" value="Java Developer"> Java Developer</label>
+              </fieldset>
+
+              <label class="captcha-box">
+                <input type="checkbox" required>
+                <span>I'm not a robot</span>
+              </label>
+
+              <button class="btn" type="submit">Submit Application</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<%- include("../partials/footer", { brand, year }) %>
+<%- include("../partials/scripts") %>
+

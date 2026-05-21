@@ -1,0 +1,73 @@
+<%- include("../partials/head", { page }) %>
+<%- include("../partials/navbar", { navItems, brand, page }) %>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <span class="chip">Contact</span>
+        <h1>Let us Build Your Project</h1>
+        <p>Reach out for website, app, logo and student projects.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="contact-grid">
+          <div class="contact-left">
+            <h2>Contact Us</h2>
+            <p>
+              We are available for questions, feedback, or collaboration opportunities.
+              Let us know how we can help!
+            </p>
+            <p class="contact-muted">
+              You can also contact us at:<br>
+              <a class="contact-link" href="mailto:hello@techwithaman.com">hello@techwithaman.com</a>
+            </p>
+
+            <div class="contact-photo">
+              <img
+                src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80"
+                alt="Office team"
+                loading="lazy"
+              >
+            </div>
+          </div>
+
+          <div class="contact-right">
+            <form class="card contact-form" action="/contact" method="post">
+              <div class="form-row">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" placeholder="Your Name" required>
+              </div>
+
+              <div class="form-row">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" placeholder="Email" required>
+              </div>
+
+              <div class="form-row">
+                <label for="phone">Phone Number</label>
+                <input id="phone" name="phone" type="tel" placeholder="Your 10-digit Indian Number">
+              </div>
+
+              <div class="form-row">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" rows="4" placeholder="Type your message here." required></textarea>
+              </div>
+
+              <label class="captcha-box">
+                <input type="checkbox" required>
+                <span>I'm not a robot</span>
+              </label>
+
+              <button class="btn" type="submit">Send Message</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<%- include("../partials/footer", { brand, year }) %>
+<%- include("../partials/scripts") %>
+

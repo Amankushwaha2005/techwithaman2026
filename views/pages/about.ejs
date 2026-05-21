@@ -1,0 +1,41 @@
+<%- include("../partials/head", { page }) %>
+<%- include("../partials/navbar", { navItems, brand, page }) %>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <span class="chip">About</span>
+        <h1>Hi, I am Aman Kushwaha</h1>
+        <p>I help clients and students build impactful digital projects.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="grid two">
+          <article class="card">
+            <h3>My Mission</h3>
+            <p>Quality services dena, real learning provide karna aur students ko career-ready banana.</p>
+          </article>
+          <article class="card">
+            <h3>My Expertise</h3>
+            <p>Frontend development, full website setup, app concepts, logo branding and project mentoring.</p>
+          </article>
+          <article class="card">
+            <h3>Work Style</h3>
+            <p>Clear communication, on-time delivery aur support after delivery.</p>
+          </article>
+          <article class="card">
+            <h3>Why #TechWithAman</h3>
+            <p>Budget-friendly pricing with professional output and practical guidance.</p>
+          </article>
+        </div>
+
+        <div id="react-widget" data-page="About"></div>
+      </div>
+    </section>
+  </main>
+
+<%- include("../partials/footer", { brand, year }) %>
+<%- include("../partials/scripts") %>
+
