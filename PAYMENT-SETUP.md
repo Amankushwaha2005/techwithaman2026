@@ -12,6 +12,13 @@ Clients can **book a package and pay advance** from:
 2. Dashboard → **Settings → API Keys** → generate **Test** keys for local dev
 3. For live site: complete KYC and use **Live** keys
 
+### Localhost (`127.0.0.1`) — important
+
+**Live keys (`rzp_live_`) do NOT accept payments from `127.0.0.1`.** Razorpay blocks them as an unregistered website (you may see “payment failed” on the site even if UPI shows debited — Razorpay reverses failed attempts).
+
+- **Local testing:** use **Test** keys (`rzp_test_`) in `.env`
+- **Real payments:** deploy on your domain (e.g. `https://techwithaman.com`) and add that URL in Razorpay Dashboard → **Account & Settings → Website & app settings**
+
 ## 2. Add keys to `.env`
 
 Copy from `.env.example`:

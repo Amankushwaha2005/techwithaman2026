@@ -184,7 +184,26 @@
       goTo(0);
       startAuto();
 
-      return { goTo, startAuto, stopAuto };
+      function destroy() {
+        stopAuto();
+        window.removeEventListener("resize", onResize);
+      }
+
+      return { goTo, startAuto, stopAuto, destroy };
+    }
+
+    function buildPricingSlidesHtml(ids, perSlide) {
+      const len = ids.length;
+      if (!len) return [];
+      const slides = [];
+      for (let i = 0; i < len; i++) {
+        const parts = [];
+        for (let j = 0; j < perSlide; j++) {
+          parts.push(homeCardHtml(ids[(i + j) % len]));
+        }
+        slides.push(parts.join(""));
+      }
+      return slides;
     }
 
     let mounted = false;
@@ -210,22 +229,39 @@
     }
 
     const planIds = data.pricingPlans || ["starter-plan", "professional-plan", "premium-plan"];
-    if (planIds.length >= 2) {
-      const slides = [];
-      for (let i = 0; i < planIds.length; i++) {
-        const i1 = (i + 1) % planIds.length;
-        slides.push(homeCardHtml(planIds[i]) + homeCardHtml(planIds[i1]));
+    const pricingMq = window.matchMedia("(max-width: 768px)");
+    let pricingCarousel = null;
+
+    function cardsPerPricingSlide() {
+      return pricingMq.matches || planIds.length < 2 ? 1 : 2;
+    }
+
+    function mountPricingCarousel() {
+      const viewport = document.querySelector(".home-pricing-viewport");
+      if (!viewport || planIds.length < 1) return;
+
+      const perSlide = cardsPerPricingSlide();
+      viewport.dataset.cardsPerSlide = String(perSlide);
+
+      if (pricingCarousel && pricingCarousel.destroy) {
+        pricingCarousel.destroy();
       }
-      mountCarousel({
+
+      pricingCarousel = mountCarousel({
         slider: document.getElementById("home-pricing-track"),
-        viewport: document.querySelector(".home-pricing-viewport"),
+        viewport,
         dotsEl: document.getElementById("home-pricing-dots"),
         prevBtn: document.querySelector(".home-pricing-prev"),
         nextBtn: document.querySelector(".home-pricing-next"),
-        slidesHtml: slides,
+        slidesHtml: buildPricingSlidesHtml(planIds, perSlide),
         interval: 4500,
       });
       mounted = true;
+    }
+
+    if (planIds.length >= 1) {
+      mountPricingCarousel();
+      pricingMq.addEventListener("change", mountPricingCarousel);
     }
 
     bindHomeCards(document.getElementById("services"));

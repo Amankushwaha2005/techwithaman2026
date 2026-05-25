@@ -3,6 +3,7 @@ const {
   isPaymentEnabled,
   getRazorpayKeyId,
   getAdvancePercent,
+  isLiveKeyOnLocalhost,
 } = require("../config/payments");
 const paymentsService = require("../services/payments.service");
 
@@ -18,6 +19,7 @@ function renderWithLayout(res, view, page, extra = {}) {
     paymentEnabled: isPaymentEnabled(),
     paymentAdvancePercent: getAdvancePercent(),
     razorpayKeyId: getRazorpayKeyId(),
+    paymentLiveOnLocalhost: isLiveKeyOnLocalhost(),
     ...extra,
   });
 }
@@ -105,7 +107,7 @@ async function createOrder(req, res) {
 async function verifyPayment(req, res) {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body || {};
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    if (!razorpay_order_id || !razorpay_payment_id) {
       return res.status(400).json({ ok: false, error: "Missing payment details." });
     }
 
@@ -127,9 +129,53 @@ async function verifyPayment(req, res) {
   }
 }
 
+async function paymentStatus(req, res) {
+  try {
+    const publicId =
+      typeof req.query.publicId === "string"
+        ? req.query.publicId
+        : typeof req.body?.publicId === "string"
+          ? req.body.publicId
+          : "";
+    if (!publicId) {
+      return res.status(400).json({ ok: false, error: "Order reference required." });
+    }
+
+    const result = await paymentsService.checkOrderPaymentStatus(publicId);
+    return res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error("[payments] status", err);
+    return res.status(500).json({ ok: false, error: err.message || "Could not check payment." });
+  }
+}
+
+async function razorpayWebhook(req, res) {
+  try {
+    const signature = req.get("x-razorpay-signature") || "";
+    const rawBody = req.body;
+
+    if (!Buffer.isBuffer(rawBody)) {
+      return res.status(400).json({ ok: false, error: "Invalid webhook body." });
+    }
+
+    if (!paymentsService.verifyWebhookSignature(rawBody, signature)) {
+      return res.status(401).json({ ok: false, error: "Invalid webhook signature." });
+    }
+
+    const payload = JSON.parse(rawBody.toString("utf8"));
+    await paymentsService.handleWebhookEvent(payload);
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("[payments] webhook", err);
+    return res.status(500).json({ ok: false });
+  }
+}
+
 module.exports = {
   showOrder,
   showOrderSuccess,
   createOrder,
   verifyPayment,
+  paymentStatus,
+  razorpayWebhook,
 };

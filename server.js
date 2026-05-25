@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+const { isLiveKeyOnLocalhost } = require("./src/config/payments");
+
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || "0.0.0.0";
 
@@ -35,6 +37,12 @@ app
         "[admin] Preview browser stuck? Open: http://localhost:" +
           PORT +
           "/admin/connect?secret=… (see ADMIN_BOOTSTRAP_SECRET in .env)",
+      );
+    }
+    if (isLiveKeyOnLocalhost()) {
+      console.log(
+        "[payments] WARNING: Live Razorpay keys on localhost — UPI/card payments will FAIL.\n" +
+          "           Use rzp_test_ keys in .env for local testing, or deploy + register domain.",
       );
     }
   })

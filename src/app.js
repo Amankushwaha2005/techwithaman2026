@@ -10,8 +10,14 @@ const authRoutes = require("./routes/auth.routes");
 const formsRoutes = require("./routes/forms.routes");
 const aiRoutes = require("./routes/ai.routes");
 const paymentsRoutes = require("./routes/payments.routes");
+const paymentsController = require("./controllers/payments.controller");
 const { mountAdminRoutes } = require("./routes/admin.routes");
-const { isPaymentEnabled, getAdvancePercent, getRazorpayKeyId } = require("./config/payments");
+const {
+  isPaymentEnabled,
+  getAdvancePercent,
+  getRazorpayKeyId,
+  isLiveKeyOnLocalhost,
+} = require("./config/payments");
 
 function createApp() {
   const app = express();
@@ -66,6 +72,13 @@ function createApp() {
     }),
   );
 
+  // Razorpay webhook needs raw body for signature verification (before JSON parser).
+  app.post(
+    "/api/payments/webhook",
+    express.raw({ type: "application/json" }),
+    paymentsController.razorpayWebhook,
+  );
+
   // Parse form submissions (x-www-form-urlencoded) and JSON (if you later add APIs).
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
@@ -79,6 +92,7 @@ function createApp() {
     res.locals.paymentEnabled = isPaymentEnabled();
     res.locals.paymentAdvancePercent = getAdvancePercent();
     res.locals.razorpayKeyId = getRazorpayKeyId();
+    res.locals.paymentLiveOnLocalhost = isLiveKeyOnLocalhost();
     next();
   });
 

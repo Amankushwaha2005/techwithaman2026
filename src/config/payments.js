@@ -22,10 +22,37 @@ function computeAdvanceInr(totalInr, percent = getAdvancePercent()) {
   return Math.max(1, Math.round((total * percent) / 100));
 }
 
+function isLiveRazorpayKey() {
+  return getRazorpayKeyId().startsWith("rzp_live_");
+}
+
+function isLocalPaymentHost() {
+  const base = (process.env.BASE_URL || "").toLowerCase();
+  return (
+    !base ||
+    base.includes("localhost") ||
+    base.includes("127.0.0.1") ||
+    base.includes("0.0.0.0")
+  );
+}
+
+/** Live keys on localhost are blocked by Razorpay (unregistered domain). */
+function isLiveKeyOnLocalhost() {
+  return isPaymentEnabled() && isLiveRazorpayKey() && isLocalPaymentHost();
+}
+
+function getWebhookSecret() {
+  return (process.env.RAZORPAY_WEBHOOK_SECRET || "").trim();
+}
+
 module.exports = {
   getRazorpayKeyId,
   getRazorpayKeySecret,
   isPaymentEnabled,
   getAdvancePercent,
   computeAdvanceInr,
+  isLiveRazorpayKey,
+  isLocalPaymentHost,
+  isLiveKeyOnLocalhost,
+  getWebhookSecret,
 };

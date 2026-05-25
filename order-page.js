@@ -26,6 +26,10 @@
 
   let checkoutData = null;
   let lastPublicId = "";
+  let pollTimer = null;
+  const liveOnLocal =
+    form.dataset.liveOnLocal === "1" ||
+    /localhost|127\.0\.0\.1/.test(window.location.hostname);
 
   function formatInr(n) {
     return "₹" + Number(n).toLocaleString("en-IN");
@@ -117,7 +121,6 @@
 
   function showPaymentPanel(publicId, advanceInr) {
     lastPublicId = publicId || "";
-    checkoutData = null;
     if (publicIdEl) publicIdEl.textContent = lastPublicId || "—";
     if (panelAmount) panelAmount.textContent = formatInr(advanceInr);
     if (paymentPanel) {
@@ -128,9 +131,67 @@
   }
 
   function hidePaymentPanel() {
+    stopPaymentPoll();
     if (paymentPanel) paymentPanel.hidden = true;
     if (payBtn) payBtn.hidden = false;
     checkoutData = null;
+  }
+
+  function stopPaymentPoll() {
+    if (pollTimer) {
+      window.clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  }
+
+  function paymentFailedMessage(resp) {
+    const desc = (resp && resp.error && resp.error.description) || "";
+    const reason = (resp && resp.error && resp.error.reason) || "";
+    const combined = (desc + " " + reason).toLowerCase();
+    if (
+      combined.includes("not registered") ||
+      combined.includes("127.0.0.1") ||
+      combined.includes("localhost") ||
+      combined.includes("un-registered")
+    ) {
+      return (
+        "Payment blocked: live Razorpay keys do not work on localhost (127.0.0.1). " +
+        "Use Test keys in .env for local testing, or pay on your live website after adding the domain in Razorpay Dashboard."
+      );
+    }
+    if (liveOnLocal) {
+      return (
+        "Payment may fail on localhost with live keys. Use Razorpay Test keys in .env, " +
+        "or deploy your site and register the domain in Razorpay. WhatsApp: +91 95282 52099"
+      );
+    }
+    return desc || "Payment failed. Try again or use WhatsApp.";
+  }
+
+  function startPaymentPoll(publicId) {
+    if (!publicId || pollTimer) return;
+    let attempts = 0;
+    const maxAttempts = 40;
+
+    pollTimer = window.setInterval(function () {
+      attempts += 1;
+      if (attempts > maxAttempts) {
+        stopPaymentPoll();
+        return;
+      }
+
+      fetch("/api/payments/status?publicId=" + encodeURIComponent(publicId))
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (body) {
+          if (body.ok && body.status === "paid" && body.redirectUrl) {
+            stopPaymentPoll();
+            window.location.href = body.redirectUrl;
+          }
+        })
+        .catch(function () {});
+    }, 3000);
   }
 
   function loadRazorpayScript() {
@@ -157,6 +218,17 @@
       order_id: data.razorpayOrderId,
       prefill: data.customer,
       theme: { color: "#2f6efb" },
+      config: {
+        display: {
+          preferences: { show_default_blocks: true },
+        },
+      },
+      method: {
+        upi: true,
+        card: true,
+        netbanking: true,
+        wallet: true,
+      },
       handler: function (response) {
         fetch("/api/payments/verify", {
           method: "POST",
@@ -176,26 +248,32 @@
             if (!res.ok || !res.body.ok) {
               throw new Error(res.body.error || "Verification failed.");
             }
+            stopPaymentPoll();
             window.location.href = res.body.redirectUrl;
           })
           .catch(function (e) {
-            showError(e.message || "Payment verification failed. Contact us on WhatsApp.");
+            showError(
+              (e.message || "Verification failed.") +
+                " If money was deducted, wait a moment — we are checking payment status.",
+            );
+            if (lastPublicId) startPaymentPoll(lastPublicId);
             if (razorpayBtn) razorpayBtn.disabled = false;
           });
       },
       modal: {
         ondismiss: function () {
           if (razorpayBtn) razorpayBtn.disabled = false;
+          if (lastPublicId) startPaymentPoll(lastPublicId);
         },
       },
     };
     const rzp = new window.Razorpay(options);
     rzp.on("payment.failed", function (resp) {
-      showError(
-        (resp.error && resp.error.description) || "Payment failed. Try again or use WhatsApp.",
-      );
+      showError(paymentFailedMessage(resp));
+      if (lastPublicId) startPaymentPoll(lastPublicId);
       if (razorpayBtn) razorpayBtn.disabled = false;
     });
+    if (lastPublicId) startPaymentPoll(lastPublicId);
     rzp.open();
   }
 
@@ -238,8 +316,13 @@
         }
 
         if (res.ok && res.body.ok && paymentEnabled && res.body.razorpayOrderId) {
-          checkoutData = res.body;
           showPaymentPanel(publicId, advanceInr || advance);
+          checkoutData = res.body;
+          if (liveOnLocal) {
+            showError(
+              "Tip: Live Razorpay on localhost often fails. Use Test keys in .env for local UPI/card tests.",
+            );
+          }
           return;
         }
 

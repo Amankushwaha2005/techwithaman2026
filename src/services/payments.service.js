@@ -134,15 +134,98 @@ function completePayment({ razorpay_order_id, razorpay_payment_id, razorpay_sign
     return { order, alreadyPaid: true };
   }
 
-  const ok = verifyRazorpaySignature(
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature,
-  );
-  if (!ok) throw new Error("Payment verification failed.");
+  if (razorpay_signature) {
+    const ok = verifyRazorpaySignature(
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    );
+    if (!ok) throw new Error("Payment verification failed.");
+  }
 
   const paid = markOrderPaid(order.id, razorpay_payment_id);
   return { order: paid, alreadyPaid: false };
+}
+
+async function syncCapturedPaymentForOrder(razorpayOrderId) {
+  const razorpay = getRazorpayClient();
+  if (!razorpay) return null;
+
+  const order = getOrderByRazorpayOrderId(razorpayOrderId);
+  if (!order) return null;
+  if (order.status === "paid") return order;
+
+  const expectedPaise = order.amount_inr * 100;
+  const list = await razorpay.orders.fetchPayments(razorpayOrderId);
+  const items = list?.items || [];
+
+  const captured = items.find(
+    (p) =>
+      (p.status === "captured" || p.status === "authorized") &&
+      Number(p.amount) === expectedPaise,
+  );
+  if (!captured) return null;
+
+  return markOrderPaid(order.id, captured.id);
+}
+
+async function checkOrderPaymentStatus(publicId) {
+  const order = getOrderByPublicId(publicId);
+  if (!order) {
+    return { status: "not_found" };
+  }
+  if (order.status === "paid") {
+    return {
+      status: "paid",
+      publicId: order.public_id,
+      redirectUrl: `/order/success?id=${encodeURIComponent(order.public_id)}`,
+    };
+  }
+  if (!order.razorpay_order_id || !isPaymentEnabled()) {
+    return { status: "pending", publicId: order.public_id };
+  }
+
+  try {
+    const synced = await syncCapturedPaymentForOrder(order.razorpay_order_id);
+    if (synced && synced.status === "paid") {
+      return {
+        status: "paid",
+        publicId: synced.public_id,
+        redirectUrl: `/order/success?id=${encodeURIComponent(synced.public_id)}`,
+      };
+    }
+  } catch (err) {
+    console.error("[payments] sync status", err.message);
+  }
+
+  return { status: "pending", publicId: order.public_id };
+}
+
+function verifyWebhookSignature(rawBody, signature) {
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET?.trim();
+  if (!secret || !signature) return false;
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(rawBody)
+    .digest("hex");
+  return expected === signature;
+}
+
+async function handleWebhookEvent(payload) {
+  const event = payload?.event;
+  const entity =
+    payload?.payload?.payment?.entity || payload?.payload?.order?.entity;
+
+  if (!entity) return { handled: false };
+
+  if (event === "payment.captured" || event === "payment.authorized") {
+    const razorpayOrderId = entity.order_id;
+    if (!razorpayOrderId) return { handled: false };
+    const order = await syncCapturedPaymentForOrder(razorpayOrderId);
+    return { handled: !!order, order };
+  }
+
+  return { handled: false };
 }
 
 module.exports = {
@@ -151,4 +234,8 @@ module.exports = {
   getOrderByPublicId,
   computeAdvanceInr,
   getAdvancePercent,
+  syncCapturedPaymentForOrder,
+  checkOrderPaymentStatus,
+  verifyWebhookSignature,
+  handleWebhookEvent,
 };

@@ -61,6 +61,13 @@
               <code>.env</code> to enable card/UPI checkout here. WhatsApp pay works now.
             </p>
           <% } %>
+          <% if (paymentLiveOnLocalhost) { %>
+            <p class="order-setup-hint order-setup-hint--warn">
+              <strong>Local testing:</strong> Live Razorpay keys block payments on
+              <code>127.0.0.1</code>. Use <strong>Test keys</strong> in <code>.env</code> for localhost,
+              or deploy on your real domain and add it in Razorpay Dashboard → Website settings.
+            </p>
+          <% } %>
         </aside>
 
         <div class="order-main">
@@ -69,6 +76,7 @@
             id="order-form"
             novalidate
             data-payment-enabled="<%= paymentEnabled ? "1" : "0" %>"
+            data-live-on-local="<%= paymentLiveOnLocalhost ? "1" : "0" %>"
             data-razorpay-key="<%= razorpayKeyId %>"
             data-advance-percent="<%= paymentAdvancePercent %>"
           >
