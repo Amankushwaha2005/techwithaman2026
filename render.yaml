@@ -1,0 +1,20 @@
+# Render Blueprint — connect repo at https://dashboard.render.com/blueprints
+# Repo: https://github.com/Amankushwaha2005/techwithaman-website
+
+services:
+  - type: web
+    name: techwithaman-website
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install && npm rebuild better-sqlite3
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PAYMENT_ADVANCE_PERCENT
+        value: "50"

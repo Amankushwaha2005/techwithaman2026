@@ -15,6 +15,11 @@ const { isPaymentEnabled, getAdvancePercent, getRazorpayKeyId } = require("./con
 
 function createApp() {
   const app = express();
+  const isProduction = process.env.NODE_ENV === "production";
+
+  if (isProduction) {
+    app.set("trust proxy", 1);
+  }
 
   const projectRoot = path.join(__dirname, "..");
 
@@ -56,7 +61,7 @@ function createApp() {
       cookie: {
         httpOnly: true,
         sameSite: "lax",
-        secure: false,
+        secure: isProduction,
       },
     }),
   );
