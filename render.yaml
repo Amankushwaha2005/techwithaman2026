@@ -23,3 +23,8 @@ services:
       # Set after first deploy — Dashboard → Environment (use your real onrender.com URL)
       - key: BASE_URL
         value: https://techwithaman-website.onrender.com
+      # REQUIRED for Razorpay — set in Render Dashboard → Environment (never commit secrets)
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
