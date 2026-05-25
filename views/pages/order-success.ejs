@@ -15,13 +15,34 @@
               <div><dt>Package</dt><dd><%= order.plan %></dd></div>
               <div><dt>Paid (advance)</dt><dd>₹<%= order.amount_inr.toLocaleString("en-IN") %></dd></div>
               <div><dt>Package total</dt><dd>₹<%= order.total_inr.toLocaleString("en-IN") %></dd></div>
+              <% if (receipt) { %>
+              <div><dt>Payment date</dt><dd><%= receipt.paymentDate %></dd></div>
+              <div><dt>Gateway</dt><dd><%= receipt.gateway %></dd></div>
+              <% if (receipt.paymentId && receipt.paymentId !== '—') { %>
+              <div><dt>Payment ID</dt><dd><code><%= receipt.paymentId %></code></dd></div>
+              <% } %>
+              <% } %>
             </dl>
           <% } else { %>
             <h1>Order not found</h1>
             <p>If you just paid, wait a moment and refresh — or contact us on WhatsApp with your payment screenshot.</p>
           <% } %>
           <div class="order-success-actions">
-            <a class="btn" href="/">Back to home</a>
+            <% if (order && order.status === 'paid') { %>
+            <a
+              class="btn"
+              href="/order/receipt?id=<%= encodeURIComponent(order.public_id) %>&print=1"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Download receipt</a>
+            <a
+              class="btn btn-outline"
+              href="/order/receipt?id=<%= encodeURIComponent(order.public_id) %>"
+              target="_blank"
+              rel="noopener noreferrer"
+            >View receipt</a>
+            <% } %>
+            <a class="btn btn-outline" href="/">Back to home</a>
             <a class="btn btn-outline" href="/pricing">View pricing</a>
           </div>
         </article>

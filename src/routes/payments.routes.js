@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get("/order", paymentsController.showOrder);
 router.get("/order/success", paymentsController.showOrderSuccess);
+router.get("/order/receipt", paymentsController.showOrderReceipt);
 router.post("/api/payments/create-order", paymentsController.createOrder);
 router.post("/api/payments/verify", paymentsController.verifyPayment);
 router.get("/api/payments/status", paymentsController.paymentStatus);

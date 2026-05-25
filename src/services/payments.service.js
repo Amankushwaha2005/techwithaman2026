@@ -41,6 +41,56 @@ function getOrderByPublicId(publicId) {
   return db.prepare(`SELECT * FROM orders WHERE public_id = ?`).get(publicId);
 }
 
+function formatReceiptDate(value) {
+  if (!value) {
+    return new Date().toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
+  const normalized = String(value).includes("T") ? value : String(value).replace(" ", "T");
+  const d = new Date(normalized);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+function buildReceiptData(order) {
+  if (!order) return null;
+  const gateway = order.razorpay_payment_id ? "Razorpay" : "Manual / WhatsApp";
+  const paymentId = order.razorpay_payment_id || "—";
+  const transactionNo = order.razorpay_payment_id || order.public_id;
+
+  return {
+    payeeName: order.name,
+    status: order.status === "paid" ? "Success" : order.status,
+    paymentDate: formatReceiptDate(order.paid_at || order.created_at),
+    transactionNo,
+    gateway,
+    paymentId,
+    amountInr: order.amount_inr,
+    amountFormatted: `₹${Number(order.amount_inr).toLocaleString("en-IN")}`,
+    orderId: order.public_id,
+    service: order.service,
+    plan: order.plan,
+    email: order.email,
+    phone: order.phone || "—",
+    totalInr: order.total_inr,
+    totalFormatted: `₹${Number(order.total_inr).toLocaleString("en-IN")}`,
+    receiptTitle: "PAYMENT RECEIPT",
+  };
+}
+
 function getOrderByRazorpayOrderId(razorpayOrderId) {
   return db.prepare(`SELECT * FROM orders WHERE razorpay_order_id = ?`).get(razorpayOrderId);
 }
@@ -232,6 +282,7 @@ module.exports = {
   createPaymentOrder,
   completePayment,
   getOrderByPublicId,
+  buildReceiptData,
   computeAdvanceInr,
   getAdvancePercent,
   syncCapturedPaymentForOrder,

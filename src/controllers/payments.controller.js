@@ -1,4 +1,4 @@
-const { brand, navItems } = require("../config/site");
+const { brand, navItems, company } = require("../config/site");
 const {
   isPaymentEnabled,
   getRazorpayKeyId,
@@ -45,13 +45,36 @@ function showOrder(req, res) {
 function showOrderSuccess(req, res) {
   const id = typeof req.query.id === "string" ? req.query.id : "";
   const order = id ? paymentsService.getOrderByPublicId(id) : null;
+  const receipt = order && order.status === "paid" ? paymentsService.buildReceiptData(order) : null;
 
   renderWithLayout(
     res,
     "pages/order-success",
     { key: "order-success", title: "Order Confirmed | #TechWithAman" },
-    { order },
+    { order, receipt },
   );
+}
+
+function showOrderReceipt(req, res) {
+  const id = typeof req.query.id === "string" ? req.query.id : "";
+  const order = id ? paymentsService.getOrderByPublicId(id) : null;
+
+  if (!order || order.status !== "paid") {
+    return res.status(404).send("Receipt not found. Complete payment first or check your order ID.");
+  }
+
+  const receipt = paymentsService.buildReceiptData(order);
+  const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
+
+  res.render("pages/order-receipt", {
+    page: { title: `Receipt ${order.public_id} | ${brand}` },
+    company,
+    receipt,
+    order,
+    brand,
+    year: new Date().getFullYear(),
+    baseUrl,
+  });
 }
 
 async function createOrder(req, res) {
@@ -174,6 +197,7 @@ async function razorpayWebhook(req, res) {
 module.exports = {
   showOrder,
   showOrderSuccess,
+  showOrderReceipt,
   createOrder,
   verifyPayment,
   paymentStatus,
