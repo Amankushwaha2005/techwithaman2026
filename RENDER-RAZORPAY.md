@@ -18,13 +18,29 @@ GitHub **does not** include `.env`. You must add keys manually:
 
 3. **Save Changes** → Render will **redeploy** automatically.
 
-## 2. Deploy latest code
+## 2. Deploy latest code (important)
 
-After pushing to GitHub:
+Render is often still running **old code** even after GitHub push.
 
-- **Manual Deploy** → **Deploy latest commit**
-- Check **Logs** for `Server running`
-- Open `https://YOUR-SERVICE.onrender.com/order` — should **not** be 404
+1. **Settings** → **Build & Deploy** → confirm:
+   - Branch: `main`
+   - Build: `npm install && npm rebuild better-sqlite3`
+   - Start: `npm start`
+2. **Manual Deploy** → **Clear build cache & deploy**
+3. **Logs** → wait for **Build succeeded** + `Server running`
+4. Test in browser:
+
+   `https://YOUR-SERVICE.onrender.com/api/site-info`
+
+   You must see JSON like:
+
+   ```json
+   { "version": "payments-v2", "paymentEnabled": true, "hasRazorpayKey": true }
+   ```
+
+   - If **404** → old deploy still live; repeat step 2  
+   - If `paymentEnabled: false` → add Razorpay env vars (step 1)  
+5. Open `/order` — must **not** be 404
 
 ## 3. Razorpay Dashboard
 

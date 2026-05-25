@@ -58,6 +58,17 @@ function createApp() {
   app.get("/health", sendHealth);
   app.get("/health/", sendHealth);
 
+  app.get("/api/site-info", (req, res) => {
+    res.json({
+      site: "techwithaman-website",
+      version: "payments-v2",
+      paymentEnabled: isPaymentEnabled(),
+      hasRazorpayKey: !!getRazorpayKeyId(),
+      advancePercent: getAdvancePercent(),
+      baseUrl: process.env.BASE_URL || null,
+    });
+  });
+
   app.use(
     session({
       name: "techwithaman.sid",
