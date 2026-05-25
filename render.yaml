@@ -12,9 +12,14 @@ services:
     healthCheckPath: /health
     autoDeploy: true
     envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
       - key: NODE_ENV
         value: production
       - key: SESSION_SECRET
         generateValue: true
       - key: PAYMENT_ADVANCE_PERCENT
         value: "50"
+      # Set after first deploy — Dashboard → Environment (use your real onrender.com URL)
+      - key: BASE_URL
+        value: https://techwithaman-website.onrender.com

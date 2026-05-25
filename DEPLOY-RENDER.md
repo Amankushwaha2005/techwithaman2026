@@ -2,6 +2,38 @@
 
 Live URL example: `https://techwithaman-website.onrender.com`
 
+## Fix: "Suspended by you" / site nahi khul rahi
+
+Render par ye message **matlab service band (suspend) hai** — aksar galti se **Suspend** dabne se ya purani paused service resume ke baad.
+
+### Step A — Resume (sabse pehle)
+
+1. https://dashboard.render.com → apni service **`techwithaman-website`** kholo  
+2. Upar status **Suspended** dikhe to → **Resume** (ya **Resume service**) dabao  
+3. 1–2 min wait → **Manual Deploy** → **Deploy latest commit**  
+4. **Logs** tab → build **Succeeded** aur start mein `Server running` dikhe  
+
+### Step B — Agar Resume ka button nahi hai
+
+1. **Settings** → scroll → **Delete Web Service** (sirf Render wali copy delete)  
+2. **New +** → **Web Service** (Blueprint dubara)  
+3. Repo: `techwithaman-website`, branch `main`  
+4. Build: `npm install && npm rebuild better-sqlite3`  
+5. Start: `npm start`  
+6. Health check: `/health`  
+
+### Step C — Build fail ho to Logs dekho
+
+Common fixes:
+
+- **better-sqlite3 error** → Build command mein `npm rebuild better-sqlite3` hona chahiye  
+- **Port** → Start command `npm start` (Render `PORT` khud deta hai)  
+- **Env** → `BASE_URL` = `https://YOUR-NAME.onrender.com` (apna exact URL)  
+
+### Step D — Free plan limit
+
+Free par **limited web services**. Purani unused services **Suspend/Delete** karo, phir nayi deploy karo.
+
 ## 1) Push code (already on GitHub)
 
 Repo: **https://github.com/Amankushwaha2005/techwithaman-website**
