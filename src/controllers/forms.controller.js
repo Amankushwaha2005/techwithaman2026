@@ -41,5 +41,18 @@ function work(req, res) {
   res.redirect("/work?sent=1");
 }
 
-module.exports = { contact, work };
+function chatbotMessage(req, res) {
+  const msg = String(req.body?.message || "").trim();
+  if (!msg) {
+    return res.status(400).json({ ok: false, error: "Message is required." });
+  }
+
+  const pageUrl = String(req.body?.page || req.get("referer") || "").trim().slice(0, 500) || null;
+
+  db.prepare(`INSERT INTO chat_messages (message, page_url) VALUES (?, ?)`).run(msg, pageUrl);
+
+  return res.json({ ok: true });
+}
+
+module.exports = { contact, work, chatbotMessage };
 

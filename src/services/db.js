@@ -68,6 +68,40 @@ function migrate(db) {
     CREATE INDEX IF NOT EXISTS idx_contact_status ON contact_submissions(status);
     CREATE INDEX IF NOT EXISTS idx_work_created ON work_submissions(created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_work_status ON work_submissions(status);
+
+    CREATE TABLE IF NOT EXISTS chat_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      message TEXT NOT NULL,
+      page_url TEXT,
+      status TEXT NOT NULL DEFAULT 'new',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_chat_created ON chat_messages(created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_chat_status ON chat_messages(status);
+
+    CREATE TABLE IF NOT EXISTS orders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      public_id TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT,
+      service TEXT NOT NULL,
+      plan TEXT NOT NULL,
+      notes TEXT,
+      total_inr INTEGER NOT NULL,
+      amount_inr INTEGER NOT NULL,
+      advance_percent INTEGER NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      razorpay_order_id TEXT,
+      razorpay_payment_id TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      paid_at TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+    CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_orders_razorpay ON orders(razorpay_order_id);
   `);
 }
 

@@ -1,3 +1,15 @@
-node_modules 
-.env 
-.env 
+node_modules/
+.env
+.env.local
+.env.*.local
+
+# Local SQLite databases (do not upload)
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+data/*.sqlite3
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

@@ -8,7 +8,10 @@ const { isAdminUser } = require("./config/admin");
 const pagesRoutes = require("./routes/pages.routes");
 const authRoutes = require("./routes/auth.routes");
 const formsRoutes = require("./routes/forms.routes");
+const aiRoutes = require("./routes/ai.routes");
+const paymentsRoutes = require("./routes/payments.routes");
 const { mountAdminRoutes } = require("./routes/admin.routes");
+const { isPaymentEnabled, getAdvancePercent, getRazorpayKeyId } = require("./config/payments");
 
 function createApp() {
   const app = express();
@@ -66,6 +69,11 @@ function createApp() {
     res.locals.googleLoginEnabled = !!(
       process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
     );
+    res.locals.aiChatEnabled = true;
+    res.locals.aiOpenAiConfigured = !!process.env.OPENAI_API_KEY?.trim();
+    res.locals.paymentEnabled = isPaymentEnabled();
+    res.locals.paymentAdvancePercent = getAdvancePercent();
+    res.locals.razorpayKeyId = getRazorpayKeyId();
     next();
   });
 
@@ -96,6 +104,8 @@ function createApp() {
   app.use("/", pagesRoutes);
   app.use("/", authRoutes);
   app.use("/", formsRoutes);
+  app.use("/", paymentsRoutes);
+  app.use("/", aiRoutes);
 
   // Static files after routes so /admin and other app paths are never shadowed by disk.
   app.use(express.static(projectRoot));

@@ -1,3 +1,6 @@
 {
-    "liveServer.settings.port": 5502
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "files.exclude": {
+    "**/node_modules": true
+  }
 }

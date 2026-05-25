@@ -53,6 +53,8 @@ function dashboard(req, res) {
     work: db.prepare("SELECT COUNT(*) AS n FROM work_submissions").get().n,
     contactsNew: db.prepare(`SELECT COUNT(*) AS n FROM contact_submissions WHERE status = 'new'`).get().n,
     workNew: db.prepare(`SELECT COUNT(*) AS n FROM work_submissions WHERE status = 'new'`).get().n,
+    chats: db.prepare("SELECT COUNT(*) AS n FROM chat_messages").get().n,
+    chatsNew: db.prepare(`SELECT COUNT(*) AS n FROM chat_messages WHERE status = 'new'`).get().n,
   };
 
   const { chartLabels, contactSeries, workSeries } = buildChartSeries();
@@ -62,6 +64,9 @@ function dashboard(req, res) {
     .all();
   const recentWork = db
     .prepare(`SELECT * FROM work_submissions ORDER BY datetime(created_at) DESC, id DESC LIMIT 40`)
+    .all();
+  const recentChat = db
+    .prepare(`SELECT * FROM chat_messages ORDER BY datetime(created_at) DESC, id DESC LIMIT 50`)
     .all();
   const users = db
     .prepare(
@@ -78,6 +83,7 @@ function dashboard(req, res) {
     stats,
     recentContact,
     recentWork,
+    recentChat,
     users,
     chartLabels,
     chartSeries: { contact: contactSeries, work: workSeries },
@@ -122,6 +128,23 @@ function deleteWork(req, res) {
   return res.redirect("/admin#inbox-work");
 }
 
+function updateChatStatus(req, res) {
+  const id = Number(req.params.id);
+  const status = String(req.body.status || "");
+  if (!Number.isInteger(id) || !STATUSES.includes(status)) {
+    return res.redirect("/admin?err=invalid");
+  }
+  db.prepare(`UPDATE chat_messages SET status = ? WHERE id = ?`).run(status, id);
+  return res.redirect("/admin#inbox-chat");
+}
+
+function deleteChat(req, res) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.redirect("/admin?err=invalid");
+  db.prepare(`DELETE FROM chat_messages WHERE id = ?`).run(id);
+  return res.redirect("/admin#inbox-chat");
+}
+
 function setUserRole(req, res) {
   const id = Number(req.params.id);
   const role = String(req.body.role || "");
@@ -141,5 +164,7 @@ module.exports = {
   updateWorkStatus,
   deleteContact,
   deleteWork,
+  updateChatStatus,
+  deleteChat,
   setUserRole,
 };

@@ -6,15 +6,18 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "fix:sqlite": "npm rebuild better-sqlite3",
+    "postinstall": "npm rebuild better-sqlite3",
     "grant-admin": "node scripts/grant-admin.js",
     "sync-pages": "node scripts/sync-html-to-ejs.js",
+    "download-tech-icons": "node scripts/download-tech-icons.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "engines": {
-    "node": "20,x"
+    "node": ">=20"
   },
   "type": "commonjs",
   "dependencies": {
@@ -24,6 +27,7 @@
     "ejs": "^5.0.2",
     "express": "^5.2.1",
     "express-session": "^1.18.2",
+    "razorpay": "^2.9.6",
     "sqlite3": "^6.0.1"
   },
   "repository": {

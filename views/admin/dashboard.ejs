@@ -19,6 +19,7 @@
         <a href="#overview">Overview</a>
         <a href="#activity">Activity chart</a>
         <a href="#inbox-contact">Contact inbox</a>
+        <a href="#inbox-chat">Chatbot messages</a>
         <a href="#inbox-work">Work applications</a>
         <a href="#users">Users</a>
       </nav>
@@ -77,9 +78,14 @@
               <strong class="admin-kpi-value"><%= stats.work %></strong>
               <span class="admin-kpi-meta admin-kpi-warn"><%= stats.workNew %> new</span>
             </article>
+            <article class="admin-kpi">
+              <span class="admin-kpi-label">Chatbot messages</span>
+              <strong class="admin-kpi-value"><%= stats.chats %></strong>
+              <span class="admin-kpi-meta admin-kpi-warn"><%= stats.chatsNew %> new</span>
+            </article>
             <article class="admin-kpi admin-kpi-accent">
               <span class="admin-kpi-label">Pipeline</span>
-              <strong class="admin-kpi-value"><%= stats.contactsNew + stats.workNew %></strong>
+              <strong class="admin-kpi-value"><%= stats.contactsNew + stats.workNew + stats.chatsNew %></strong>
               <span class="admin-kpi-meta">Open items</span>
             </article>
           </div>
@@ -133,6 +139,52 @@
                 <% }) %>
                 <% if (!recentContact.length) { %>
                   <tr><td colspan="7" class="admin-empty">No contact messages yet.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="admin-section" id="inbox-chat">
+          <h2 class="admin-h2">Chatbot messages (website WhatsApp button)</h2>
+          <p class="admin-sub" style="margin: -8px 0 16px;">Yahan website chat se aaye messages dikhenge. WhatsApp par tab dikhega jab user neeche link se WhatsApp khol kar Send dabaye.</p>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>When</th>
+                  <th>Status</th>
+                  <th>Message</th>
+                  <th>Page</th>
+                  <th class="admin-th-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentChat.forEach((row) => { %>
+                  <tr>
+                    <td><%= row.id %></td>
+                    <td class="admin-nowrap"><%= row.created_at %></td>
+                    <td><span class="admin-pill admin-pill-<%= row.status %>"><%= row.status %></span></td>
+                    <td class="admin-cell-msg"><%= row.message %></td>
+                    <td class="admin-cell-msg"><%= row.page_url ? row.page_url : "—" %></td>
+                    <td class="admin-actions">
+                      <form method="post" action="/admin/submissions/chat/<%= row.id %>/status" class="admin-inline-form">
+                        <select name="status" class="admin-select" aria-label="Status for chat <%= row.id %>">
+                          <option value="new" <%= row.status === 'new' ? 'selected' : '' %>>new</option>
+                          <option value="read" <%= row.status === 'read' ? 'selected' : '' %>>read</option>
+                          <option value="archived" <%= row.status === 'archived' ? 'selected' : '' %>>archived</option>
+                        </select>
+                        <button type="submit" class="btn btn-small">Save</button>
+                      </form>
+                      <form method="post" action="/admin/submissions/chat/<%= row.id %>/delete" class="admin-inline-form" onsubmit="return confirm('Delete this chat message?');">
+                        <button type="submit" class="btn btn-small btn-danger-outline">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+                <% if (!recentChat.length) { %>
+                  <tr><td colspan="6" class="admin-empty">No chatbot messages yet. Test: open home page → WhatsApp icon → type a message.</td></tr>
                 <% } %>
               </tbody>
             </table>
@@ -242,6 +294,7 @@
 
   <%- include("../partials/whatsapp-float") %>
   <script src="/main.js"></script>
+  <script src="/whatsapp-float.js"></script>
   <script>
     (function () {
       var el = document.getElementById("adminChart");

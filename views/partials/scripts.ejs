@@ -1,8 +1,16 @@
   <%- include("whatsapp-float") %>
+  <%- include("ai-chat") %>
   <script src="/main.js"></script>
+  <script src="/whatsapp-float.js"></script>
+  <script src="/ai-chat.js"></script>
   <% if (page && page.key === 'pricing') { %>
+  <script>window.PAYMENT_ADVANCE_PERCENT = <%= typeof paymentAdvancePercent !== 'undefined' ? paymentAdvancePercent : 50 %>;</script>
   <script src="/pricing-data.js"></script>
   <script src="/pricing-page.js"></script>
+  <% } %>
+  <% if (page && page.key === 'order') { %>
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+  <script src="/order-page.js" defer></script>
   <% } %>
   <% if (page && page.key === 'home') { %>
   <script src="/home-data.js"></script>

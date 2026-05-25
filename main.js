@@ -34,9 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
       words = [];
     }
 
-    const typeSpeed = Number(typewriterEl.getAttribute("data-type-speed")) || 70;
-    const deleteSpeed = Number(typewriterEl.getAttribute("data-delete-speed")) || 40;
-    const pauseMs = Number(typewriterEl.getAttribute("data-pause")) || 1200;
+    const typeSpeed = Number(typewriterEl.getAttribute("data-type-speed")) || 38;
+    const deleteSpeed = Number(typewriterEl.getAttribute("data-delete-speed")) || 18;
+    const pauseMs = Number(typewriterEl.getAttribute("data-pause")) || 2000;
 
     let wordIndex = 0;
     let charIndex = 0;
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isDeleting && charIndex === 0) {
         isDeleting = false;
         wordIndex += 1;
-        timerId = setTimeout(tick, 350);
+        timerId = setTimeout(tick, 80);
         return;
       }
 

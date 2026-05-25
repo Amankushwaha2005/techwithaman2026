@@ -1,5 +1,47 @@
+/* =============================================================================
+   TechWithAman — style.css (main stylesheet for the whole site)
+   =============================================================================
+   Linked from:
+   • Express: views/partials/head.ejs → <link rel="stylesheet" href="/style.css">
+   • Static HTML: index.html, pricing.html, contact.html, etc. (same file)
+
+   PAGE → URL → EJS template (which CSS section applies)
+   ─────────────────────────────────────────────────────────────────────────
+   Home        /           views/pages/index.ejs
+   Pricing     /pricing    views/pages/pricing.ejs
+   Services    /services   views/pages/services.ejs
+   Portfolio   /portfolio  views/pages/portfolio.ejs
+   About       /about      views/pages/about.ejs
+   Contact     /contact    views/pages/contact.ejs
+   Work        /work       views/pages/work.ejs
+   Login       /login      views/pages/login.ejs
+   Signup      /signup     views/pages/signup.ejs
+   Order       /order      views/pages/order.ejs
+   Admin       /admin      views/admin/*.ejs
+
+   Shared on every page (partials included in each template):
+   • Navbar hover box    → Section 3  (.site-header, .nav-links)
+   • Footer              → Section 14 (.site-footer)
+   • Tech icons marquee  → Section 13b (partials/tech-stack.ejs — home only)
+   • WhatsApp button     → Section 18 (partials/whatsapp-float.ejs)
+   • Site chatbot / AI   → Section 19a–19b (partials/chatbot, ai-chat)
+
+   SECTION LIST (scroll down or Ctrl+F to jump):
+   1  Theme colors          11 Contact page       19a Chatbot
+   2  Body / fonts          12 Work + home CTA    19b AI chat
+   3  Navbar (all pages)    13a Home promo         20 About page
+   4  Home hero             13b Tech icons slide   21 Order / Razorpay
+   5-6 Login / Signup       14 Footer
+   7  Common .section       15 Mobile responsive
+   7a-c Home cards/modal    16 Admin panel
+   8  Portfolio             17 Pricing page
+   9  Services              18 WhatsApp button
+   10 Service topic detail
+   ============================================================================= */
+
 /* =========================================================
-   1) THEME TOKENS (global colors/variables)
+   Section 1 — THEME TOKENS (colors / CSS variables — entire site)
+   Classes: :root, html[data-theme="light"]
    ========================================================= */
 :root {
   --bg: #060b1d;
@@ -22,7 +64,8 @@ html[data-theme="light"] {
 }
 
 /* =========================================================
-   2) GLOBAL RESET + BASE
+   Section 2 — GLOBAL RESET + BASE (body, fonts — entire site)
+   Classes: *, html, body, h1, h2, p
    ========================================================= */
 * {
   box-sizing: border-box;
@@ -48,19 +91,11 @@ html[data-theme="light"] body {
 }
 
 /* =========================================================
-   3) SHARED LAYOUT + NAVBAR (all pages)
+   Section 3 — NAVBAR + COMMON LAYOUT (all pages)
+   File:  views/partials/navbar.ejs (top of every page)
+   Classes: .site-header, .navbar, .nav-links, .logo, .theme-toggle,
+            .menu-toggle, .btn, .nav-actions
    ========================================================= */
-/* Used on pages:
-   - index.html
-   - pricing.html
-   - services.html
-   - portfolio.html
-   - about.html
-   - contact.html
-   - work.html
-   - login.html
-   - signup.html
-*/
 .container {
   width: min(1280px, 92%);
   margin: 0 auto;
@@ -106,13 +141,39 @@ html[data-theme="light"] .site-header {
 }
 
 .nav-links a {
+  display: inline-block;
   color: var(--muted);
   text-decoration: none;
   font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 10px;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .nav-links a:hover {
   color: var(--text);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-links a:focus-visible {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.1);
+  outline: 2px solid rgba(86, 139, 255, 0.55);
+  outline-offset: 2px;
+}
+
+.nav-links a[aria-current="page"] {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme="light"] .nav-links a:hover,
+html[data-theme="light"] .nav-links a:focus-visible {
+  background: rgba(10, 20, 45, 0.08);
+}
+
+html[data-theme="light"] .nav-links a[aria-current="page"] {
+  background: rgba(10, 20, 45, 0.1);
 }
 
 .menu-toggle {
@@ -213,12 +274,10 @@ html[data-theme="light"] .theme-toggle:hover {
 }
 
 /* =========================================================
-   4) HOME PAGE (hero, typewriter, stats)
+   Section 4 — HOME: Hero + typewriter (home page only, /)
+   File:  views/pages/index.ejs — top hero section
+   Classes: .hero, .overlay, .hero-content, .typewriter, .hero-stats, .hero-actions
    ========================================================= */
-/* Used on: index.html
-   Main selectors: .hero, .overlay, .hero-content, .chip, .hero-rotate, .typewriter,
-   .hero-actions, .hero-stats
-*/
 .hero {
   min-height: 100vh;
   position: relative;
@@ -324,13 +383,10 @@ html[data-theme="light"] .typewriter {
 }
 
 /* =========================================================
-   5) AUTH SHARED STYLES (used by login/signup)
+   Section 5 — LOGIN / SIGNUP shared (both auth pages)
+   Files: views/pages/login.ejs, views/pages/signup.ejs
+   Classes: .auth-card, .auth-shell, .auth-form, .social-login-btn, .auth-input
    ========================================================= */
-/* Used on: login.html and signup.html
-   Main selectors: .auth-card, .auth-section, .auth-shell, .auth-left,
-   .auth-subtitle, .auth-helper, .social-login-list, .social-login-btn,
-   .auth-divider, .auth-form, .auth-input
-*/
 .auth-card {
   max-width: 560px;
   margin: 0 auto;
@@ -455,13 +511,10 @@ html[data-theme="light"] .auth-input {
 }
 
 /* =========================================================
-   6) LOGIN / SIGNUP PAGE SPECIFIC
+   Section 6 — LOGIN page layout (signup shares some classes)
+   Files: views/pages/login.ejs, signup.ejs
+   Classes: .login-page, .login-card, .login-left, .login-right, .login-social-btn
    ========================================================= */
-/* Used on: login.html and signup.html
-   Main selectors: .login-page, .login-shell, .login-card, .login-left,
-   .login-right, .login-social-list, .login-social-btn, .login-divider,
-   .login-email-block, .auth-submit, etc.
-*/
 .login-page {
   min-height: 100vh;
   padding: 36px 18px;
@@ -758,18 +811,11 @@ html[data-theme="light"] .hero-stats {
 }
 
 /* =========================================================
-   7) SHARED SECTION + CARD UTILITIES
+   Section 7 — COMMON sections + cards (multiple pages)
+   Files: index, pricing, services, portfolio, about, contact, work
+   Classes: .section, .page-hero, .small-heading, .grid, .card
+   (Home-only blocks have separate headings below)
    ========================================================= */
-/* Used across multiple pages:
-   - index.html (pricing/services/testimonials/cta/contact section)
-   - pricing.html
-   - services.html
-   - about.html
-   - portfolio.html
-   - contact.html
-   - work.html
-   Main selectors: .section, .page-hero, .small-heading, .grid, .card
-*/
 .section {
   padding: 90px 0;
 }
@@ -814,7 +860,8 @@ html[data-theme="light"] .hero-stats {
   margin-bottom: 8px;
 }
 
-/* Home — pricing plans + client services (image matches card topic) */
+/* --- Section 7a — HOME: pricing + services cards (/) --- */
+/* File: views/pages/index.ejs | Classes: .home-card, .home-card__media */
 .home-card {
   padding: 0;
   overflow: hidden;
@@ -897,14 +944,55 @@ html[data-theme="light"] .home-card__media {
   margin-bottom: 18px;
 }
 
+/* --- Section 7b — HOME: portfolio carousel (/) --- */
+/* File: views/pages/index.ejs | Classes: .home-showcase-*, #home-showcase */
 .home-showcase-section {
   padding-top: 40px;
   padding-bottom: 32px;
 }
 
+.home-showcase-head h2,
 .home-showcase-section h2 {
   font-size: clamp(1.5rem, 3vw, 2rem);
   margin-bottom: 22px;
+}
+
+.home-showcase-head {
+  margin-bottom: 4px;
+}
+
+.home-showcase-stage {
+  position: relative;
+  width: 100%;
+}
+
+#home-showcase .home-showcase-viewport {
+  border-radius: 0;
+  width: 100%;
+}
+
+#home-showcase .home-showcase-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.home-showcase-stage .home-showcase-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.home-showcase-stage .home-showcase-prev {
+  left: 10px;
+}
+
+.home-showcase-stage .home-showcase-next {
+  right: 10px;
 }
 
 #pricing h2 {
@@ -1097,6 +1185,8 @@ body.home-modal-open {
   overflow: hidden;
 }
 
+/* --- Section 7c — HOME: card click popup modal (/) --- */
+/* File: views/pages/index.ejs | Classes: .home-detail-modal, .home-detail-dialog */
 .home-detail-modal {
   position: fixed;
   inset: 0;
@@ -1196,7 +1286,11 @@ body.home-modal-open {
   gap: 10px;
 }
 
-/* Portfolio page — image cards + click detail */
+/* =========================================================
+   Section 8 — PORTFOLIO page (/portfolio)
+   File:  views/pages/portfolio.ejs
+   Classes: .portfolio-grid, .portfolio-card, .portfolio-detail-*
+   ========================================================= */
 .portfolio-grid {
   align-items: stretch;
 }
@@ -1321,7 +1415,32 @@ body.home-modal-open {
     max-width: 100%;
   }
 
-  .home-showcase-row {
+  #home-showcase .home-showcase-row {
+    gap: 8px;
+  }
+
+  .home-showcase-stage .home-showcase-prev {
+    left: 6px;
+  }
+
+  .home-showcase-stage .home-showcase-next {
+    right: 6px;
+  }
+
+  #home-showcase .home-showcase-meta {
+    padding: 12px 10px 14px;
+  }
+
+  #home-showcase .home-showcase-meta h3 {
+    font-size: 0.95rem;
+  }
+
+  #home-showcase .home-showcase-desc {
+    font-size: 0.8rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .home-pricing-wrap .home-showcase-row {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
@@ -1335,17 +1454,22 @@ body.home-modal-open {
   }
 }
 
-@media (max-width: 560px) {
-  .home-showcase-row {
-    grid-template-columns: 1fr;
+@media (max-width: 520px) {
+  #home-showcase .home-showcase-row {
+    gap: 6px;
   }
 
-  .home-showcase-frame {
-    min-height: 170px;
+  #home-showcase .home-showcase-frame {
+    min-height: 120px;
+    aspect-ratio: 4 / 3;
   }
 }
 
-/* Services detail section — category strip + topic card grid */
+/* =========================================================
+   Section 9 — SERVICES page (/services)
+   File:  views/pages/services.ejs
+   Classes: .services-detail-wrap, .service-copy, .service-topics, .service-topic
+   ========================================================= */
 .services-detail-wrap {
   display: grid;
   gap: 28px;
@@ -1496,7 +1620,11 @@ a.service-topic.service-topic-link::after {
   letter-spacing: 0.02em;
 }
 
-/* Service topic detail page (service-topic.html) */
+/* =========================================================
+   Section 10 — SERVICE TOPIC detail (service-topic.html)
+   File:  service-topic.html
+   Classes: .topic-detail-page, .topic-breadcrumb, .topic-detail-grid
+   ========================================================= */
 .topic-detail-page {
   padding-top: 20px;
   padding-bottom: 40px;
@@ -1614,12 +1742,10 @@ html[data-theme="light"] .topic-hero-overlay {
 }
 
 /* =========================================================
-   8) CONTACT PAGE
+   Section 11 — CONTACT page (/contact)
+   File:  views/pages/contact.ejs
+   Classes: .contact-grid, .contact-form, .form-row, .captcha-box
    ========================================================= */
-/* Used on: contact.html
-   Main selectors: .contact-grid, .contact-left, .contact-muted,
-   .contact-link, .contact-photo, .contact-form, .form-row, .captcha-box
-*/
 .contact-grid {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
@@ -1747,11 +1873,9 @@ html[data-theme="light"] .contact-form textarea::placeholder {
 }
 
 /* =========================================================
-   9) WORK PAGE + shared modifiers
-   =========================================================
-   Used on:
-   - work.html -> .work-grid, .work-left, .work-form, .work-skills, etc.
-   - index.html -> .dark (services section), .quote (testimonials), .cta/.cta-box (home CTA)
+   Section 12 — WORK page (/work) + Home CTA strip
+   Files: views/pages/work.ejs, index.ejs ( .cta, .dark, .quote )
+   Classes: .work-grid, .work-form, .cta, .cta-box
    ========================================================= */
 .work-grid {
   display: grid;
@@ -1914,10 +2038,244 @@ html[data-theme="light"] .cta::after {
   margin: 8px 0 20px;
 }
 
+/* --- Section 13a — HOME: promo banner (/) --- */
+/* File: views/pages/index.ejs | Classes: .twa-promo, .twa-promo__bg */
+.twa-promo {
+  position: relative;
+  overflow: hidden;
+  padding: 100px 0;
+}
+
+.twa-promo__bg {
+  position: absolute;
+  inset: 0;
+  background: url("https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1800&q=80")
+    center/cover no-repeat;
+  transform: scale(1.02);
+}
+
+.twa-promo__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(6, 11, 29, 0.88) 0%,
+    rgba(12, 20, 48, 0.78) 45%,
+    rgba(20, 40, 90, 0.72) 100%
+  );
+}
+
+html[data-theme="light"] .twa-promo__overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(8, 18, 42, 0.82) 0%,
+    rgba(15, 30, 65, 0.75) 50%,
+    rgba(30, 58, 120, 0.68) 100%
+  );
+}
+
+.twa-promo__content {
+  position: relative;
+  z-index: 2;
+  max-width: 820px;
+}
+
+.twa-promo__brand {
+  color: #7eb0ff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+
+.twa-promo h2 {
+  font-size: clamp(1.65rem, 3.2vw, 2.5rem);
+  line-height: 1.25;
+  margin-bottom: 22px;
+  color: #ffffff;
+}
+
+.twa-promo__content p {
+  color: rgba(232, 240, 255, 0.92);
+  margin-bottom: 16px;
+  line-height: 1.7;
+  max-width: 72ch;
+}
+
+.twa-promo__btn {
+  margin-top: 12px;
+}
+
+/* --- Section 13b — TECH STACK marquee (Home + #technologies) --- */
+/* File: views/partials/tech-stack.ejs (included on index) */
+/* Classes: .tech-stack, .tech-stack-marquee, .tech-stack-track */
+.tech-stack {
+  background: #1a2f58;
+  padding-bottom: 72px;
+}
+
+html[data-theme="light"] .tech-stack {
+  background: #f7faff;
+}
+
+.tech-stack .small-heading {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tech-stack h2 {
+  max-width: 720px;
+  margin-bottom: 14px;
+  font-size: clamp(1.6rem, 3vw, 2.35rem);
+  line-height: 1.2;
+}
+
+.tech-stack-intro {
+  max-width: 820px;
+  margin-bottom: 36px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.tech-stack-marquees {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 8px;
+}
+
+.tech-stack-marquee {
+  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  width: 100%;
+  min-height: 96px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
+}
+
+.tech-stack-marquee::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.tech-stack-track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+}
+
+.tech-stack-track--left {
+  animation: tech-stack-scroll-left 32s linear infinite;
+}
+
+.tech-stack-track--right {
+  animation: tech-stack-scroll-right 32s linear infinite;
+}
+
+.tech-stack-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0 20px;
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 56px;
+}
+
+.tech-stack-grid li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  flex: 0 0 auto;
+  min-width: 88px;
+}
+
+.tech-stack-grid img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.tech-stack-grid span {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@keyframes tech-stack-scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes tech-stack-scroll-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-stack-marquees {
+    gap: 24px;
+  }
+
+  .tech-stack-marquee {
+    mask-image: none;
+    overflow: hidden;
+    overflow-x: hidden;
+  }
+
+  .tech-stack-track,
+  .tech-stack-track--left,
+  .tech-stack-track--right {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: max-content;
+    gap: 0;
+  }
+
+  .tech-stack-grid {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+}
+
 /* =========================================================
-   10) FOOTER (all pages)
+   Section 14 — FOOTER (all pages)
+   File:  views/partials/footer.ejs
+   Classes: .site-footer, .footer-grid, .footer-row, .social-links
    ========================================================= */
-/* Used on: all pages (site-footer, footer-grid, footer-row, social links) */
 .site-footer {
   border-top: 1px solid var(--line);
   background: linear-gradient(180deg, #101a34, #0c142a);
@@ -2042,7 +2400,8 @@ html[data-theme="light"] .social-links a[href*="facebook.com"] svg {
 }
 
 /* =========================================================
-   11) RESPONSIVE RULES
+   Section 15 — RESPONSIVE (mobile / tablet — all pages)
+   Breakpoints: 1024px, 760px — navbar menu, grids, footer
    ========================================================= */
 @media (max-width: 1024px) {
   .nav-links {
@@ -2185,16 +2544,23 @@ html[data-theme="light"] .social-links a[href*="facebook.com"] svg {
 
   .nav-links a {
     display: block;
-    padding: 13px 14px;
+    margin: 4px 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
     font-size: 0.95rem;
     color: #ffffff !important;
     font-weight: 600;
-    background: #000000;
+    background: transparent;
   }
 
-  .nav-links a:hover {
-    background: rgba(255, 255, 255, 0.1);
+  .nav-links a:hover,
+  .nav-links a:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
     color: #ffffff;
+  }
+
+  .nav-links a[aria-current="page"] {
+    background: rgba(255, 255, 255, 0.14);
   }
 
   .hero {
@@ -2267,17 +2633,24 @@ html[data-theme="light"] .social-links a[href*="facebook.com"] svg {
 
   html[data-theme="light"] .nav-links a {
     color: var(--text) !important;
-    background: #ffffff;
+    background: transparent;
   }
 
-  html[data-theme="light"] .nav-links a:hover {
-    background: rgba(10, 20, 45, 0.06);
+  html[data-theme="light"] .nav-links a:hover,
+  html[data-theme="light"] .nav-links a:focus-visible {
+    background: rgba(10, 20, 45, 0.08);
     color: var(--text);
+  }
+
+  html[data-theme="light"] .nav-links a[aria-current="page"] {
+    background: rgba(10, 20, 45, 0.1);
   }
 }
 
 /* =========================================================
-   Admin dashboard
+   Section 16 — ADMIN dashboard (/admin)
+   Files: views/admin/dashboard.ejs, forbidden.ejs
+   Classes: .admin-app, .admin-side-nav, .admin-table, .admin-nav-btn
    ========================================================= */
 .admin-nav-btn {
   background: linear-gradient(135deg, rgba(47, 110, 251, 0.95), rgba(99, 102, 241, 0.9));
@@ -2685,7 +3058,9 @@ html[data-theme="light"] .admin-topbar {
 }
 
 /* =========================================================
-   PRICING HUB (category grid + package detail)
+   Section 17 — PRICING page (/pricing)
+   File:  views/pages/pricing.ejs
+   Classes: .pricing-hero, .pricing-hub, .pricing-packages-grid, .pricing-card
    ========================================================= */
 .pricing-hero {
   position: relative;
@@ -3053,47 +3428,1324 @@ html[data-theme="light"] .pricing-package-card {
   }
 }
 
-/* Floating WhatsApp — reference style: white ring, green circle, phone, tail */
+/* =========================================================
+   Section 18 — WHATSAPP float button (all pages)
+   File:  views/partials/whatsapp-float.ejs
+   Classes: .whatsapp-float, .whatsapp-float__btn
+   ========================================================= */
 .whatsapp-float {
   position: fixed;
-  right: 14px;
-  bottom: 18px;
+  right: 20px;
+  bottom: 20px;
   z-index: 9999;
-  width: 60px;
-  height: 68px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  display: block;
   line-height: 0;
-  transition: transform 0.2s ease;
   text-decoration: none;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s ease;
+}
+
+.whatsapp-float__btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #1ebe57, #25d366);
+  box-shadow:
+    0 4px 16px rgba(37, 211, 102, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.whatsapp-float__btn::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(37, 211, 102, 0.45);
+  animation: whatsapp-ping 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
+.whatsapp-float__icon {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 30px;
+  height: 30px;
 }
 
 .whatsapp-float:hover,
 .whatsapp-float:focus-visible {
-  transform: scale(1.05);
+  transform: scale(1.08);
   outline: none;
 }
 
-.whatsapp-float__img {
+.whatsapp-float:hover .whatsapp-float__btn,
+.whatsapp-float:focus-visible .whatsapp-float__btn {
+  box-shadow:
+    0 6px 24px rgba(37, 211, 102, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes whatsapp-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-float__btn::after {
+    animation: none;
+    opacity: 0.35;
+  }
+}
+
+body.twa-chatbot-open .whatsapp-float {
+  transform: scale(0.95);
+}
+
+/* --- Section 19a — Site chatbot panel (all pages) --- */
+/* File: views/partials/chatbot.ejs | Classes: .twa-chatbot, .twa-chatbot__panel */
+.twa-chatbot {
+  position: fixed;
+  right: 14px;
+  bottom: 96px;
+  z-index: 10000;
+  width: min(360px, calc(100vw - 24px));
+}
+
+.twa-chatbot__panel {
+  display: flex;
+  flex-direction: column;
+  max-height: min(520px, calc(100vh - 120px));
+  background: #0f1a32;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+html[data-theme="light"] .twa-chatbot__panel {
+  background: #ffffff;
+}
+
+.twa-chatbot__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 14px 12px;
+  background: linear-gradient(135deg, #128c7e, #25d366);
+  color: #fff;
+}
+
+.twa-chatbot__head-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.twa-chatbot__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.twa-chatbot__title {
+  font-size: 1rem;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.twa-chatbot__status {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  margin: 2px 0 0;
+}
+
+.twa-chatbot__close {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.twa-chatbot__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 200px;
+  max-height: 280px;
+}
+
+.twa-chatbot__msg p {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  max-width: 92%;
+}
+
+.twa-chatbot__msg--bot p {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  align-self: flex-start;
+}
+
+.twa-chatbot__msg--user p {
+  background: #dcf8c6;
+  color: #0b1326;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+html[data-theme="light"] .twa-chatbot__msg--bot p {
+  background: #eef2ff;
+}
+
+.twa-chatbot__quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 14px 10px;
+}
+
+.twa-chatbot__chip {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.twa-chatbot__chip:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.twa-chatbot__form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--line);
+}
+
+.twa-chatbot__form input {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: var(--bg2);
+  color: var(--text);
+  font: inherit;
+  min-width: 0;
+}
+
+.twa-chatbot__send {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.twa-chatbot__wa-link {
   display: block;
-  width: 60px;
-  height: 68px;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.35));
+  text-align: center;
+  padding: 10px 14px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #25d366;
+  text-decoration: none;
+}
+
+.twa-chatbot__wa-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .twa-chatbot {
+    right: 10px;
+    bottom: 88px;
+    width: calc(100vw - 20px);
+  }
 }
 
 @media (max-width: 480px) {
   .whatsapp-float {
-    right: 10px;
+    right: 14px;
     bottom: 14px;
-    width: 56px;
-    height: 64px;
   }
 
-  .whatsapp-float__img {
-    width: 56px;
-    height: 64px;
+  .whatsapp-float__btn {
+    width: 54px;
+    height: 54px;
+  }
+
+  .whatsapp-float__icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* --- Section 19b — AI chat float (all pages) --- */
+/* File: views/partials/ai-chat.ejs | Classes: .ai-chat-float, .twa-ai-chat */
+.twa-ai-icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.ai-chat-float {
+  position: fixed;
+  left: 14px;
+  bottom: 18px;
+  z-index: 9998;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 10px 14px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background:
+    linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+    linear-gradient(90deg, #e91e8c, #c026d3, #22d3ee) border-box;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow:
+    0 4px 24px rgba(233, 30, 140, 0.25),
+    0 4px 24px rgba(34, 211, 238, 0.2);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.ai-chat-float:hover,
+.ai-chat-float:focus-visible {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 8px 32px rgba(233, 30, 140, 0.35),
+    0 8px 32px rgba(34, 211, 238, 0.3);
+  filter: brightness(1.08);
+  outline: none;
+}
+
+.ai-chat-float__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.ai-chat-float__icon .twa-ai-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.ai-chat-float__label {
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.twa-ai-chat {
+  position: fixed;
+  left: 14px;
+  bottom: 72px;
+  z-index: 10000;
+  width: min(380px, calc(100vw - 28px));
+}
+
+.twa-ai-chat__panel {
+  display: flex;
+  flex-direction: column;
+  max-height: min(540px, calc(100vh - 110px));
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.twa-ai-chat__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px;
+  background: linear-gradient(135deg, #1e3a8a, #2f6efb);
+  color: #fff;
+}
+
+.twa-ai-chat__head-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.twa-ai-chat__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.twa-ai-chat__avatar .twa-ai-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.twa-ai-chat__title {
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.twa-ai-chat__status {
+  font-size: 0.72rem;
+  opacity: 0.9;
+  margin: 2px 0 0;
+}
+
+.twa-ai-chat__close {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.twa-ai-chat__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 220px;
+  max-height: 300px;
+}
+
+.twa-ai-chat__msg p {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  max-width: 92%;
+}
+
+.twa-ai-chat__msg--bot p {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  align-self: flex-start;
+}
+
+.twa-ai-chat__msg--user p {
+  background: #2f6efb;
+  color: #fff;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.twa-ai-chat__form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.twa-ai-chat__form input {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: var(--bg2);
+  color: var(--text);
+  font: inherit;
+  min-width: 0;
+}
+
+.twa-ai-chat__form input:disabled {
+  opacity: 0.6;
+}
+
+.twa-ai-chat__send {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  cursor: pointer;
+}
+
+.twa-ai-chat__send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.twa-ai-chat__foot {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 8px 14px 14px;
+  margin: 0;
+}
+
+.twa-ai-chat__foot a {
+  color: var(--brand);
+}
+
+@media (max-width: 480px) {
+  .ai-chat-float {
+    left: 10px;
+    bottom: 14px;
+    padding: 9px 14px 9px 12px;
+    gap: 8px;
+    font-size: 0.88rem;
+  }
+
+  .ai-chat-float__icon .twa-ai-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .twa-ai-chat {
+    left: 10px;
+    bottom: 68px;
+    width: calc(100vw - 20px);
+  }
+}
+
+/* =========================================================
+   Section 20 — ABOUT page (/about)
+   File:  views/pages/about.ejs
+   Classes: .about-founder, .about-founder-grid, .about-topic-card
+   ========================================================= */
+.about-page .page-hero {
+  display: none;
+}
+
+.about-founder {
+  padding-top: 110px;
+  padding-bottom: 48px;
+}
+
+.about-founder-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 380px) 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.about-founder-media {
+  margin: 0;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  box-shadow: 0 20px 50px rgba(47, 110, 251, 0.2);
+  background: linear-gradient(160deg, #1a3a8a, #2f6efb 40%, #0c1430);
+}
+
+.about-founder-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.about-founder-tag {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(6, 11, 29, 0.75);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.about-founder-copy h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin: 10px 0 8px;
+  line-height: 1.15;
+}
+
+.about-company-name {
+  color: var(--brand);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.about-founder-copy p {
+  color: var(--muted);
+  margin-bottom: 14px;
+  max-width: 62ch;
+}
+
+.about-founder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0 24px;
+}
+
+.about-founder-stats {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+}
+
+.about-founder-stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.about-founder-stats strong {
+  font-size: 1.35rem;
+  color: var(--text);
+}
+
+.about-founder-stats span {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.about-topics-section {
+  padding-top: 20px;
+}
+
+.about-topics-heading {
+  margin-bottom: 28px;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+}
+
+.about-topics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.about-topic-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.about-topic-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+}
+
+html[data-theme="light"] .about-topic-card:hover {
+  box-shadow: 0 14px 32px rgba(15, 30, 80, 0.1);
+}
+
+.about-topic-visual {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--bg2);
+}
+
+.about-topic-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.about-topic-card:hover .about-topic-visual img {
+  transform: scale(1.05);
+}
+
+.about-topic-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-size: 1.35rem;
+  border-radius: 12px;
+  background: rgba(6, 11, 29, 0.65);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.about-topic-body {
+  padding: 20px 22px 22px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.about-topic-body h3 {
+  margin-bottom: 8px;
+}
+
+.about-topic-body > p {
+  color: var(--muted);
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+}
+
+.about-topic-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.about-topic-features li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.about-topic-features li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.about-topic-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.about-topic-tags span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(47, 110, 251, 0.15);
+  color: var(--brand);
+  border: 1px solid rgba(47, 110, 251, 0.25);
+}
+
+.about-topic-link {
+  margin-top: auto;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.about-topic-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .about-founder-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .about-founder-media {
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  .about-topics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .about-founder {
+    padding-top: 100px;
+  }
+
+  .about-founder-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .about-founder-stats {
+    gap: 14px;
+  }
+}
+
+/* =========================================================
+   Section 21 — ORDER + PAYMENT (/order, pricing pay buttons)
+   Files: views/pages/order.ejs, order-success.ejs, pricing.ejs
+   Classes: .order-layout, .order-summary-card, .pricing-package-actions
+   ========================================================= */
+.pricing-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.pricing-package-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.pricing-package-actions .btn-pay {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  border-color: transparent;
+}
+
+.order-page-section {
+  padding-top: 48px;
+}
+
+.order-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.order-summary-card {
+  padding: 24px;
+  position: sticky;
+  top: 92px;
+}
+
+.order-summary-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.order-summary-card h2,
+.order-form__header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.order-summary-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(47, 110, 251, 0.2);
+  border: 1px solid rgba(86, 139, 255, 0.45);
+  color: #9eb8ff;
+}
+
+.order-summary-list {
+  margin: 0 0 18px;
+}
+
+.order-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.order-summary-row--highlight {
+  padding: 14px 12px;
+  margin-top: 4px;
+  border: 1px solid rgba(46, 204, 113, 0.35);
+  border-radius: 12px;
+  background: rgba(46, 204, 113, 0.08);
+}
+
+.order-summary-row--highlight dd {
+  color: #3ddc84;
+  font-size: 1.2rem;
+}
+
+.order-summary-list dt {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.order-summary-list dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.order-trust-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.order-trust-list li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+
+.order-trust-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #3ddc84;
+  font-weight: 700;
+}
+
+.order-setup-hint {
+  font-size: 0.86rem;
+  color: var(--muted);
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.35);
+  line-height: 1.5;
+}
+
+.order-form {
+  padding: 28px 28px 32px;
+}
+
+.order-form__header {
+  margin-bottom: 22px;
+}
+
+.order-form__sub {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.order-required {
+  color: #ff8a8a;
+}
+
+.order-optional {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.order-field-box {
+  margin-bottom: 20px;
+  padding: 20px 20px 8px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+html[data-theme="light"] .order-field-box {
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.order-field-box__title {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.order-form-grid {
+  display: grid;
+  gap: 16px 18px;
+}
+
+.order-form-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.order-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-field--full {
+  grid-column: 1 / -1;
+}
+
+.order-field label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.order-field input,
+.order-field textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(8, 14, 32, 0.55);
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+html[data-theme="light"] .order-field input,
+html[data-theme="light"] .order-field textarea {
+  background: #ffffff;
+  border-color: var(--line);
+}
+
+.order-field input::placeholder,
+.order-field textarea::placeholder {
+  color: rgba(168, 180, 215, 0.75);
+}
+
+html[data-theme="light"] .order-field input::placeholder,
+html[data-theme="light"] .order-field textarea::placeholder {
+  color: rgba(11, 19, 38, 0.45);
+}
+
+.order-field input:hover,
+.order-field textarea:hover {
+  border-color: rgba(86, 139, 255, 0.45);
+}
+
+.order-field input:focus,
+.order-field textarea:focus {
+  border-color: rgba(47, 110, 251, 0.85);
+  box-shadow: 0 0 0 3px rgba(47, 110, 251, 0.22);
+}
+
+.order-field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.order-field-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.order-field-hint a {
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.order-form-error {
+  color: #ff7b7b;
+  font-size: 0.9rem;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 80, 80, 0.1);
+  border: 1px solid rgba(255, 100, 100, 0.35);
+}
+
+.order-form-error[hidden] {
+  display: none !important;
+}
+
+.order-pay-btn {
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 1.05rem;
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(47, 110, 251, 0.35);
+}
+
+.order-pay-btn[hidden] {
+  display: none !important;
+}
+
+.order-payment-panel {
+  margin-top: 24px;
+  padding: 22px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(47, 110, 251, 0.45);
+  background: linear-gradient(165deg, rgba(47, 110, 251, 0.12), rgba(8, 14, 32, 0.5));
+  animation: order-panel-in 0.35s ease;
+}
+
+@keyframes order-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.order-payment-panel[hidden] {
+  display: none !important;
+}
+
+.order-payment-panel__head {
+  margin-bottom: 18px;
+}
+
+.order-payment-panel__head h3 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.order-payment-panel__amount {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.order-payment-panel__amount strong {
+  color: #3ddc84;
+  font-size: 1.2rem;
+}
+
+.order-pay-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-pay-method {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px 18px;
+  text-align: left;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+html[data-theme="light"] .order-pay-method {
+  background: #ffffff;
+}
+
+.order-pay-method:hover,
+.order-pay-method:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(47, 110, 251, 0.55);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+  outline: none;
+}
+
+.order-pay-method--whatsapp:hover,
+.order-pay-method--whatsapp:focus-visible {
+  border-color: rgba(37, 211, 102, 0.55);
+}
+
+.order-pay-method__icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(47, 110, 251, 0.15);
+  font-size: 1.4rem;
+}
+
+.order-pay-method--whatsapp .order-pay-method__icon {
+  background: rgba(37, 211, 102, 0.15);
+}
+
+.order-pay-method__icon img {
+  display: block;
+}
+
+.order-pay-method__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-pay-method__text strong {
+  font-size: 1rem;
+}
+
+.order-pay-method__text small {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.order-pay-method__arrow {
+  font-size: 1.25rem;
+  color: var(--muted);
+}
+
+.order-payment-panel__secure {
+  margin: 16px 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.order-payment-panel__secure code {
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.order-payment-back {
+  margin-top: 14px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--brand);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.order-payment-back:hover {
+  text-decoration: underline;
+}
+
+.order-form-alt {
+  margin-top: 18px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.order-cta-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding: 20px 24px;
+}
+
+.order-cta-banner h2 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.order-cta-banner p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.order-cta-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.order-success-section {
+  padding-top: 48px;
+  padding-bottom: 64px;
+}
+
+.order-success-card {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 28px 32px;
+}
+
+.order-success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .order-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .order-summary-card {
+    position: static;
+  }
+
+  .order-form-grid--2 {
+    grid-template-columns: 1fr;
+  }
+
+  .order-form {
+    padding: 20px 18px 24px;
   }
 }

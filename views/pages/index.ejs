@@ -12,9 +12,9 @@
             id="typewriter"
             class="typewriter"
             data-words='["Web Development","App Development","Logo Design","Student Projects","Project Mentoring"]'
-            data-type-speed="60"
-            data-delete-speed="60"
-            data-pause="1100"
+            data-type-speed="38"
+            data-delete-speed="18"
+            data-pause="2000"
           ></span>
         </p>
         <p>
@@ -35,7 +35,7 @@
             <p>Clients</p>
           </div>
           <div>
-            <h3>5.0</h3>
+            <h3>4.2</h3>
             <p>Rating</p>
           </div>
         </div>
@@ -43,16 +43,18 @@
     </section>
 
     <section id="home-showcase" class="section home-showcase-section" aria-label="Featured work carousel">
-      <div class="container">
+      <div class="container home-showcase-head">
         <p class="small-heading">Portfolio</p>
         <h2>Actions speak louder than words</h2>
-        <div class="home-showcase-wrap">
-          <button type="button" class="home-showcase-arrow home-showcase-prev" aria-label="Previous project">‹</button>
-          <div class="home-showcase-viewport">
-            <div id="home-showcase-track" class="home-showcase-slider"></div>
-          </div>
-          <button type="button" class="home-showcase-arrow home-showcase-next" aria-label="Next project">›</button>
+      </div>
+      <div class="home-showcase-stage">
+        <button type="button" class="home-showcase-arrow home-showcase-prev" aria-label="Previous project">‹</button>
+        <div class="home-showcase-viewport">
+          <div id="home-showcase-track" class="home-showcase-slider"></div>
         </div>
+        <button type="button" class="home-showcase-arrow home-showcase-next" aria-label="Next project">›</button>
+      </div>
+      <div class="container">
         <div id="home-showcase-dots" class="home-showcase-dots" role="tablist" aria-label="Project slides"></div>
       </div>
     </section>
@@ -120,31 +122,26 @@
       </div>
     </section>
 
-    <section class="section" id="testimonials">
-      <div class="container">
-        <h2>Testimonials</h2>
-        <div class="grid two">
-          <article class="card quote">
-            <p>"Design quality top-class thi. Website exactly meri demand jaisi bani."</p>
-            <h4>Mohit Kumar</h4>
-            <span>Web Developer</span>
-          </article>
-          <article class="card quote">
-            <p>"Student project aur viva prep dono clear and easy way me mila."</p>
-            <h4>Rakesh Shetty</h4>
-            <span>Engineering Student</span>
-          </article>
-        </div>
+    <section class="section twa-promo" id="techwithaman">
+      <div class="twa-promo__bg" aria-hidden="true"></div>
+      <div class="twa-promo__overlay" aria-hidden="true"></div>
+      <div class="container twa-promo__content">
+        <p class="twa-promo__brand">#TechWithAman</p>
+        <h2>To enhance your web presence — website developers for small businesses worldwide</h2>
+        <p>
+          #TechWithAman is a trusted name for website development, app builds, logo design and student
+          projects. We help startups, local shops and professionals go online with clean design, fast
+          delivery and clear communication.
+        </p>
+        <p>
+          Whether you need a business site, e-commerce store, portfolio or final-year project — we plan with
+          you, build step-by-step, and support you after launch so your brand looks professional on every device.
+        </p>
+        <a class="btn twa-promo__btn" href="/contact">Enquire Now</a>
       </div>
     </section>
 
-    <section class="section cta" id="contact">
-      <div class="container cta-box">
-        <h2>Start Your Coding Journey</h2>
-        <p>Learn coding step-by-step with #TechWithAman</p>
-        <a class="btn" href="/contact">Contact Now</a>
-      </div>
-    </section>
+<%- include("../partials/tech-stack") %>
   </main>
 
   <div id="home-detail-modal" class="home-detail-modal" hidden role="dialog" aria-modal="true" aria-labelledby="home-detail-title">

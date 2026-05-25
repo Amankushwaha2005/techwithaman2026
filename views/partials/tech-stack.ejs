@@ -1,0 +1,56 @@
+<% const techRowLeft = [
+  { slug: "html5", label: "HTML5" },
+  { slug: "css3", label: "CSS3" },
+  { slug: "javascript", label: "JavaScript" },
+  { slug: "react", label: "React" },
+  { slug: "nextjs", label: "Next.js" },
+  { slug: "nodejs", label: "Node.js" },
+  { slug: "express", label: "Express" },
+  { slug: "angular", label: "Angular" },
+  { slug: "mongodb", label: "MongoDB" },
+  { slug: "github", label: "GitHub" },
+]; %>
+<% const techRowRight = [
+  { slug: "python", label: "Python" },
+  { slug: "php", label: "PHP" },
+  { slug: "wordpress", label: "WordPress" },
+  { slug: "mysql", label: "MySQL" },
+  { slug: "mariadb", label: "MariaDB" },
+  { slug: "android", label: "Android" },
+  { slug: "apple", label: "iOS" },
+  { slug: "kotlin", label: "Kotlin" },
+  { slug: "gitlab", label: "GitLab" },
+  { slug: "docker", label: "Docker" },
+]; %>
+<% function techList(items) { %>
+            <ul class="tech-stack-grid">
+<% items.forEach((t) => { %>
+              <li><img src="/images/tech/<%= t.slug %>.svg" width="48" height="48" alt="" loading="lazy" decoding="async"><span><%= t.label %></span></li>
+<% }); %>
+<% items.forEach((t) => { %>
+              <li aria-hidden="true"><img src="/images/tech/<%= t.slug %>.svg" width="48" height="48" alt="" loading="lazy" decoding="async"><span><%= t.label %></span></li>
+<% }); %>
+            </ul>
+<% } %>
+    <section class="section tech-stack" id="technologies">
+      <div class="container">
+        <p class="small-heading">Technologies We Do Best</p>
+        <h2>Digitize Your Business with Our Expert Web Technologies</h2>
+        <p class="tech-stack-intro">
+          From dynamic websites to feature-rich applications, we use top-tier technologies to make your
+          digital experience functional and user-friendly — with quality, performance, and client satisfaction.
+        </p>
+      </div>
+      <div class="tech-stack-marquees" aria-label="Technologies we work with">
+        <div class="tech-stack-marquee tech-stack-marquee--left">
+          <div class="tech-stack-track tech-stack-track--left">
+<%- techList(techRowLeft) %>
+          </div>
+        </div>
+        <div class="tech-stack-marquee tech-stack-marquee--right">
+          <div class="tech-stack-track tech-stack-track--right">
+<%- techList(techRowRight) %>
+          </div>
+        </div>
+      </div>
+    </section>

@@ -189,12 +189,14 @@
 
     let mounted = false;
 
-    if (data.showcase && data.showcase.length >= 2) {
+    if (data.showcase && data.showcase.length >= 3) {
       const len = data.showcase.length;
       const slides = [];
       for (let i = 0; i < len; i++) {
-        const i1 = (i + 1) % len;
-        slides.push(showcaseCardHtml(data.showcase[i]) + showcaseCardHtml(data.showcase[i1]));
+        const html = [0, 1, 2]
+          .map((j) => showcaseCardHtml(data.showcase[(i + j) % len]))
+          .join("");
+        slides.push(html);
       }
       mountCarousel({
         slider: document.getElementById("home-showcase-track"),

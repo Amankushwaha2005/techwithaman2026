@@ -17,6 +17,11 @@
     return "₹" + n.toLocaleString("en-IN");
   }
 
+  const ADVANCE_PERCENT =
+    typeof window.PAYMENT_ADVANCE_PERCENT === "number"
+      ? window.PAYMENT_ADVANCE_PERCENT
+      : parseInt(document.body?.dataset?.paymentAdvancePercent || "50", 10) || 50;
+
   function enquireUrl(category, pkg) {
     const q = new URLSearchParams({
       subject: "Pricing enquiry",
@@ -25,6 +30,19 @@
     });
     const base = window.location.pathname.endsWith(".html") ? "/contact.html" : "/contact";
     return base + "?" + q.toString();
+  }
+
+  function orderUrl(category, pkg) {
+    const price = Number(pkg.price) || 0;
+    if (price <= 0) return "";
+    const advance = Math.max(1, Math.round((price * ADVANCE_PERCENT) / 100));
+    const q = new URLSearchParams({
+      service: category.title || "",
+      plan: pkg.title || "",
+      total: String(price),
+      amount: String(advance),
+    });
+    return "/order?" + q.toString();
   }
 
   function renderCategoryGrid() {
@@ -77,7 +95,14 @@
         <p class="pricing-package-desc">${pkg.description}</p>
         <div class="pricing-package-price-row">
           <strong class="pricing-package-price">${pkg.priceLabel || formatInr(pkg.price)}</strong>
-          <a class="btn btn-small" href="${enquireUrl(cat, pkg)}">Enquire Now</a>
+        </div>
+        <div class="pricing-package-actions">
+          ${
+            orderUrl(cat, pkg)
+              ? `<a class="btn btn-small btn-pay" href="${orderUrl(cat, pkg)}">Book &amp; Pay Advance</a>`
+              : ""
+          }
+          <a class="btn btn-small btn-outline" href="${enquireUrl(cat, pkg)}">Enquire</a>
         </div>
         <ul class="pricing-feature-list">
           ${(pkg.features || []).map((f) => `<li>${f}</li>`).join("")}
