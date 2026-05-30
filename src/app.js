@@ -2,7 +2,7 @@ const path = require("path");
 const express = require("express");
 const session = require("express-session");
 
-const { db } = require("./services/db");
+const { queryOne } = require("./services/db");
 const { isAdminUser } = require("./config/admin");
 
 const pagesRoutes = require("./routes/pages.routes");
@@ -107,7 +107,7 @@ function createApp() {
     next();
   });
 
-  app.use((req, res, next) => {
+  app.use(async (req, res, next) => {
     if (!req.session?.userId) {
       res.locals.authUser = null;
       res.locals.isAdmin = false;
@@ -115,9 +115,10 @@ function createApp() {
     }
 
     try {
-      const user = db
-        .prepare(`SELECT id, provider, name, email, picture, role FROM users WHERE id = ?`)
-        .get(req.session.userId);
+      const user = await queryOne(
+        `SELECT id, provider, name, email, picture, role FROM users WHERE id = $1`,
+        [req.session.userId],
+      );
 
       res.locals.authUser = user || null;
       res.locals.isAdmin = isAdminUser(user);

@@ -6,7 +6,7 @@ A full-stack web application built with Express.js and EJS, featuring user authe
 
 - **User Authentication**: Secure login/registration system with bcryptjs password hashing
 - **Session Management**: Express session-based user session handling
-- **Database**: SQLite integration for persistent data storage
+- **Database**: PostgreSQL for persistent data storage
 - **Template Engine**: EJS for dynamic server-side rendering
 - **Admin Tools**: Grant admin privileges to users via command-line scripts
 - **Page Synchronization**: HTML to EJS template conversion utility
@@ -18,8 +18,8 @@ A full-stack web application built with Express.js and EJS, featuring user authe
 | **Node.js** | Runtime | 20.x |
 | **Express** | Web framework | ^5.2.1 |
 | **EJS** | Template engine | ^5.0.2 |
-| **SQLite3** | Database | ^6.0.1 |
-| **better-sqlite3** | Synchronous SQLite driver | ^12.10.0 |
+| **PostgreSQL** | Database | 14+ |
+| **pg** | Node PostgreSQL client | ^8.16.0 |
 | **bcryptjs** | Password hashing | ^3.0.2 |
 | **express-session** | Session middleware | ^1.18.2 |
 | **dotenv** | Environment configuration | ^17.4.2 |
@@ -50,13 +50,19 @@ A full-stack web application built with Express.js and EJS, featuring user authe
    npm install
    ```
 
-3. **Configure environment variables**
+3. **Install and start PostgreSQL**, then create a database:
+   ```bash
+   createdb web_project
+   ```
+   (Or use pgAdmin / psql: `CREATE DATABASE web_project;`)
+
+4. **Configure environment variables**
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration
+   # Set DATABASE_URL or PGHOST, PGUSER, PGPASSWORD, PGDATABASE in .env
    ```
 
-4. **Start the application**
+5. **Start the application**
    ```bash
    npm start
    ```
@@ -87,7 +93,7 @@ techwithaman-website/
 ├── scripts/               # Utility scripts
 │   ├── grant-admin.js     # Admin privilege script
 │   └── sync-html-to-ejs.js # HTML to EJS converter
-├── database/              # SQLite database files
+├── data/                  # Legacy SQLite backups (optional, not used by Node app)
 ├── .env.example           # Environment variables template
 └── README.md              # This file
 ```
@@ -100,10 +106,11 @@ techwithaman-website/
 
 ## 🗄️ Database
 
-The application uses SQLite for data persistence:
-- **Adapter**: sqlite3 and better-sqlite3
-- **Location**: `./database/` directory
-- **Features**: Full ACID compliance, embedded database, no server required
+The application uses **PostgreSQL**:
+- **Client**: `pg` (node-postgres)
+- **Config**: `DATABASE_URL` or `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` in `.env`
+- **Schema**: Tables are created automatically on first `npm start` (`npm run db:init` to run migrations only)
+- **GUI**: pgAdmin, DBeaver, or any PostgreSQL client (not MySQL Workbench)
 
 ## 🔧 Configuration
 
@@ -117,8 +124,8 @@ NODE_ENV=development
 # Session Configuration
 SESSION_SECRET=your_secret_key_here
 
-# Database Configuration
-DB_PATH=./database/app.db
+# PostgreSQL
+DATABASE_URL=postgres://postgres:password@127.0.0.1:5432/web_project
 
 # Other configurations
 ```

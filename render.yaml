@@ -1,5 +1,12 @@
-# Render Blueprint — connect repo at https://dashboard.render.com/blueprints
+# Render Blueprint — https://dashboard.render.com/blueprints
 # Repo: https://github.com/Amankushwaha2005/techwithaman-website
+
+databases:
+  - name: techwithaman-db
+    databaseName: web_project
+    user: web_project
+    plan: free
+    region: singapore
 
 services:
   - type: web
@@ -7,7 +14,8 @@ services:
     runtime: node
     plan: free
     region: singapore
-    buildCommand: npm install && npm rebuild better-sqlite3
+    branch: main
+    buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /health
     autoDeploy: true
@@ -16,15 +24,19 @@ services:
         value: 22.12.0
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: techwithaman-db
+          property: connectionString
       - key: SESSION_SECRET
         generateValue: true
       - key: PAYMENT_ADVANCE_PERCENT
         value: "50"
-      # Set after first deploy — Dashboard → Environment (use your real onrender.com URL)
       - key: BASE_URL
         value: https://techwithaman-website.onrender.com
-      # REQUIRED for Razorpay — set in Render Dashboard → Environment (never commit secrets)
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET
         sync: false
+      - key: PGSSL
+        value: "true"

@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 
-const { db } = require("../services/db");
+const { query, queryOne } = require("../services/db");
 
 const GOOGLE_AUTH_BASE = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -22,19 +22,18 @@ function loginError(res, message) {
   return res.redirect(`/login?error=${encodeURIComponent(message)}`);
 }
 
-function login(req, res) {
+async function login(req, res) {
   const { email, password } = req.body || {};
   console.log("LOGIN request:", { email });
 
   if (!email || !password) return loginError(res, "Email and password are required.");
 
-  const user = db
-    .prepare(
-      `SELECT id, provider, name, email, password_hash, picture
-       FROM users
-       WHERE email = ?`,
-    )
-    .get(String(email).trim().toLowerCase());
+  const user = await queryOne(
+    `SELECT id, provider, name, email, password_hash, picture
+     FROM users
+     WHERE email = $1`,
+    [String(email).trim().toLowerCase()],
+  );
 
   if (!user || !user.password_hash) return loginError(res, "Invalid email or password.");
   const ok = bcrypt.compareSync(String(password), user.password_hash);
@@ -48,25 +47,25 @@ function login(req, res) {
   return res.redirect("/");
 }
 
-function signup(req, res) {
+async function signup(req, res) {
   const { name, email, password } = req.body || {};
   console.log("SIGNUP request:", { name, email });
 
   if (!name || !email || !password) return loginError(res, "Name, email and password are required.");
 
   const normalizedEmail = String(email).trim().toLowerCase();
-  const exists = db.prepare("SELECT id FROM users WHERE email = ?").get(normalizedEmail);
+  const exists = await queryOne("SELECT id FROM users WHERE email = $1", [normalizedEmail]);
   if (exists) return loginError(res, "Email already exists. Please login.");
 
   const passwordHash = bcrypt.hashSync(String(password), 10);
-  const info = db
-    .prepare(
-      `INSERT INTO users (provider, name, email, password_hash)
-       VALUES ('local', ?, ?, ?)`,
-    )
-    .run(String(name).trim(), normalizedEmail, passwordHash);
+  const inserted = await queryOne(
+    `INSERT INTO users (provider, name, email, password_hash)
+     VALUES ('local', $1, $2, $3)
+     RETURNING id`,
+    [String(name).trim(), normalizedEmail, passwordHash],
+  );
 
-  req.session.userId = info.lastInsertRowid;
+  req.session.userId = inserted.id;
   const next = req.body?.next;
   if (typeof next === "string" && next.startsWith("/") && !next.startsWith("//")) {
     return res.redirect(next);
@@ -137,32 +136,32 @@ async function googleCallback(req, res) {
     const name = profile.name || profile.given_name || "User";
     const picture = profile.picture || "";
 
-    let user = db
-      .prepare(
-        `SELECT id, provider, provider_id, name, email, picture
-         FROM users
-         WHERE email = ?`,
-      )
-      .get(email);
+    let user = await queryOne(
+      `SELECT id, provider, provider_id, name, email, picture
+       FROM users
+       WHERE email = $1`,
+      [email],
+    );
 
     if (!user) {
-      const insert = db
-        .prepare(
-          `INSERT INTO users (provider, provider_id, name, email, picture)
-           VALUES ('google', ?, ?, ?, ?)`,
-        )
-        .run(providerId || null, name, email, picture);
-      req.session.userId = insert.lastInsertRowid;
+      const inserted = await queryOne(
+        `INSERT INTO users (provider, provider_id, name, email, picture)
+         VALUES ('google', $1, $2, $3, $4)
+         RETURNING id`,
+        [providerId || null, name, email, picture],
+      );
+      req.session.userId = inserted.id;
     } else {
-      db.prepare(
+      await query(
         `UPDATE users
          SET provider = 'google',
-             provider_id = COALESCE(?, provider_id),
-             name = ?,
-             picture = ?,
-             updated_at = datetime('now')
-         WHERE id = ?`,
-      ).run(providerId || null, name, picture, user.id);
+             provider_id = COALESCE($1, provider_id),
+             name = $2,
+             picture = $3,
+             updated_at = NOW()
+         WHERE id = $4`,
+        [providerId || null, name, picture, user.id],
+      );
 
       req.session.userId = user.id;
     }
@@ -187,4 +186,3 @@ function logout(req, res) {
 }
 
 module.exports = { login, signup, googleAuth, googleCallback, logout };
-

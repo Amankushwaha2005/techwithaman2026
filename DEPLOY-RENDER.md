@@ -18,9 +18,10 @@ Render par ye message **matlab service band (suspend) hai** — aksar galti se *
 1. **Settings** → scroll → **Delete Web Service** (sirf Render wali copy delete)  
 2. **New +** → **Web Service** (Blueprint dubara)  
 3. Repo: `techwithaman-website`, branch `main`  
-4. Build: `npm install && npm rebuild better-sqlite3`  
+4. Build: `npm install`  
 5. Start: `npm start`  
 6. Health check: `/health`  
+7. Add **PostgreSQL** (Render → New PostgreSQL) and set `DATABASE_URL` on the web service  
 
 ### Step C — Build fail ho to Logs dekho
 
@@ -51,7 +52,7 @@ Repo: **https://github.com/Amankushwaha2005/techwithaman-website**
 | Setting | Value |
 |---------|--------|
 | Runtime | Node |
-| Build Command | `npm install && npm rebuild better-sqlite3` |
+| Build Command | `npm install` |
 | Start Command | `npm start` |
 | Health Check | `/health` |
 
@@ -71,6 +72,7 @@ Add these (copy from local `.env` where needed):
 | `GOOGLE_CLIENT_SECRET` | Optional | |
 | `GOOGLE_REDIRECT_URI` | Optional | `https://YOUR-SERVICE.onrender.com/auth/google/callback` |
 | `ADMIN_EMAILS` | Optional | Your admin email |
+| `DATABASE_URL` | Yes | From Render PostgreSQL (Internal URL) — auto if using `render.yaml` Blueprint |
 
 After saving env vars → **Manual Deploy** → **Deploy latest commit**.
 
@@ -79,9 +81,9 @@ After saving env vars → **Manual Deploy** → **Deploy latest commit**.
 - **Razorpay:** Dashboard → use **Live** keys; allow your Render domain  
 - **Google OAuth:** Authorized redirect URI = `https://YOUR-SERVICE.onrender.com/auth/google/callback`
 
-## 5) SQLite on Render (important)
+## 5) PostgreSQL on Render
 
-Free tier disk is **ephemeral** — database may reset when the service redeploys. For serious production, later use Render **Persistent Disk** or PostgreSQL.
+This app uses **PostgreSQL** (`DATABASE_URL`). Use Render **PostgreSQL** (free tier) or the `databases` block in `render.yaml` Blueprint. Do not use SQLite on production.
 
 ## 6) Custom domain (optional)
 

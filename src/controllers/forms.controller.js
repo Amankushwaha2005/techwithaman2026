@@ -1,6 +1,6 @@
-const { db } = require("../services/db");
+const { query } = require("../services/db");
 
-function contact(req, res) {
+async function contact(req, res) {
   const { name, email, phone, message } = req.body || {};
   const n = String(name || "").trim();
   const em = String(email || "").trim().toLowerCase();
@@ -10,15 +10,16 @@ function contact(req, res) {
     return res.redirect("/contact?error=" + encodeURIComponent("Please fill name, email, and message."));
   }
 
-  db.prepare(
+  await query(
     `INSERT INTO contact_submissions (name, email, phone, message)
-     VALUES (?, ?, ?, ?)`,
-  ).run(n, em, String(phone || "").trim() || null, msg);
+     VALUES ($1, $2, $3, $4)`,
+    [n, em, String(phone || "").trim() || null, msg],
+  );
 
   res.redirect("/contact?sent=1");
 }
 
-function work(req, res) {
+async function work(req, res) {
   const { fullName, email, phone, resume, skill } = req.body || {};
   const fn = String(fullName || "").trim();
   const em = String(email || "").trim().toLowerCase();
@@ -27,21 +28,22 @@ function work(req, res) {
     return res.redirect("/work?error=" + encodeURIComponent("Name and email are required."));
   }
 
-  db.prepare(
+  await query(
     `INSERT INTO work_submissions (full_name, email, phone, resume, skill)
-     VALUES (?, ?, ?, ?, ?)`,
-  ).run(
-    fn,
-    em,
-    String(phone || "").trim() || null,
-    String(resume || "").trim() || null,
-    String(skill || "").trim() || null,
+     VALUES ($1, $2, $3, $4, $5)`,
+    [
+      fn,
+      em,
+      String(phone || "").trim() || null,
+      String(resume || "").trim() || null,
+      String(skill || "").trim() || null,
+    ],
   );
 
   res.redirect("/work?sent=1");
 }
 
-function chatbotMessage(req, res) {
+async function chatbotMessage(req, res) {
   const msg = String(req.body?.message || "").trim();
   if (!msg) {
     return res.status(400).json({ ok: false, error: "Message is required." });
@@ -49,10 +51,9 @@ function chatbotMessage(req, res) {
 
   const pageUrl = String(req.body?.page || req.get("referer") || "").trim().slice(0, 500) || null;
 
-  db.prepare(`INSERT INTO chat_messages (message, page_url) VALUES (?, ?)`).run(msg, pageUrl);
+  await query(`INSERT INTO chat_messages (message, page_url) VALUES ($1, $2)`, [msg, pageUrl]);
 
   return res.json({ ok: true });
 }
 
 module.exports = { contact, work, chatbotMessage };
-

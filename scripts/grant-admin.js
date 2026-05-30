@@ -4,27 +4,36 @@
  * Usage: npm run grant-admin -- you@email.com
  */
 require("dotenv").config();
-const path = require("path");
-const Database = require("better-sqlite3");
+const { initDb, query, queryOne, pool } = require("../src/services/db");
 
 const emailArg = process.argv[2];
-if (!emailArg) {
-  console.error("Usage: npm run grant-admin -- <email>");
-  console.error("Example: npm run grant-admin -- aman@gmail.com");
-  process.exit(1);
+
+async function main() {
+  if (!emailArg) {
+    console.error("Usage: npm run grant-admin -- <email>");
+    console.error("Example: npm run grant-admin -- aman@gmail.com");
+    process.exit(1);
+  }
+
+  await initDb();
+  const normalized = String(emailArg).trim().toLowerCase();
+
+  const row = await queryOne("SELECT id, email, role FROM users WHERE lower(email) = $1", [
+    normalized,
+  ]);
+  if (!row) {
+    console.error(`No user with email: ${normalized}`);
+    console.error("Sign up / login once first, then run this command again.");
+    process.exit(1);
+  }
+
+  await query("UPDATE users SET role = 'admin', updated_at = NOW() WHERE id = $1", [row.id]);
+  const updated = await queryOne("SELECT id, email, role FROM users WHERE id = $1", [row.id]);
+  console.log("Admin granted:", updated);
+  await pool.end();
 }
 
-const dbPath = process.env.DB_PATH || path.join(__dirname, "..", "data", "app.sqlite");
-const db = new Database(dbPath);
-const normalized = String(emailArg).trim().toLowerCase();
-
-const row = db.prepare("SELECT id, email, role FROM users WHERE lower(email) = ?").get(normalized);
-if (!row) {
-  console.error(`No user with email: ${normalized}`);
-  console.error("Sign up / login once first, then run this command again.");
+main().catch((err) => {
+  console.error(err.message || err);
   process.exit(1);
-}
-
-db.prepare("UPDATE users SET role = 'admin', updated_at = datetime('now') WHERE id = ?").run(row.id);
-const updated = db.prepare("SELECT id, email, role FROM users WHERE id = ?").get(row.id);
-console.log("Admin granted:", updated);
+});

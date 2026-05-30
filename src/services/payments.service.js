@@ -2,7 +2,7 @@ const crypto = require("crypto");
 
 const Razorpay = require("razorpay");
 
-const { db } = require("./db");
+const { query, queryOne } = require("./db");
 const {
   getRazorpayKeyId,
   getRazorpayKeySecret,
@@ -23,22 +23,35 @@ function getRazorpayClient() {
   });
 }
 
-function insertOrder(row) {
-  const stmt = db.prepare(`
+async function insertOrder(row) {
+  return queryOne(
+    `
     INSERT INTO orders (
       public_id, name, email, phone, service, plan, notes,
       total_inr, amount_inr, advance_percent, status
     ) VALUES (
-      @public_id, @name, @email, @phone, @service, @plan, @notes,
-      @total_inr, @amount_inr, @advance_percent, 'pending'
+      $1, $2, $3, $4, $5, $6, $7,
+      $8, $9, $10, 'pending'
     )
-  `);
-  const info = stmt.run(row);
-  return db.prepare(`SELECT * FROM orders WHERE id = ?`).get(info.lastInsertRowid);
+    RETURNING *
+  `,
+    [
+      row.public_id,
+      row.name,
+      row.email,
+      row.phone,
+      row.service,
+      row.plan,
+      row.notes,
+      row.total_inr,
+      row.amount_inr,
+      row.advance_percent,
+    ],
+  );
 }
 
-function getOrderByPublicId(publicId) {
-  return db.prepare(`SELECT * FROM orders WHERE public_id = ?`).get(publicId);
+async function getOrderByPublicId(publicId) {
+  return queryOne(`SELECT * FROM orders WHERE public_id = $1`, [publicId]);
 }
 
 function formatReceiptDate(value) {
@@ -91,8 +104,8 @@ function buildReceiptData(order) {
   };
 }
 
-function getOrderByRazorpayOrderId(razorpayOrderId) {
-  return db.prepare(`SELECT * FROM orders WHERE razorpay_order_id = ?`).get(razorpayOrderId);
+async function getOrderByRazorpayOrderId(razorpayOrderId) {
+  return queryOne(`SELECT * FROM orders WHERE razorpay_order_id = $1`, [razorpayOrderId]);
 }
 
 async function createPaymentOrder(payload) {
@@ -106,7 +119,7 @@ async function createPaymentOrder(payload) {
   const amountPaise = amountInr * 100;
 
   const publicId = createPublicId();
-  const orderRow = insertOrder({
+  const orderRow = await insertOrder({
     public_id: publicId,
     name: payload.name.trim(),
     email: payload.email.trim().toLowerCase(),
@@ -140,11 +153,10 @@ async function createPaymentOrder(payload) {
     },
   });
 
-  db.prepare(
-    `UPDATE orders SET razorpay_order_id = ? WHERE id = ?`,
-  ).run(rzOrder.id, orderRow.id);
-
-  const updated = db.prepare(`SELECT * FROM orders WHERE id = ?`).get(orderRow.id);
+  const updated = await queryOne(
+    `UPDATE orders SET razorpay_order_id = $1 WHERE id = $2 RETURNING *`,
+    [rzOrder.id, orderRow.id],
+  );
 
   return {
     order: updated,
@@ -162,23 +174,24 @@ function verifyRazorpaySignature(razorpayOrderId, razorpayPaymentId, signature) 
   return expected === signature;
 }
 
-function markOrderPaid(orderId, razorpayPaymentId) {
-  db.prepare(
+async function markOrderPaid(orderId, razorpayPaymentId) {
+  return queryOne(
     `UPDATE orders
      SET status = 'paid',
-         razorpay_payment_id = ?,
-         paid_at = datetime('now')
-     WHERE id = ?`,
-  ).run(razorpayPaymentId, orderId);
-  return db.prepare(`SELECT * FROM orders WHERE id = ?`).get(orderId);
+         razorpay_payment_id = $1,
+         paid_at = NOW()
+     WHERE id = $2
+     RETURNING *`,
+    [razorpayPaymentId, orderId],
+  );
 }
 
-function completePayment({ razorpay_order_id, razorpay_payment_id, razorpay_signature }) {
+async function completePayment({ razorpay_order_id, razorpay_payment_id, razorpay_signature }) {
   if (!isPaymentEnabled()) {
     throw new Error("Payment gateway is not configured.");
   }
 
-  const order = getOrderByRazorpayOrderId(razorpay_order_id);
+  const order = await getOrderByRazorpayOrderId(razorpay_order_id);
   if (!order) throw new Error("Order not found.");
   if (order.status === "paid") {
     return { order, alreadyPaid: true };
@@ -193,7 +206,7 @@ function completePayment({ razorpay_order_id, razorpay_payment_id, razorpay_sign
     if (!ok) throw new Error("Payment verification failed.");
   }
 
-  const paid = markOrderPaid(order.id, razorpay_payment_id);
+  const paid = await markOrderPaid(order.id, razorpay_payment_id);
   return { order: paid, alreadyPaid: false };
 }
 
@@ -201,7 +214,7 @@ async function syncCapturedPaymentForOrder(razorpayOrderId) {
   const razorpay = getRazorpayClient();
   if (!razorpay) return null;
 
-  const order = getOrderByRazorpayOrderId(razorpayOrderId);
+  const order = await getOrderByRazorpayOrderId(razorpayOrderId);
   if (!order) return null;
   if (order.status === "paid") return order;
 
@@ -220,7 +233,7 @@ async function syncCapturedPaymentForOrder(razorpayOrderId) {
 }
 
 async function checkOrderPaymentStatus(publicId) {
-  const order = getOrderByPublicId(publicId);
+  const order = await getOrderByPublicId(publicId);
   if (!order) {
     return { status: "not_found" };
   }

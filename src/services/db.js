@@ -1,36 +1,49 @@
-const fs = require("fs");
-const path = require("path");
+const { Pool } = require("pg");
 
-const Database = require("better-sqlite3");
+function getPoolConfig() {
+  if (process.env.DATABASE_URL?.trim()) {
+    const ssl =
+      process.env.PGSSL === "true"
+        ? { rejectUnauthorized: process.env.PGSSL_REJECT_UNAUTHORIZED !== "false" }
+        : undefined;
+    return { connectionString: process.env.DATABASE_URL.trim(), ssl };
+  }
 
-const DEFAULT_DB_PATH = path.join(__dirname, "..", "..", "data", "app.sqlite");
-
-function openDb() {
-  const dbPath = process.env.DB_PATH || DEFAULT_DB_PATH;
-  fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-  const db = new Database(dbPath);
-  db.pragma("journal_mode = WAL");
-  db.pragma("foreign_keys = ON");
-  return db;
+  return {
+    host: process.env.PGHOST || process.env.DB_HOST || "127.0.0.1",
+    port: Number(process.env.PGPORT || process.env.DB_PORT) || 5432,
+    user: process.env.PGUSER || process.env.DB_USER || "postgres",
+    password: process.env.PGPASSWORD ?? process.env.DB_PASSWORD ?? "",
+    database: process.env.PGDATABASE || process.env.DB_NAME || "web_project",
+    max: Number(process.env.DB_POOL_LIMIT) || 10,
+  };
 }
 
-function tableHasColumn(db, table, column) {
-  const rows = db.prepare(`PRAGMA table_info(${table})`).all();
-  return rows.some((r) => r.name === column);
+const pool = new Pool(getPoolConfig());
+
+async function query(text, params = []) {
+  const result = await pool.query(text, params);
+  return result.rows;
 }
 
-function migrate(db) {
-  db.exec(`
+async function queryOne(text, params = []) {
+  const rows = await query(text, params);
+  return rows[0] || null;
+}
+
+async function migrate() {
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       provider TEXT NOT NULL DEFAULT 'local',
       provider_id TEXT,
       name TEXT NOT NULL,
       email TEXT NOT NULL,
       password_hash TEXT,
       picture TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      role TEXT NOT NULL DEFAULT 'user',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
     CREATE UNIQUE INDEX IF NOT EXISTS idx_users_provider_provider_id
@@ -38,32 +51,26 @@ function migrate(db) {
 
     CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email
       ON users(email);
-  `);
 
-  if (!tableHasColumn(db, "users", "role")) {
-    db.exec(`ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'`);
-  }
-
-  db.exec(`
     CREATE TABLE IF NOT EXISTS contact_submissions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       email TEXT NOT NULL,
       phone TEXT,
       message TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'new',
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS work_submissions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       full_name TEXT NOT NULL,
       email TEXT NOT NULL,
       phone TEXT,
       resume TEXT,
       skill TEXT,
       status TEXT NOT NULL DEFAULT 'new',
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
     CREATE INDEX IF NOT EXISTS idx_contact_created ON contact_submissions(created_at DESC);
@@ -72,18 +79,18 @@ function migrate(db) {
     CREATE INDEX IF NOT EXISTS idx_work_status ON work_submissions(status);
 
     CREATE TABLE IF NOT EXISTS chat_messages (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       message TEXT NOT NULL,
       page_url TEXT,
       status TEXT NOT NULL DEFAULT 'new',
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
     CREATE INDEX IF NOT EXISTS idx_chat_created ON chat_messages(created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_chat_status ON chat_messages(status);
 
     CREATE TABLE IF NOT EXISTS orders (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       public_id TEXT NOT NULL UNIQUE,
       name TEXT NOT NULL,
       email TEXT NOT NULL,
@@ -97,18 +104,38 @@ function migrate(db) {
       status TEXT NOT NULL DEFAULT 'pending',
       razorpay_order_id TEXT,
       razorpay_payment_id TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      paid_at TEXT
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      paid_at TIMESTAMPTZ
     );
 
     CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
     CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_orders_razorpay ON orders(razorpay_order_id);
   `);
+
+  await pool.query(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'users' AND column_name = 'role'
+      ) THEN
+        ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user';
+      END IF;
+    END $$;
+  `);
 }
 
-const db = openDb();
-migrate(db);
+let initPromise = null;
 
-module.exports = { db };
+function initDb() {
+  if (!initPromise) {
+    initPromise = migrate().catch((err) => {
+      initPromise = null;
+      throw err;
+    });
+  }
+  return initPromise;
+}
 
+module.exports = { pool, query, queryOne, initDb };

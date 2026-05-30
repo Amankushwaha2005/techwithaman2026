@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "fix:sqlite": "npm rebuild better-sqlite3",
-    "postinstall": "npm rebuild better-sqlite3",
+    "db:init": "node -e \"require('dotenv').config();require('./src/services/db').initDb().then(()=>{console.log('PostgreSQL schema ready');process.exit(0)}).catch(e=>{console.error(e);process.exit(1)})\"",
     "grant-admin": "node scripts/grant-admin.js",
     "sync-pages": "node scripts/sync-html-to-ejs.js",
     "download-tech-icons": "node scripts/download-tech-icons.js",
@@ -22,13 +21,12 @@
   "type": "commonjs",
   "dependencies": {
     "bcryptjs": "^3.0.2",
-    "better-sqlite3": "^12.10.0",
     "dotenv": "^17.4.2",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
     "express-session": "^1.18.2",
-    "razorpay": "^2.9.6",
-    "sqlite3": "^6.0.1"
+    "pg": "^8.21.0",
+    "razorpay": "^2.9.6"
   },
   "repository": {
     "type": "git",

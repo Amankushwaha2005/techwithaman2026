@@ -4,35 +4,43 @@ cd /d "%~dp0"
 
 echo.
 echo  ========================================
-echo   TechWithAman — fix SQLite + start server
+echo   TechWithAman — PostgreSQL check + start
 echo  ========================================
 echo.
 
-echo  Step 1: Stop old Node processes (unlocks better-sqlite3 file)...
+echo  Step 1: Stop old Node processes...
 taskkill /F /IM node.exe >nul 2>&1
 timeout /t 2 /nobreak >nul
 
-echo  Step 2: Node version (install AND run must use the SAME version):
+echo  Step 2: Node version:
 node -v
 echo.
 
-echo  Step 3: Rebuild better-sqlite3 for this Node version...
-if exist "node_modules\better-sqlite3\build" rmdir /s /q "node_modules\better-sqlite3\build"
-call npm rebuild better-sqlite3
+echo  Step 3: Install dependencies (if needed)...
+call npm install
 if errorlevel 1 (
-  echo.
-  echo  Rebuild failed. Close VS Code terminals, then run this file again.
-  echo  Or run as Administrator if you see EPERM / EBUSY.
+  echo  npm install failed.
   pause
   exit /b 1
 )
 
 echo.
-echo  Step 4: Starting server...
+echo  Step 4: Initialize PostgreSQL schema...
+call npm run db:init
+if errorlevel 1 (
+  echo.
+  echo  Database failed. Set DATABASE_URL in .env and ensure PostgreSQL is running.
+  echo  Example: createdb web_project
+  pause
+  exit /b 1
+)
+
+echo.
+echo  Step 5: Starting server...
 call npm start
 if errorlevel 1 (
   echo.
-  echo  Start failed. Copy the red error and check Node version matches rebuild.
+  echo  Start failed. Check .env DATABASE_URL and PostgreSQL service.
   pause
   exit /b 1
 )

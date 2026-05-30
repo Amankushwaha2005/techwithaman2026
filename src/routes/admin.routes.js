@@ -1,4 +1,4 @@
-const { db } = require("../services/db");
+const { query, queryOne } = require("../services/db");
 const { requireAdmin } = require("../middleware/requireAdmin");
 const adminController = require("../controllers/admin.controller");
 
@@ -15,19 +15,19 @@ function mountAdminRoutes(app) {
    * preview-browser cookies. Visit once: /admin/connect?secret=VALUE from .env
    * Remove ADMIN_BOOTSTRAP_SECRET before any public deploy.
    */
-  app.get("/admin/connect", (req, res) => {
+  app.get("/admin/connect", async (req, res) => {
     const secret = process.env.ADMIN_BOOTSTRAP_SECRET;
     if (!secret || String(req.query.secret || "") !== secret) {
       return res.status(404).send("Page not found");
     }
 
-    let row = db.prepare(`SELECT id FROM users WHERE role = 'admin' ORDER BY id LIMIT 1`).get();
+    let row = await queryOne(`SELECT id FROM users WHERE role = 'admin' ORDER BY id LIMIT 1`);
     if (!row) {
-      const first = db.prepare(`SELECT id FROM users ORDER BY id LIMIT 1`).get();
+      const first = await queryOne(`SELECT id FROM users ORDER BY id LIMIT 1`);
       if (!first) {
         return res.redirect("/signup");
       }
-      db.prepare(`UPDATE users SET role = 'admin', updated_at = datetime('now') WHERE id = ?`).run(first.id);
+      await query(`UPDATE users SET role = 'admin', updated_at = NOW() WHERE id = $1`, [first.id]);
       row = first;
     }
 

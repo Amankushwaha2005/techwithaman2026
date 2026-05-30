@@ -4,7 +4,7 @@
     {
       "label": "npm: install",
       "type": "shell",
-      "command": "npm install && npm rebuild better-sqlite3",
+      "command": "npm install",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -16,9 +16,22 @@
       }
     },
     {
-      "label": "fix: kill node + rebuild sqlite + start",
+      "label": "db: init PostgreSQL",
       "type": "shell",
-      "command": "taskkill /F /IM node.exe 2>$null; Start-Sleep -Seconds 2; Remove-Item -Recurse -Force node_modules/better-sqlite3/build -ErrorAction SilentlyContinue; npm rebuild better-sqlite3; npm start",
+      "command": "npm run db:init",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "fix: kill node + db init + start",
+      "type": "shell",
+      "command": "taskkill /F /IM node.exe 2>$null; Start-Sleep -Seconds 2; npm run db:init; npm start",
       "options": {
         "cwd": "${workspaceFolder}"
       },

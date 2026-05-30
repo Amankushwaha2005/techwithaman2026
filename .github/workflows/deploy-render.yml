@@ -1,0 +1,14 @@
+# Triggers Render deploy on every push to main (add RENDER_DEPLOY_HOOK_URL in GitHub repo secrets)
+name: Deploy to Render
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' }}
+    steps:
+      - name: Trigger Render deploy hook
+        run: curl -fsS "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"

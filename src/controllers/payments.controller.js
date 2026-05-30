@@ -42,9 +42,9 @@ function showOrder(req, res) {
   });
 }
 
-function showOrderSuccess(req, res) {
+async function showOrderSuccess(req, res) {
   const id = typeof req.query.id === "string" ? req.query.id : "";
-  const order = id ? paymentsService.getOrderByPublicId(id) : null;
+  const order = id ? await paymentsService.getOrderByPublicId(id) : null;
   const receipt = order && order.status === "paid" ? paymentsService.buildReceiptData(order) : null;
 
   renderWithLayout(
@@ -55,9 +55,9 @@ function showOrderSuccess(req, res) {
   );
 }
 
-function showOrderReceipt(req, res) {
+async function showOrderReceipt(req, res) {
   const id = typeof req.query.id === "string" ? req.query.id : "";
-  const order = id ? paymentsService.getOrderByPublicId(id) : null;
+  const order = id ? await paymentsService.getOrderByPublicId(id) : null;
 
   if (!order || order.status !== "paid") {
     return res.status(404).send("Receipt not found. Complete payment first or check your order ID.");
@@ -134,7 +134,7 @@ async function verifyPayment(req, res) {
       return res.status(400).json({ ok: false, error: "Missing payment details." });
     }
 
-    const { order, alreadyPaid } = paymentsService.completePayment({
+    const { order, alreadyPaid } = await paymentsService.completePayment({
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,

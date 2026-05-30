@@ -1,10 +1,16 @@
-const { db } = require("../services/db");
+const { query, queryOne } = require("../services/db");
 const { brand } = require("../config/site");
 
 const STATUSES = ["new", "read", "archived"];
 const ROLES = ["user", "admin"];
 
-function buildChartSeries() {
+function dayKey(value) {
+  if (!value) return "";
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return String(value).slice(0, 10);
+}
+
+async function buildChartSeries() {
   const dayCount = 14;
   const keys = [];
   const labels = [];
@@ -17,26 +23,24 @@ function buildChartSeries() {
     labels.push(`${d.getUTCMonth() + 1}/${d.getUTCDate()}`);
   }
 
-  const contactRows = db
-    .prepare(
-      `SELECT date(created_at) AS d, COUNT(*) AS c
-       FROM contact_submissions
-       WHERE created_at >= datetime('now', '-' || ? || ' days')
-       GROUP BY date(created_at)`,
-    )
-    .all(dayCount);
+  const contactRows = await query(
+    `SELECT created_at::date AS d, COUNT(*)::int AS c
+     FROM contact_submissions
+     WHERE created_at >= NOW() - ($1::text || ' days')::interval
+     GROUP BY created_at::date`,
+    [String(dayCount)],
+  );
 
-  const workRows = db
-    .prepare(
-      `SELECT date(created_at) AS d, COUNT(*) AS c
-       FROM work_submissions
-       WHERE created_at >= datetime('now', '-' || ? || ' days')
-       GROUP BY date(created_at)`,
-    )
-    .all(dayCount);
+  const workRows = await query(
+    `SELECT created_at::date AS d, COUNT(*)::int AS c
+     FROM work_submissions
+     WHERE created_at >= NOW() - ($1::text || ' days')::interval
+     GROUP BY created_at::date`,
+    [String(dayCount)],
+  );
 
-  const contactMap = Object.fromEntries(contactRows.map((r) => [r.d, r.c]));
-  const workMap = Object.fromEntries(workRows.map((r) => [r.d, r.c]));
+  const contactMap = Object.fromEntries(contactRows.map((r) => [dayKey(r.d), Number(r.c)]));
+  const workMap = Object.fromEntries(workRows.map((r) => [dayKey(r.d), Number(r.c)]));
 
   return {
     chartLabels: labels,
@@ -45,37 +49,44 @@ function buildChartSeries() {
   };
 }
 
-function dashboard(req, res) {
+async function dashboard(req, res) {
   const stats = {
-    users: db.prepare("SELECT COUNT(*) AS n FROM users").get().n,
-    usersWeek: db.prepare(`SELECT COUNT(*) AS n FROM users WHERE created_at >= datetime('now', '-7 days')`).get().n,
-    contacts: db.prepare("SELECT COUNT(*) AS n FROM contact_submissions").get().n,
-    work: db.prepare("SELECT COUNT(*) AS n FROM work_submissions").get().n,
-    contactsNew: db.prepare(`SELECT COUNT(*) AS n FROM contact_submissions WHERE status = 'new'`).get().n,
-    workNew: db.prepare(`SELECT COUNT(*) AS n FROM work_submissions WHERE status = 'new'`).get().n,
-    chats: db.prepare("SELECT COUNT(*) AS n FROM chat_messages").get().n,
-    chatsNew: db.prepare(`SELECT COUNT(*) AS n FROM chat_messages WHERE status = 'new'`).get().n,
+    users: Number((await queryOne("SELECT COUNT(*)::int AS n FROM users")).n),
+    usersWeek: Number(
+      (await queryOne(`SELECT COUNT(*)::int AS n FROM users WHERE created_at >= NOW() - INTERVAL '7 days'`))
+        .n,
+    ),
+    contacts: Number((await queryOne("SELECT COUNT(*)::int AS n FROM contact_submissions")).n),
+    work: Number((await queryOne("SELECT COUNT(*)::int AS n FROM work_submissions")).n),
+    contactsNew: Number(
+      (await queryOne(`SELECT COUNT(*)::int AS n FROM contact_submissions WHERE status = 'new'`)).n,
+    ),
+    workNew: Number(
+      (await queryOne(`SELECT COUNT(*)::int AS n FROM work_submissions WHERE status = 'new'`)).n,
+    ),
+    chats: Number((await queryOne("SELECT COUNT(*)::int AS n FROM chat_messages")).n),
+    chatsNew: Number(
+      (await queryOne(`SELECT COUNT(*)::int AS n FROM chat_messages WHERE status = 'new'`)).n,
+    ),
   };
 
-  const { chartLabels, contactSeries, workSeries } = buildChartSeries();
+  const { chartLabels, contactSeries, workSeries } = await buildChartSeries();
 
-  const recentContact = db
-    .prepare(`SELECT * FROM contact_submissions ORDER BY datetime(created_at) DESC, id DESC LIMIT 40`)
-    .all();
-  const recentWork = db
-    .prepare(`SELECT * FROM work_submissions ORDER BY datetime(created_at) DESC, id DESC LIMIT 40`)
-    .all();
-  const recentChat = db
-    .prepare(`SELECT * FROM chat_messages ORDER BY datetime(created_at) DESC, id DESC LIMIT 50`)
-    .all();
-  const users = db
-    .prepare(
-      `SELECT id, provider, name, email, role, created_at, picture
-       FROM users
-       ORDER BY id DESC
-       LIMIT 120`,
-    )
-    .all();
+  const recentContact = await query(
+    `SELECT * FROM contact_submissions ORDER BY created_at DESC, id DESC LIMIT 40`,
+  );
+  const recentWork = await query(
+    `SELECT * FROM work_submissions ORDER BY created_at DESC, id DESC LIMIT 40`,
+  );
+  const recentChat = await query(
+    `SELECT * FROM chat_messages ORDER BY created_at DESC, id DESC LIMIT 50`,
+  );
+  const users = await query(
+    `SELECT id, provider, name, email, role, created_at, picture
+     FROM users
+     ORDER BY id DESC
+     LIMIT 120`,
+  );
 
   res.render("admin/dashboard", {
     title: `Admin · ${brand}`,
@@ -94,58 +105,58 @@ function dashboard(req, res) {
   });
 }
 
-function updateContactStatus(req, res) {
+async function updateContactStatus(req, res) {
   const id = Number(req.params.id);
   const status = String(req.body.status || "");
   if (!Number.isInteger(id) || !STATUSES.includes(status)) {
     return res.redirect("/admin?err=invalid");
   }
-  db.prepare(`UPDATE contact_submissions SET status = ? WHERE id = ?`).run(status, id);
+  await query(`UPDATE contact_submissions SET status = $1 WHERE id = $2`, [status, id]);
   return res.redirect("/admin#inbox-contact");
 }
 
-function updateWorkStatus(req, res) {
+async function updateWorkStatus(req, res) {
   const id = Number(req.params.id);
   const status = String(req.body.status || "");
   if (!Number.isInteger(id) || !STATUSES.includes(status)) {
     return res.redirect("/admin?err=invalid");
   }
-  db.prepare(`UPDATE work_submissions SET status = ? WHERE id = ?`).run(status, id);
+  await query(`UPDATE work_submissions SET status = $1 WHERE id = $2`, [status, id]);
   return res.redirect("/admin#inbox-work");
 }
 
-function deleteContact(req, res) {
+async function deleteContact(req, res) {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.redirect("/admin?err=invalid");
-  db.prepare(`DELETE FROM contact_submissions WHERE id = ?`).run(id);
+  await query(`DELETE FROM contact_submissions WHERE id = $1`, [id]);
   return res.redirect("/admin#inbox-contact");
 }
 
-function deleteWork(req, res) {
+async function deleteWork(req, res) {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.redirect("/admin?err=invalid");
-  db.prepare(`DELETE FROM work_submissions WHERE id = ?`).run(id);
+  await query(`DELETE FROM work_submissions WHERE id = $1`, [id]);
   return res.redirect("/admin#inbox-work");
 }
 
-function updateChatStatus(req, res) {
+async function updateChatStatus(req, res) {
   const id = Number(req.params.id);
   const status = String(req.body.status || "");
   if (!Number.isInteger(id) || !STATUSES.includes(status)) {
     return res.redirect("/admin?err=invalid");
   }
-  db.prepare(`UPDATE chat_messages SET status = ? WHERE id = ?`).run(status, id);
+  await query(`UPDATE chat_messages SET status = $1 WHERE id = $2`, [status, id]);
   return res.redirect("/admin#inbox-chat");
 }
 
-function deleteChat(req, res) {
+async function deleteChat(req, res) {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.redirect("/admin?err=invalid");
-  db.prepare(`DELETE FROM chat_messages WHERE id = ?`).run(id);
+  await query(`DELETE FROM chat_messages WHERE id = $1`, [id]);
   return res.redirect("/admin#inbox-chat");
 }
 
-function setUserRole(req, res) {
+async function setUserRole(req, res) {
   const id = Number(req.params.id);
   const role = String(req.body.role || "");
   if (!Number.isInteger(id) || !ROLES.includes(role)) {
@@ -154,7 +165,7 @@ function setUserRole(req, res) {
   if (id === req.session.userId && role === "user") {
     return res.redirect("/admin?err=selfdemote");
   }
-  db.prepare(`UPDATE users SET role = ?, updated_at = datetime('now') WHERE id = ?`).run(role, id);
+  await query(`UPDATE users SET role = $1, updated_at = NOW() WHERE id = $2`, [role, id]);
   return res.redirect("/admin?flash=roleupdated#users");
 }
 
