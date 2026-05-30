@@ -85,7 +85,7 @@ Add these (copy from local `.env` where needed):
 | `GOOGLE_CLIENT_ID` | For Google login | Optional |
 | `GOOGLE_CLIENT_SECRET` | Optional | |
 | `GOOGLE_REDIRECT_URI` | Optional | `https://YOUR-SERVICE.onrender.com/auth/google/callback` |
-| `ADMIN_EMAILS` | Optional | Your admin email |
+| `ADMIN_EMAILS` | **Yes for /admin** | Your login email, e.g. `you@gmail.com` (403 fix) |
 | `DATABASE_URL` | Yes | From Render PostgreSQL (Internal URL) — auto if using `render.yaml` Blueprint |
 
 After saving env vars → **Manual Deploy** → **Deploy latest commit**.

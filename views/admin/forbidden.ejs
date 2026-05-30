@@ -14,8 +14,12 @@
     <h1>403</h1>
     <p>You do not have access to the admin dashboard.</p>
     <p class="admin-forbidden-hint">
-      Fix: add your login email to <code>ADMIN_EMAILS</code> in <code>.env</code>, or run
-      <code>npm run grant-admin -- your@email.com</code> in the project folder (same email you use to log in).
+      <strong>Live site (Render):</strong> Dashboard → your web service → <strong>Environment</strong> → add
+      <code>ADMIN_EMAILS=your@email.com</code> (same email as login) → Save → open <code>/admin</code> again.
+    </p>
+    <p class="admin-forbidden-hint">
+      <strong>Local:</strong> <code>.env</code> mein <code>ADMIN_EMAILS</code>, ya
+      <code>npm run grant-admin -- your@email.com</code> (pehle signup/login karo).
     </p>
     <a class="btn" href="/">Back to site</a>
   </div>
