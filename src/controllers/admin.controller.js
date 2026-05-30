@@ -39,13 +39,23 @@ async function buildChartSeries() {
     [String(dayCount)],
   );
 
+  const orderRows = await query(
+    `SELECT created_at::date AS d, COUNT(*)::int AS c
+     FROM orders
+     WHERE created_at >= NOW() - ($1::text || ' days')::interval
+     GROUP BY created_at::date`,
+    [String(dayCount)],
+  );
+
   const contactMap = Object.fromEntries(contactRows.map((r) => [dayKey(r.d), Number(r.c)]));
   const workMap = Object.fromEntries(workRows.map((r) => [dayKey(r.d), Number(r.c)]));
+  const orderMap = Object.fromEntries(orderRows.map((r) => [dayKey(r.d), Number(r.c)]));
 
   return {
     chartLabels: labels,
     contactSeries: keys.map((k) => contactMap[k] || 0),
     workSeries: keys.map((k) => workMap[k] || 0),
+    orderSeries: keys.map((k) => orderMap[k] || 0),
   };
 }
 
@@ -68,9 +78,20 @@ async function dashboard(req, res) {
     chatsNew: Number(
       (await queryOne(`SELECT COUNT(*)::int AS n FROM chat_messages WHERE status = 'new'`)).n,
     ),
+    orders: Number((await queryOne("SELECT COUNT(*)::int AS n FROM orders")).n),
+    ordersPaid: Number(
+      (await queryOne(`SELECT COUNT(*)::int AS n FROM orders WHERE status = 'paid'`)).n,
+    ),
+    ordersPending: Number(
+      (await queryOne(`SELECT COUNT(*)::int AS n FROM orders WHERE status = 'pending'`)).n,
+    ),
+    revenuePaid: Number(
+      (await queryOne(`SELECT COALESCE(SUM(amount_inr), 0)::int AS n FROM orders WHERE status = 'paid'`))
+        .n,
+    ),
   };
 
-  const { chartLabels, contactSeries, workSeries } = await buildChartSeries();
+  const { chartLabels, contactSeries, workSeries, orderSeries } = await buildChartSeries();
 
   const recentContact = await query(
     `SELECT * FROM contact_submissions ORDER BY created_at DESC, id DESC LIMIT 40`,
@@ -80,6 +101,14 @@ async function dashboard(req, res) {
   );
   const recentChat = await query(
     `SELECT * FROM chat_messages ORDER BY created_at DESC, id DESC LIMIT 50`,
+  );
+  const recentOrders = await query(
+    `SELECT id, public_id, name, email, phone, service, plan, status,
+            total_inr, amount_inr, advance_percent,
+            razorpay_order_id, razorpay_payment_id, created_at, paid_at
+     FROM orders
+     ORDER BY created_at DESC, id DESC
+     LIMIT 80`,
   );
   const users = await query(
     `SELECT id, provider, name, email, role, created_at, picture
@@ -95,9 +124,10 @@ async function dashboard(req, res) {
     recentContact,
     recentWork,
     recentChat,
+    recentOrders,
     users,
     chartLabels,
-    chartSeries: { contact: contactSeries, work: workSeries },
+    chartSeries: { contact: contactSeries, work: workSeries, orders: orderSeries },
     authUser: res.locals.authUser,
     flash: req.query.flash || "",
     err: req.query.err || "",

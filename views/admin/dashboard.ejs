@@ -18,6 +18,7 @@
       <nav class="admin-side-nav">
         <a href="#overview">Overview</a>
         <a href="#activity">Activity chart</a>
+        <a href="#inbox-orders">Payments &amp; orders</a>
         <a href="#inbox-contact">Contact inbox</a>
         <a href="#inbox-chat">Chatbot messages</a>
         <a href="#inbox-work">Work applications</a>
@@ -84,8 +85,18 @@
               <span class="admin-kpi-meta admin-kpi-warn"><%= stats.chatsNew %> new</span>
             </article>
             <article class="admin-kpi admin-kpi-accent">
+              <span class="admin-kpi-label">Orders (total)</span>
+              <strong class="admin-kpi-value"><%= stats.orders %></strong>
+              <span class="admin-kpi-meta"><%= stats.ordersPaid %> paid · <%= stats.ordersPending %> pending</span>
+            </article>
+            <article class="admin-kpi admin-kpi-accent">
+              <span class="admin-kpi-label">Revenue collected</span>
+              <strong class="admin-kpi-value">₹<%= Number(stats.revenuePaid).toLocaleString('en-IN') %></strong>
+              <span class="admin-kpi-meta">Advance payments (paid orders)</span>
+            </article>
+            <article class="admin-kpi">
               <span class="admin-kpi-label">Pipeline</span>
-              <strong class="admin-kpi-value"><%= stats.contactsNew + stats.workNew + stats.chatsNew %></strong>
+              <strong class="admin-kpi-value"><%= stats.contactsNew + stats.workNew + stats.chatsNew + stats.ordersPending %></strong>
               <span class="admin-kpi-meta">Open items</span>
             </article>
           </div>
@@ -95,6 +106,68 @@
           <h2 class="admin-h2">Submissions (last 14 days)</h2>
           <div class="admin-chart-card">
             <canvas id="adminChart" height="120" aria-label="Submissions chart"></canvas>
+          </div>
+        </section>
+
+        <section class="admin-section" id="inbox-orders">
+          <h2 class="admin-h2">Payments &amp; orders</h2>
+          <p class="admin-section-desc">Razorpay advance payments and order records from the pricing / order page.</p>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>When</th>
+                  <th>Status</th>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Service / plan</th>
+                  <th>Advance</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+                  <th>Receipt</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentOrders.forEach((row) => { %>
+                  <tr>
+                    <td><%= row.id %></td>
+                    <td class="admin-nowrap"><%= row.created_at %></td>
+                    <td>
+                      <span class="admin-pill admin-pill-<%= row.status === 'paid' ? 'paid' : 'pending' %>"><%= row.status %></span>
+                    </td>
+                    <td class="admin-nowrap"><code><%= row.public_id %></code></td>
+                    <td>
+                      <strong><%= row.name %></strong><br>
+                      <a href="mailto:<%= row.email %>"><%= row.email %></a>
+                      <% if (row.phone) { %><br><span class="admin-muted"><%= row.phone %></span><% } %>
+                    </td>
+                    <td><%= row.service %><br><span class="admin-muted"><%= row.plan %></span></td>
+                    <td>₹<%= Number(row.amount_inr).toLocaleString('en-IN') %> <span class="admin-muted">(<%= row.advance_percent %>%)</span></td>
+                    <td>₹<%= Number(row.total_inr).toLocaleString('en-IN') %></td>
+                    <td class="admin-cell-msg">
+                      <% if (row.razorpay_payment_id) { %>
+                        <span class="admin-muted" title="Razorpay payment ID"><%= row.razorpay_payment_id %></span>
+                      <% } else if (row.razorpay_order_id) { %>
+                        <span class="admin-muted">Awaiting pay</span>
+                      <% } else { %>
+                        —
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (row.status === 'paid') { %>
+                        <a class="btn btn-small" href="/order/receipt?id=<%= encodeURIComponent(row.public_id) %>" target="_blank" rel="noopener">View</a>
+                      <% } else { %>
+                        —
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }) %>
+                <% if (!recentOrders.length) { %>
+                  <tr><td colspan="10" class="admin-empty">No orders yet. Payments from the order page will appear here.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -302,6 +375,7 @@
       var labels = <%- JSON.stringify(chartLabels) %>;
       var contact = <%- JSON.stringify(chartSeries.contact) %>;
       var work = <%- JSON.stringify(chartSeries.work) %>;
+      var orders = <%- JSON.stringify(chartSeries.orders) %>;
       var root = document.documentElement;
       var muted = getComputedStyle(root).getPropertyValue("--muted").trim() || "#a8b4d7";
       var brand = getComputedStyle(root).getPropertyValue("--brand").trim() || "#2f6efb";
@@ -324,6 +398,14 @@
               data: work,
               borderColor: muted,
               backgroundColor: "rgba(168, 180, 215, 0.15)",
+              tension: 0.35,
+              fill: true,
+            },
+            {
+              label: "Orders",
+              data: orders,
+              borderColor: "#3dd68c",
+              backgroundColor: "rgba(61, 214, 140, 0.12)",
               tension: 0.35,
               fill: true,
             },

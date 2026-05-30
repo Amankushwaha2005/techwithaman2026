@@ -3026,6 +3026,22 @@ html[data-theme="light"] .admin-topbar {
   color: var(--brand);
 }
 
+.admin-pill-paid {
+  background: rgba(61, 214, 140, 0.18);
+  color: #3dd68c;
+}
+
+.admin-pill-pending {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+}
+
+.admin-section-desc {
+  margin: -0.25rem 0 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
 .admin-pill-user {
   background: rgba(168, 180, 215, 0.18);
   color: var(--muted);
