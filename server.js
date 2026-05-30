@@ -13,11 +13,14 @@ async function start() {
     console.error("\n========== DATABASE FAILED TO CONNECT ==========");
     console.error(err.message || err);
     console.error("=================================================");
-    console.error("PostgreSQL is required. Check .env:");
-    console.error("  DATABASE_URL=postgres://user:pass@127.0.0.1:5432/web_project");
-    console.error("  — or —");
-    console.error("  PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE");
-    console.error("Create DB:  createdb web_project");
+    if (process.env.RENDER) {
+      console.error("Render fix: Dashboard → PostgreSQL → Internal Database URL");
+      console.error("  → Web service → Environment → DATABASE_URL = (paste URL)");
+      console.error("  → Save → Manual Deploy");
+    } else {
+      console.error("Local: set DATABASE_URL in .env (see .env.example)");
+      console.error("  createdb web_project   # if PostgreSQL is installed locally");
+    }
     console.error("=================================================\n");
     process.exit(1);
   }

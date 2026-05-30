@@ -1,28 +1,51 @@
 const { Pool } = require("pg");
 
 function getPoolConfig() {
-  if (process.env.DATABASE_URL?.trim()) {
-    const ssl =
-      process.env.PGSSL === "true"
-        ? { rejectUnauthorized: process.env.PGSSL_REJECT_UNAUTHORIZED !== "false" }
-        : undefined;
-    return { connectionString: process.env.DATABASE_URL.trim(), ssl };
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  const onRender = Boolean(process.env.RENDER);
+  const isProduction = process.env.NODE_ENV === "production";
+
+  if (!databaseUrl) {
+    if (isProduction || onRender) {
+      throw new Error(
+        "DATABASE_URL is missing on Render. Steps: Dashboard → New PostgreSQL → create DB → " +
+          "open your web service → Environment → add DATABASE_URL = Internal Database URL → Save → Redeploy.",
+      );
+    }
+
+    return {
+      host: process.env.PGHOST || process.env.DB_HOST || "127.0.0.1",
+      port: Number(process.env.PGPORT || process.env.DB_PORT) || 5432,
+      user: process.env.PGUSER || process.env.DB_USER || "postgres",
+      password: process.env.PGPASSWORD ?? process.env.DB_PASSWORD ?? "",
+      database: process.env.PGDATABASE || process.env.DB_NAME || "web_project",
+      max: Number(process.env.DB_POOL_LIMIT) || 10,
+    };
   }
 
+  const needsSsl =
+    process.env.PGSSL === "true" ||
+    onRender ||
+    /render\.com|sslmode=require/i.test(databaseUrl);
+
   return {
-    host: process.env.PGHOST || process.env.DB_HOST || "127.0.0.1",
-    port: Number(process.env.PGPORT || process.env.DB_PORT) || 5432,
-    user: process.env.PGUSER || process.env.DB_USER || "postgres",
-    password: process.env.PGPASSWORD ?? process.env.DB_PASSWORD ?? "",
-    database: process.env.PGDATABASE || process.env.DB_NAME || "web_project",
+    connectionString: databaseUrl,
+    ssl: needsSsl ? { rejectUnauthorized: false } : undefined,
     max: Number(process.env.DB_POOL_LIMIT) || 10,
   };
 }
 
-const pool = new Pool(getPoolConfig());
+let pool;
+
+function getPool() {
+  if (!pool) {
+    pool = new Pool(getPoolConfig());
+  }
+  return pool;
+}
 
 async function query(text, params = []) {
-  const result = await pool.query(text, params);
+  const result = await getPool().query(text, params);
   return result.rows;
 }
 
@@ -32,7 +55,7 @@ async function queryOne(text, params = []) {
 }
 
 async function migrate() {
-  await pool.query(`
+  await getPool().query(`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       provider TEXT NOT NULL DEFAULT 'local',
@@ -113,7 +136,7 @@ async function migrate() {
     CREATE INDEX IF NOT EXISTS idx_orders_razorpay ON orders(razorpay_order_id);
   `);
 
-  await pool.query(`
+  await getPool().query(`
     DO $$
     BEGIN
       IF NOT EXISTS (
@@ -138,4 +161,4 @@ function initDb() {
   return initPromise;
 }
 
-module.exports = { pool, query, queryOne, initDb };
+module.exports = { getPool, query, queryOne, initDb };

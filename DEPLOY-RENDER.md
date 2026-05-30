@@ -1,6 +1,20 @@
 # Deploy on Render (TechWithAman)
 
-Live URL example: `https://techwithaman-website.onrender.com`
+Live URL example: `https://techwithaman-website-2026.onrender.com`
+
+## Fix: `ECONNREFUSED 127.0.0.1:5432` (deploy failed)
+
+Render par **localhost par PostgreSQL nahi hota**. Web service par **`DATABASE_URL` set karna zaroori hai**.
+
+1. Render Dashboard → **New +** → **PostgreSQL** (free) → region **Singapore** → Create  
+2. PostgreSQL service kholo → **Connections** → copy **Internal Database URL**  
+3. Web service **techwithaman-website-2026** → **Environment** → Add:
+   - `DATABASE_URL` = (paste Internal URL)
+   - `PGSSL` = `true`
+   - `BASE_URL` = `https://techwithaman-website-2026.onrender.com`
+4. **Save Changes** → **Manual Deploy** → Deploy latest commit  
+
+Logs mein `Server running (PostgreSQL)` dikhna chahiye — `127.0.0.1:5432` error nahi.
 
 ## Fix: "Suspended by you" / site nahi khul rahi
 

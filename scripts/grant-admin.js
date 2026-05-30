@@ -4,7 +4,7 @@
  * Usage: npm run grant-admin -- you@email.com
  */
 require("dotenv").config();
-const { initDb, query, queryOne, pool } = require("../src/services/db");
+const { initDb, query, queryOne, getPool } = require("../src/services/db");
 
 const emailArg = process.argv[2];
 
@@ -30,7 +30,7 @@ async function main() {
   await query("UPDATE users SET role = 'admin', updated_at = NOW() WHERE id = $1", [row.id]);
   const updated = await queryOne("SELECT id, email, role FROM users WHERE id = $1", [row.id]);
   console.log("Admin granted:", updated);
-  await pool.end();
+  await getPool().end();
 }
 
 main().catch((err) => {

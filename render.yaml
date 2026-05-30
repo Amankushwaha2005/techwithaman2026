@@ -33,7 +33,7 @@ services:
       - key: PAYMENT_ADVANCE_PERCENT
         value: "50"
       - key: BASE_URL
-        value: https://techwithaman-website.onrender.com
+        value: https://techwithaman-website-2026.onrender.com
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET
