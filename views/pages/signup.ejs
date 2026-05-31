@@ -52,6 +52,7 @@
               <input class="auth-input" type="text" name="name" placeholder="Full Name" required>
               <input class="auth-input" type="email" name="email" placeholder="Email" required>
               <input class="auth-input" type="password" name="password" placeholder="Password" required>
+              <%- include("../partials/recaptcha-widget") %>
               <button class="btn auth-submit" type="submit">Create Account</button>
             </form>
           </details>

@@ -59,10 +59,7 @@
                 <label><input type="radio" name="skill" value="Java Developer"> Java Developer</label>
               </fieldset>
 
-              <label class="captcha-box">
-                <input type="checkbox" required>
-                <span>I'm not a robot</span>
-              </label>
+              <%- include("../partials/recaptcha-widget") %>
 
               <button class="btn" type="submit">Submit Application</button>
             </form>

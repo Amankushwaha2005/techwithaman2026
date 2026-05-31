@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 
 const { query, queryOne } = require("../services/db");
+const { validateFormRecaptcha } = require("../services/recaptcha.service");
 
 const GOOGLE_AUTH_BASE = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -22,7 +23,14 @@ function loginError(res, message) {
   return res.redirect(`/login?error=${encodeURIComponent(message)}`);
 }
 
+function signupError(res, message) {
+  return res.redirect(`/signup?error=${encodeURIComponent(message)}`);
+}
+
 async function login(req, res) {
+  const captcha = await validateFormRecaptcha(req);
+  if (!captcha.ok) return loginError(res, captcha.error);
+
   const { email, password } = req.body || {};
   console.log("LOGIN request:", { email });
 
@@ -42,20 +50,24 @@ async function login(req, res) {
   req.session.userId = user.id;
   const next = req.body?.next;
   if (typeof next === "string" && next.startsWith("/") && !next.startsWith("//")) {
-    return res.redirect(next);
+    const sep = next.includes("?") ? "&" : "?";
+    return res.redirect(`${next}${sep}toast=login`);
   }
-  return res.redirect("/");
+  return res.redirect("/?toast=login");
 }
 
 async function signup(req, res) {
+  const captcha = await validateFormRecaptcha(req);
+  if (!captcha.ok) return signupError(res, captcha.error);
+
   const { name, email, password } = req.body || {};
   console.log("SIGNUP request:", { name, email });
 
-  if (!name || !email || !password) return loginError(res, "Name, email and password are required.");
+  if (!name || !email || !password) return signupError(res, "Name, email and password are required.");
 
   const normalizedEmail = String(email).trim().toLowerCase();
   const exists = await queryOne("SELECT id FROM users WHERE email = $1", [normalizedEmail]);
-  if (exists) return loginError(res, "Email already exists. Please login.");
+  if (exists) return signupError(res, "Email already exists. Please login.");
 
   const passwordHash = bcrypt.hashSync(String(password), 10);
   const inserted = await queryOne(
@@ -68,9 +80,10 @@ async function signup(req, res) {
   req.session.userId = inserted.id;
   const next = req.body?.next;
   if (typeof next === "string" && next.startsWith("/") && !next.startsWith("//")) {
-    return res.redirect(next);
+    const sep = next.includes("?") ? "&" : "?";
+    return res.redirect(`${next}${sep}toast=signup`);
   }
-  return res.redirect("/");
+  return res.redirect("/?toast=signup");
 }
 
 function googleAuth(req, res) {

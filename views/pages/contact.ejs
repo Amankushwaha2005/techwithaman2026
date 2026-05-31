@@ -66,10 +66,7 @@
                 <textarea id="message" name="message" rows="4" placeholder="Type your message here." required></textarea>
               </div>
 
-              <label class="captcha-box">
-                <input type="checkbox" required>
-                <span>I'm not a robot</span>
-              </label>
+              <%- include("../partials/recaptcha-widget") %>
 
               <button class="btn" type="submit">Send Message</button>
             </form>

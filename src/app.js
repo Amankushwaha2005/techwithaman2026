@@ -12,6 +12,7 @@ const aiRoutes = require("./routes/ai.routes");
 const paymentsRoutes = require("./routes/payments.routes");
 const paymentsController = require("./controllers/payments.controller");
 const { mountAdminRoutes } = require("./routes/admin.routes");
+const { getRecaptchaSiteKey } = require("./config/recaptcha");
 const {
   isPaymentEnabled,
   getAdvancePercent,
@@ -104,6 +105,7 @@ function createApp() {
     res.locals.paymentAdvancePercent = getAdvancePercent();
     res.locals.razorpayKeyId = getRazorpayKeyId();
     res.locals.paymentLiveOnLocalhost = isLiveKeyOnLocalhost();
+    res.locals.recaptchaSiteKey = getRecaptchaSiteKey();
     next();
   });
 

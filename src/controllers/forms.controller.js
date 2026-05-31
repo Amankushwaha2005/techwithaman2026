@@ -1,6 +1,12 @@
 const { query } = require("../services/db");
+const { validateFormRecaptcha } = require("../services/recaptcha.service");
 
 async function contact(req, res) {
+  const captcha = await validateFormRecaptcha(req);
+  if (!captcha.ok) {
+    return res.redirect("/contact?error=" + encodeURIComponent(captcha.error));
+  }
+
   const { name, email, phone, message } = req.body || {};
   const n = String(name || "").trim();
   const em = String(email || "").trim().toLowerCase();
@@ -20,6 +26,11 @@ async function contact(req, res) {
 }
 
 async function work(req, res) {
+  const captcha = await validateFormRecaptcha(req);
+  if (!captcha.ok) {
+    return res.redirect("/work?error=" + encodeURIComponent(captcha.error));
+  }
+
   const { fullName, email, phone, resume, skill } = req.body || {};
   const fn = String(fullName || "").trim();
   const em = String(email || "").trim().toLowerCase();

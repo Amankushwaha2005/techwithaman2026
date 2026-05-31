@@ -7,9 +7,6 @@
           <p class="login-subtitle">Login to your account</p>
           <p class="login-helper">Choose your preferred social account for instant access</p>
           <% const googleOn = typeof googleLoginEnabled !== 'undefined' && googleLoginEnabled; %>
-          <% if (authError) { %>
-            <p class="auth-error"><%= authError %></p>
-          <% } %>
 
           <div class="login-social-list">
             <a class="login-social-btn" href="/auth/google" aria-label="Continue with Google">
@@ -57,6 +54,7 @@
               <% } %>
               <input class="auth-input" type="email" name="email" placeholder="Email" required>
               <input class="auth-input" type="password" name="password" placeholder="Password" required>
+              <%- include("../partials/recaptcha-widget") %>
               <button class="btn auth-submit" type="submit">Login</button>
             </form>
           </details>

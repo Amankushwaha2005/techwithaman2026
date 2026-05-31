@@ -1,6 +1,11 @@
   <%- include("whatsapp-float") %>
   <%- include("ai-chat") %>
+  <%- include("form-toast") %>
+  <% if (typeof recaptchaSiteKey !== 'undefined' && recaptchaSiteKey) { %>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <% } %>
   <script src="/main.js"></script>
+  <script src="/form-toast.js"></script>
   <script src="/whatsapp-float.js"></script>
   <script src="/ai-chat.js"></script>
   <% if (page && page.key === 'pricing') { %>

@@ -1,0 +1,10 @@
+<% if (typeof recaptchaSiteKey !== 'undefined' && recaptchaSiteKey) { %>
+  <div class="recaptcha-wrap">
+    <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>"></div>
+  </div>
+<% } else { %>
+  <label class="captcha-box">
+    <input type="checkbox" name="humanCheck" value="1" required>
+    <span>I'm not a robot</span>
+  </label>
+<% } %>

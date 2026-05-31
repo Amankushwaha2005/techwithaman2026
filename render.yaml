@@ -40,5 +40,9 @@ services:
         sync: false
       - key: ADMIN_EMAILS
         sync: false
+      - key: RECAPTCHA_SITE_KEY
+        sync: false
+      - key: RECAPTCHA_SECRET_KEY
+        sync: false
       - key: PGSSL
         value: "true"
