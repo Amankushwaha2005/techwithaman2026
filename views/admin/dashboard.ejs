@@ -51,6 +51,17 @@
       </header>
 
       <div class="admin-content">
+        <% function fmtAdminDate(value) {
+          if (!value) return '—';
+          try {
+            var d = new Date(value);
+            if (isNaN(d.getTime())) return String(value).slice(0, 16);
+            return d.toLocaleString('en-IN', {
+              day: '2-digit', month: 'short', year: 'numeric',
+              hour: '2-digit', minute: '2-digit', hour12: true
+            });
+          } catch (e) { return String(value); }
+        } %>
         <% const flashText = {
           roleupdated: 'User role updated.',
           delivered: 'Project marked as delivered — client can pay balance now.',
@@ -244,14 +255,35 @@
                 </tr>
               </thead>
               <tbody>
-                <% recentContact.forEach((row) => { %>
+                <% recentContact.forEach((row, msgIdx) => { %>
                   <tr>
                     <td><%= row.id %></td>
-                    <td class="admin-nowrap"><%= row.created_at %></td>
+                    <td class="admin-nowrap"><%= fmtAdminDate(row.created_at) %></td>
                     <td><span class="admin-pill admin-pill-<%= row.status %>"><%= row.status %></span></td>
                     <td><%= row.name %></td>
                     <td><a href="mailto:<%= row.email %>"><%= row.email %></a></td>
-                    <td class="admin-cell-msg"><%= row.message %></td>
+                    <td class="admin-msg-cell">
+                      <button
+                        type="button"
+                        class="admin-msg-open"
+                        data-msg-key="contact-<%= row.id %>"
+                        aria-haspopup="dialog"
+                      >
+                        <span class="admin-msg-num"><%= msgIdx + 1 %></span>
+                        <span class="admin-msg-label">Message <%= msgIdx + 1 %></span>
+                        <span class="admin-msg-hint">Click to read</span>
+                      </button>
+                      <div class="admin-msg-store" id="contact-<%= row.id %>" hidden aria-hidden="true">
+                        <span
+                          class="admin-msg-meta"
+                          data-title="Contact message <%= msgIdx + 1 %>"
+                          data-name="<%= row.name %>"
+                          data-email="<%= row.email %>"
+                          data-when="<%= fmtAdminDate(row.created_at) %>"
+                        ></span>
+                        <div class="admin-msg-body"><%= row.message %></div>
+                      </div>
+                    </td>
                     <td class="admin-actions">
                       <form method="post" action="/admin/submissions/contact/<%= row.id %>/status" class="admin-inline-form">
                         <select name="status" class="admin-select" aria-label="Status for contact <%= row.id %>">
@@ -291,13 +323,35 @@
                 </tr>
               </thead>
               <tbody>
-                <% recentChat.forEach((row) => { %>
+                <% recentChat.forEach((row, msgIdx) => { %>
                   <tr>
                     <td><%= row.id %></td>
-                    <td class="admin-nowrap"><%= row.created_at %></td>
+                    <td class="admin-nowrap"><%= fmtAdminDate(row.created_at) %></td>
                     <td><span class="admin-pill admin-pill-<%= row.status %>"><%= row.status %></span></td>
-                    <td class="admin-cell-msg"><%= row.message %></td>
-                    <td class="admin-cell-msg"><%= row.page_url ? row.page_url : "—" %></td>
+                    <td class="admin-msg-cell">
+                      <button
+                        type="button"
+                        class="admin-msg-open"
+                        data-msg-key="chat-<%= row.id %>"
+                        aria-haspopup="dialog"
+                      >
+                        <span class="admin-msg-num"><%= msgIdx + 1 %></span>
+                        <span class="admin-msg-label">Message <%= msgIdx + 1 %></span>
+                        <span class="admin-msg-hint">Click to read</span>
+                      </button>
+                      <div class="admin-msg-store" id="chat-<%= row.id %>" hidden aria-hidden="true">
+                        <span
+                          class="admin-msg-meta"
+                          data-title="Chat message <%= msgIdx + 1 %>"
+                          data-name="Website chat"
+                          data-email=""
+                          data-when="<%= fmtAdminDate(row.created_at) %>"
+                          data-page="<%= row.page_url || '' %>"
+                        ></span>
+                        <div class="admin-msg-body"><%= row.message %></div>
+                      </div>
+                    </td>
+                    <td class="admin-cell-page"><%= row.page_url ? row.page_url : "—" %></td>
                     <td class="admin-actions">
                       <form method="post" action="/admin/submissions/chat/<%= row.id %>/status" class="admin-inline-form">
                         <select name="status" class="admin-select" aria-label="Status for chat <%= row.id %>">
@@ -422,6 +476,29 @@
     </div>
   </div>
 
+  <div id="admin-msg-modal" class="admin-msg-modal" hidden role="dialog" aria-modal="true" aria-labelledby="admin-msg-modal-title">
+    <div class="admin-msg-modal__backdrop" data-close-modal tabindex="-1"></div>
+    <div class="admin-msg-modal__panel" role="document">
+      <header class="admin-msg-modal__head">
+        <div>
+          <span class="admin-msg-modal__badge" id="admin-msg-modal-badge">#1</span>
+          <h3 id="admin-msg-modal-title">Message</h3>
+        </div>
+        <button type="button" class="admin-msg-modal__close" data-close-modal aria-label="Close message">&times;</button>
+      </header>
+      <dl class="admin-msg-modal__meta">
+        <div><dt>From</dt><dd id="admin-msg-modal-from">—</dd></div>
+        <div><dt>Email</dt><dd id="admin-msg-modal-email">—</dd></div>
+        <div><dt>When</dt><dd id="admin-msg-modal-when">—</dd></div>
+        <div id="admin-msg-modal-page-row" hidden><dt>Page</dt><dd id="admin-msg-modal-page">—</dd></div>
+      </dl>
+      <div class="admin-msg-modal__body-wrap">
+        <p class="admin-msg-modal__label">Message</p>
+        <div id="admin-msg-modal-body" class="admin-msg-modal__body"></div>
+      </div>
+    </div>
+  </div>
+
   <%- include("../partials/whatsapp-float") %>
   <script src="/main.js"></script>
   <script src="/whatsapp-float.js"></script>
@@ -500,6 +577,76 @@
         });
       });
     });
+
+    (function () {
+      var modal = document.getElementById("admin-msg-modal");
+      if (!modal) return;
+
+      var titleEl = document.getElementById("admin-msg-modal-title");
+      var badgeEl = document.getElementById("admin-msg-modal-badge");
+      var fromEl = document.getElementById("admin-msg-modal-from");
+      var emailEl = document.getElementById("admin-msg-modal-email");
+      var whenEl = document.getElementById("admin-msg-modal-when");
+      var pageRow = document.getElementById("admin-msg-modal-page-row");
+      var pageEl = document.getElementById("admin-msg-modal-page");
+      var bodyEl = document.getElementById("admin-msg-modal-body");
+      var lastFocus = null;
+
+      function closeModal() {
+        modal.hidden = true;
+        document.body.classList.remove("admin-msg-modal-open");
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+      }
+
+      function openModal(key, trigger) {
+        var store = document.getElementById(key);
+        if (!store) return;
+        var meta = store.querySelector(".admin-msg-meta");
+        var body = store.querySelector(".admin-msg-body");
+        if (!meta || !body) return;
+
+        lastFocus = trigger;
+        var title = meta.getAttribute("data-title") || "Message";
+        var numMatch = title.match(/(\d+)/);
+        badgeEl.textContent = numMatch ? "#" + numMatch[1] : "#";
+        titleEl.textContent = title;
+        fromEl.textContent = meta.getAttribute("data-name") || "—";
+        var email = meta.getAttribute("data-email") || "";
+        emailEl.textContent = email || "—";
+        emailEl.innerHTML = email
+          ? '<a href="mailto:' + email + '">' + email + "</a>"
+          : "—";
+        whenEl.textContent = meta.getAttribute("data-when") || "—";
+        var page = meta.getAttribute("data-page") || "";
+        if (page) {
+          pageRow.hidden = false;
+          pageEl.textContent = page;
+        } else {
+          pageRow.hidden = true;
+          pageEl.textContent = "—";
+        }
+        bodyEl.textContent = body.textContent || body.innerText || "—";
+
+        modal.hidden = false;
+        document.body.classList.add("admin-msg-modal-open");
+        modal.querySelector(".admin-msg-modal__close").focus();
+      }
+
+      document.querySelectorAll(".admin-msg-open").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var key = btn.getAttribute("data-msg-key");
+          if (key) openModal(key, btn);
+        });
+      });
+
+      modal.querySelectorAll("[data-close-modal]").forEach(function (el) {
+        el.addEventListener("click", closeModal);
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (!modal.hidden && e.key === "Escape") closeModal();
+      });
+    })();
   </script>
 </body>
 </html>
