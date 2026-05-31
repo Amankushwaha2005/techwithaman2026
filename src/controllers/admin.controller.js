@@ -8,6 +8,8 @@
 
 const { query, queryOne } = require("../services/db");
 const { brand } = require("../config/site");
+const paymentsService = require("../services/payments.service");
+const { orderStatusLabel, getBalanceDue, normalizeOrderStatus } = require("../services/order-payment.helpers");
 
 const STATUSES = ["new", "read", "archived"];
 const ROLES = ["user", "admin"];
@@ -87,15 +89,32 @@ async function dashboard(req, res) {
       (await queryOne(`SELECT COUNT(*)::int AS n FROM chat_messages WHERE status = 'new'`)).n,
     ),
     orders: Number((await queryOne("SELECT COUNT(*)::int AS n FROM orders")).n),
-    ordersPaid: Number(
-      (await queryOne(`SELECT COUNT(*)::int AS n FROM orders WHERE status = 'paid'`)).n,
+    ordersAdvancePaid: Number(
+      (await queryOne(`SELECT COUNT(*)::int AS n FROM orders WHERE status IN ('paid', 'advance_paid', 'completed')`))
+        .n,
+    ),
+    ordersCompleted: Number(
+      (await queryOne(`SELECT COUNT(*)::int AS n FROM orders WHERE status = 'completed'`)).n,
     ),
     ordersPending: Number(
       (await queryOne(`SELECT COUNT(*)::int AS n FROM orders WHERE status = 'pending'`)).n,
     ),
+    ordersBalanceDue: Number(
+      (await queryOne(`
+        SELECT COUNT(*)::int AS n FROM orders
+        WHERE status IN ('paid', 'advance_paid')
+          AND delivered_at IS NOT NULL
+          AND total_inr > COALESCE(advance_paid_inr, amount_inr, 0) + COALESCE(balance_paid_inr, 0)
+      `)).n,
+    ),
     revenuePaid: Number(
-      (await queryOne(`SELECT COALESCE(SUM(amount_inr), 0)::int AS n FROM orders WHERE status = 'paid'`))
-        .n,
+      (await queryOne(`
+        SELECT COALESCE(SUM(
+          COALESCE(advance_paid_inr, CASE WHEN status IN ('paid', 'advance_paid', 'completed') THEN amount_inr ELSE 0 END)
+          + COALESCE(balance_paid_inr, 0)
+        ), 0)::int AS n FROM orders
+        WHERE status IN ('paid', 'advance_paid', 'completed')
+      `)).n,
     ),
   };
 
@@ -112,8 +131,9 @@ async function dashboard(req, res) {
   );
   const recentOrders = await query(
     `SELECT id, public_id, name, email, phone, service, plan, status,
-            total_inr, amount_inr, advance_percent,
-            razorpay_order_id, razorpay_payment_id, created_at, paid_at
+            total_inr, amount_inr, advance_percent, advance_paid_inr, balance_paid_inr,
+            razorpay_order_id, razorpay_payment_id, razorpay_balance_payment_id,
+            created_at, paid_at, delivered_at, balance_paid_at, completed_at
      FROM orders
      ORDER BY created_at DESC, id DESC
      LIMIT 80`,
@@ -124,6 +144,8 @@ async function dashboard(req, res) {
      ORDER BY id DESC
      LIMIT 120`,
   );
+
+  const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
 
   res.render("admin/dashboard", {
     title: `Admin · ${brand}`,
@@ -140,6 +162,10 @@ async function dashboard(req, res) {
     flash: req.query.flash || "",
     err: req.query.err || "",
     currentAdminId: req.session.userId,
+    baseUrl,
+    orderStatusLabel,
+    getBalanceDue,
+    normalizeOrderStatus,
   });
 }
 
@@ -194,6 +220,28 @@ async function deleteChat(req, res) {
   return res.redirect("/admin#inbox-chat");
 }
 
+async function markOrderDelivered(req, res) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.redirect("/admin?err=invalid");
+
+  const order = await queryOne(`SELECT * FROM orders WHERE id = $1`, [id]);
+  if (!order) return res.redirect("/admin?err=invalid");
+
+  const st = normalizeOrderStatus(order);
+  if (st !== "advance_paid") {
+    return res.redirect("/admin?err=notready");
+  }
+  if (getBalanceDue(order) <= 0) {
+    return res.redirect("/admin?err=nobalance");
+  }
+  if (order.delivered_at) {
+    return res.redirect("/admin#inbox-orders");
+  }
+
+  await paymentsService.markOrderDelivered(id);
+  return res.redirect("/admin?flash=delivered#inbox-orders");
+}
+
 async function setUserRole(req, res) {
   const id = Number(req.params.id);
   const role = String(req.body.role || "");
@@ -215,5 +263,6 @@ module.exports = {
   deleteWork,
   updateChatStatus,
   deleteChat,
+  markOrderDelivered,
   setUserRole,
 };

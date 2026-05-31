@@ -1,0 +1,124 @@
+<%# =============================================================================
+   PAY BALANCE PAGE
+   URL: /order/pay-balance
+   File: views/pages/order-pay-balance.ejs
+   Remaining balance payment after delivery
+   ============================================================================= %>
+<%- include("../partials/head", { page }) %>
+<%- include("../partials/navbar", { navItems, brand, page }) %>
+
+  <main class="order-page">
+    <section class="page-hero order-page-hero">
+      <div class="container">
+        <span class="chip">Final payment</span>
+        <h1>Pay remaining balance</h1>
+        <p>Complete your project payment after delivery. Use UPI, card, or netbanking via Razorpay.</p>
+      </div>
+    </section>
+
+    <section class="section order-page-section">
+      <div class="container order-layout">
+        <% if (!order) { %>
+          <article class="card order-success-card">
+            <h1>Order not found</h1>
+            <p>Check your order ID in the link we sent you, or contact us on WhatsApp.</p>
+            <a class="btn btn-outline" href="/">Back to home</a>
+          </article>
+        <% } else if (alreadyComplete) { %>
+          <article class="card order-success-card">
+            <span class="chip">Fully paid</span>
+            <h1>Thank you, <%= order.name %>!</h1>
+            <p>This order is already fully paid. No balance is due.</p>
+            <div class="order-success-actions">
+              <a class="btn" href="/order/balance-success?id=<%= encodeURIComponent(order.public_id) %>">View confirmation</a>
+              <a class="btn btn-outline" href="/">Back to home</a>
+            </div>
+          </article>
+        <% } else if (!canPay) { %>
+          <article class="card order-success-card">
+            <h1>Balance payment not open yet</h1>
+            <p>
+              <% if (orderStatusLabel === 'Advance paid') { %>
+                Your advance is confirmed. We will notify you when the project is delivered and balance payment is ready.
+              <% } else { %>
+                This order is not ready for balance payment yet.
+              <% } %>
+            </p>
+            <dl class="order-summary-list">
+              <div><dt>Order ID</dt><dd><code><%= order.public_id %></code></dd></div>
+              <div><dt>Status</dt><dd><%= orderStatusLabel %></dd></div>
+              <div><dt>Package total</dt><dd>₹<%= order.total_inr.toLocaleString("en-IN") %></dd></div>
+              <div><dt>Advance paid</dt><dd>₹<%= advancePaid.toLocaleString("en-IN") %></dd></div>
+              <div><dt>Balance due</dt><dd>₹<%= balanceDue.toLocaleString("en-IN") %></dd></div>
+            </dl>
+            <a class="btn btn-outline" href="/">Back to home</a>
+          </article>
+        <% } else { %>
+          <aside class="card order-summary-card" aria-live="polite">
+            <div class="order-summary-card__head">
+              <h2>Balance summary</h2>
+              <span class="order-summary-badge">Project delivered</span>
+            </div>
+            <dl class="order-summary-list">
+              <div class="order-summary-row">
+                <dt>Order ID</dt>
+                <dd><code><%= order.public_id %></code></dd>
+              </div>
+              <div class="order-summary-row">
+                <dt>Service</dt>
+                <dd><%= order.service %></dd>
+              </div>
+              <div class="order-summary-row">
+                <dt>Package</dt>
+                <dd><%= order.plan %></dd>
+              </div>
+              <div class="order-summary-row">
+                <dt>Package total</dt>
+                <dd>₹<%= order.total_inr.toLocaleString("en-IN") %></dd>
+              </div>
+              <div class="order-summary-row">
+                <dt>Advance paid</dt>
+                <dd>₹<%= advancePaid.toLocaleString("en-IN") %></dd>
+              </div>
+              <div class="order-summary-row order-summary-row--highlight">
+                <dt>Balance due now</dt>
+                <dd id="balance-summary-amount">₹<%= balanceDue.toLocaleString("en-IN") %></dd>
+              </div>
+            </dl>
+          </aside>
+
+          <div class="order-main">
+            <article
+              class="card order-payment-card"
+              id="balance-payment-panel"
+              data-public-id="<%= order.public_id %>"
+              data-payment-enabled="<%= paymentEnabled ? '1' : '0' %>"
+              data-live-on-local="<%= paymentLiveOnLocalhost ? '1' : '0' %>"
+              data-customer-name="<%= order.name %>"
+              data-customer-email="<%= order.email %>"
+              data-customer-phone="<%= order.phone || '' %>"
+              data-service="<%= order.service %>"
+              data-plan="<%= order.plan %>"
+            >
+              <h2>Pay balance online</h2>
+              <p class="order-payment-lead">
+                Pay <strong id="balance-panel-amount">₹<%= balanceDue.toLocaleString("en-IN") %></strong> to complete your order.
+              </p>
+              <p id="balance-form-error" class="form-error" hidden role="alert"></p>
+              <% if (!paymentEnabled) { %>
+                <p class="order-setup-hint">Online payment is not configured. Contact us on WhatsApp to pay the balance.</p>
+              <% } %>
+              <div class="order-payment-methods">
+                <button type="button" class="btn order-pay-method" id="balance-pay-razorpay" <%= paymentEnabled ? '' : 'disabled' %>>
+                  Pay with Razorpay
+                </button>
+              </div>
+            </article>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </main>
+
+<%- include("../partials/footer", { brand, year }) %>
+<%- include("../partials/scripts") %>

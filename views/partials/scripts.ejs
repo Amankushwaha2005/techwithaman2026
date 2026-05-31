@@ -22,6 +22,10 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
   <script src="/order-page.js" defer></script>
   <% } %>
+  <% if (page && page.key === 'order-pay-balance') { %>
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+  <script src="/order-balance-page.js" defer></script>
+  <% } %>
   <% if (page && page.key === 'home') { %>
   <script src="/home-data.js"></script>
   <script src="/home-page.js"></script>

@@ -15,7 +15,7 @@
 <body class="receipt-page-body">
   <div class="receipt-toolbar no-print">
     <button type="button" class="btn btn-small" id="receipt-print-btn">Download / Print receipt</button>
-    <a class="btn btn-small btn-outline" href="/order/success?id=<%= encodeURIComponent(receipt.orderId) %>">Back to confirmation</a>
+    <a class="btn btn-small btn-outline" href="<%= receipt.phase === 'balance' ? '/order/balance-success?id=' + encodeURIComponent(receipt.orderId) : '/order/success?id=' + encodeURIComponent(receipt.orderId) %>">Back to confirmation</a>
   </div>
 
   <article class="payment-receipt" id="payment-receipt">
@@ -82,7 +82,11 @@
     </table>
 
     <footer class="payment-receipt__footer">
-      <p>This is a computer-generated receipt for your advance payment. Balance is due before final delivery as per your package.</p>
+      <% if (receipt.phase === 'balance') { %>
+      <p>This is a computer-generated receipt for your balance payment. Your order is now fully paid.</p>
+      <% } else { %>
+      <p>This is a computer-generated receipt for your advance payment. Remaining balance is due after project delivery.</p>
+      <% } %>
       <p class="payment-receipt__footer-meta"><%= company.name %> · <%= year %></p>
     </footer>
   </article>

@@ -3156,6 +3156,37 @@ html[data-theme="light"] .admin-topbar {
   color: #ffc107;
 }
 
+.admin-pill-completed {
+  background: rgba(61, 214, 140, 0.22);
+  color: #3dd68c;
+}
+
+.admin-pill-balance-due {
+  background: rgba(255, 152, 0, 0.18);
+  color: #ff9800;
+}
+
+.admin-order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.admin-inline-form {
+  display: inline;
+  margin: 0;
+}
+
+.order-balance-note {
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(47, 110, 251, 0.1);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .admin-section-desc {
   margin: -0.25rem 0 1rem;
   font-size: 0.9rem;

@@ -51,7 +51,7 @@
       </header>
 
       <div class="admin-content">
-        <% const flashText = { roleupdated: 'User role updated.' }; %>
+        <% const flashText = { roleupdated: 'User role updated.', delivered: 'Project marked as delivered — client can pay balance now.' }; %>
         <% if (flash && flashText[flash]) { %>
           <p class="admin-flash admin-flash-ok" role="status"><%= flashText[flash] %></p>
         <% } %>
@@ -61,6 +61,10 @@
               That action was not valid.
             <% } else if (err === 'selfdemote') { %>
               You cannot remove your own admin role.
+            <% } else if (err === 'notready') { %>
+              Only advance-paid orders can be marked delivered.
+            <% } else if (err === 'nobalance') { %>
+              This order has no remaining balance to collect.
             <% } else { %>
               <%= err %>
             <% } %>
@@ -93,12 +97,12 @@
             <article class="admin-kpi admin-kpi-accent">
               <span class="admin-kpi-label">Orders (total)</span>
               <strong class="admin-kpi-value"><%= stats.orders %></strong>
-              <span class="admin-kpi-meta"><%= stats.ordersPaid %> paid · <%= stats.ordersPending %> pending</span>
+              <span class="admin-kpi-meta"><%= stats.ordersAdvancePaid %> with payment · <%= stats.ordersCompleted %> fully paid</span>
             </article>
             <article class="admin-kpi admin-kpi-accent">
               <span class="admin-kpi-label">Revenue collected</span>
               <strong class="admin-kpi-value">₹<%= Number(stats.revenuePaid).toLocaleString('en-IN') %></strong>
-              <span class="admin-kpi-meta">Advance payments (paid orders)</span>
+              <span class="admin-kpi-meta"><%= stats.ordersBalanceDue %> awaiting balance payment</span>
             </article>
             <article class="admin-kpi">
               <span class="admin-kpi-label">Pipeline</span>
@@ -117,7 +121,7 @@
 
         <section class="admin-section" id="inbox-orders">
           <h2 class="admin-h2">Payments &amp; orders</h2>
-          <p class="admin-section-desc">Razorpay advance payments and order records from the pricing / order page.</p>
+          <p class="admin-section-desc">Advance + balance payments. Mark project delivered to unlock balance payment link for the client.</p>
           <div class="admin-table-wrap">
             <table class="admin-table">
               <thead>
@@ -129,18 +133,25 @@
                   <th>Customer</th>
                   <th>Service / plan</th>
                   <th>Advance</th>
+                  <th>Balance</th>
                   <th>Total</th>
-                  <th>Payment</th>
-                  <th>Receipt</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <% recentOrders.forEach((row) => { %>
+                <% recentOrders.forEach((row) => {
+                  const st = normalizeOrderStatus(row);
+                  const balanceDue = getBalanceDue(row);
+                  const statusLabel = orderStatusLabel(row);
+                  const pillClass = st === 'completed' ? 'completed' : (st === 'advance_paid' && row.delivered_at && balanceDue > 0 ? 'balance-due' : (st === 'advance_paid' ? 'paid' : 'pending'));
+                  const balancePayUrl = baseUrl + '/order/pay-balance?id=' + encodeURIComponent(row.public_id);
+                %>
                   <tr>
                     <td><%= row.id %></td>
                     <td class="admin-nowrap"><%= row.created_at %></td>
                     <td>
-                      <span class="admin-pill admin-pill-<%= row.status === 'paid' ? 'paid' : 'pending' %>"><%= row.status %></span>
+                      <span class="admin-pill admin-pill-<%= pillClass %>"><%= statusLabel %></span>
+                      <% if (row.delivered_at) { %><br><span class="admin-muted">Delivered</span><% } %>
                     </td>
                     <td class="admin-nowrap"><code><%= row.public_id %></code></td>
                     <td>
@@ -149,22 +160,35 @@
                       <% if (row.phone) { %><br><span class="admin-muted"><%= row.phone %></span><% } %>
                     </td>
                     <td><%= row.service %><br><span class="admin-muted"><%= row.plan %></span></td>
-                    <td>₹<%= Number(row.amount_inr).toLocaleString('en-IN') %> <span class="admin-muted">(<%= row.advance_percent %>%)</span></td>
-                    <td>₹<%= Number(row.total_inr).toLocaleString('en-IN') %></td>
-                    <td class="admin-cell-msg">
-                      <% if (row.razorpay_payment_id) { %>
-                        <span class="admin-muted" title="Razorpay payment ID"><%= row.razorpay_payment_id %></span>
-                      <% } else if (row.razorpay_order_id) { %>
-                        <span class="admin-muted">Awaiting pay</span>
+                    <td>₹<%= Number(row.advance_paid_inr || row.amount_inr).toLocaleString('en-IN') %> <span class="admin-muted">(<%= row.advance_percent %>%)</span></td>
+                    <td>
+                      <% if (st === 'completed') { %>
+                        ₹<%= Number(row.balance_paid_inr || 0).toLocaleString('en-IN') %> <span class="admin-muted">paid</span>
+                      <% } else if (balanceDue > 0) { %>
+                        ₹<%= balanceDue.toLocaleString('en-IN') %> <span class="admin-muted">due</span>
                       <% } else { %>
                         —
                       <% } %>
                     </td>
-                    <td>
-                      <% if (row.status === 'paid') { %>
-                        <a class="btn btn-small" href="/order/receipt?id=<%= encodeURIComponent(row.public_id) %>" target="_blank" rel="noopener">View</a>
-                      <% } else { %>
-                        —
+                    <td>₹<%= Number(row.total_inr).toLocaleString('en-IN') %></td>
+                    <td class="admin-order-actions">
+                      <% if (st === 'advance_paid' && !row.delivered_at && balanceDue > 0) { %>
+                        <form method="post" action="/admin/orders/<%= row.id %>/deliver" class="admin-inline-form">
+                          <button type="submit" class="btn btn-small">Mark delivered</button>
+                        </form>
+                      <% } %>
+                      <% if (st === 'advance_paid' && row.delivered_at && balanceDue > 0) { %>
+                        <a class="btn btn-small" href="<%= balancePayUrl %>" target="_blank" rel="noopener">Balance link</a>
+                        <button type="button" class="btn btn-small btn-outline admin-copy-link" data-copy-url="<%= balancePayUrl %>">Copy link</button>
+                      <% } %>
+                      <% if (st === 'advance_paid' || st === 'completed') { %>
+                        <a class="btn btn-small btn-outline" href="/order/receipt?id=<%= encodeURIComponent(row.public_id) %>" target="_blank" rel="noopener">Advance</a>
+                      <% } %>
+                      <% if (st === 'completed') { %>
+                        <a class="btn btn-small btn-outline" href="/order/receipt?id=<%= encodeURIComponent(row.public_id) %>&phase=balance" target="_blank" rel="noopener">Balance</a>
+                      <% } %>
+                      <% if (st === 'pending') { %>
+                        <span class="admin-muted">Awaiting advance</span>
                       <% } %>
                     </td>
                   </tr>
@@ -437,6 +461,18 @@
         },
       });
     })();
+
+    document.querySelectorAll(".admin-copy-link").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var url = btn.getAttribute("data-copy-url");
+        if (!url) return;
+        navigator.clipboard.writeText(url).then(function () {
+          var prev = btn.textContent;
+          btn.textContent = "Copied!";
+          setTimeout(function () { btn.textContent = prev; }, 2000);
+        });
+      });
+    });
   </script>
 </body>
 </html>

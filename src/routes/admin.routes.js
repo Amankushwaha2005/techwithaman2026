@@ -51,6 +51,7 @@ function mountAdminRoutes(app) {
   app.post("/admin/submissions/work/:id/delete", requireAdmin, adminController.deleteWork);
   app.post("/admin/submissions/chat/:id/status", requireAdmin, adminController.updateChatStatus);
   app.post("/admin/submissions/chat/:id/delete", requireAdmin, adminController.deleteChat);
+  app.post("/admin/orders/:id/deliver", requireAdmin, adminController.markOrderDelivered);
   app.post("/admin/users/:id/role", requireAdmin, adminController.setUserRole);
 }
 

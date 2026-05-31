@@ -1,8 +1,8 @@
 <%# =============================================================================
-   ORDER SUCCESS PAGE
-   URL: /order/success
-   File: views/pages/order-success.ejs
-   Advance payment confirmation summary
+   BALANCE SUCCESS PAGE
+   URL: /order/balance-success
+   File: views/pages/order-balance-success.ejs
+   Final payment confirmation
    ============================================================================= %>
 <%- include("../partials/head", { page }) %>
 <%- include("../partials/navbar", { navItems, brand, page }) %>
@@ -11,20 +11,16 @@
     <section class="section order-success-section">
       <div class="container">
         <article class="card order-success-card">
-          <% const advanceOk = order && (order.status === 'paid' || order.status === 'advance_paid' || order.status === 'completed'); %>
-          <% if (advanceOk) { %>
-            <span class="chip">Advance received</span>
+          <% if (order && order.status === 'completed') { %>
+            <span class="chip">Project fully paid</span>
             <h1>Thank you, <%= order.name %>!</h1>
-            <p>Your advance payment is confirmed. We will contact you shortly to start your project.</p>
+            <p>Your balance payment is confirmed. The project is now fully paid — thank you for choosing us!</p>
             <dl class="order-summary-list">
               <div><dt>Order ID</dt><dd><code><%= order.public_id %></code></dd></div>
               <div><dt>Service</dt><dd><%= order.service %></dd></div>
               <div><dt>Package</dt><dd><%= order.plan %></dd></div>
-              <div><dt>Paid (advance)</dt><dd>₹<%= Number(order.advance_paid_inr || order.amount_inr).toLocaleString("en-IN") %></dd></div>
-              <div><dt>Package total</dt><dd>₹<%= order.total_inr.toLocaleString("en-IN") %></dd></div>
-              <% if (balanceDue > 0) { %>
-              <div><dt>Balance (after delivery)</dt><dd>₹<%= balanceDue.toLocaleString("en-IN") %></dd></div>
-              <% } %>
+              <div><dt>Balance paid</dt><dd>₹<%= Number(order.balance_paid_inr || 0).toLocaleString("en-IN") %></dd></div>
+              <div><dt>Total paid</dt><dd>₹<%= order.total_inr.toLocaleString("en-IN") %></dd></div>
               <% if (receipt) { %>
               <div><dt>Payment date</dt><dd><%= receipt.paymentDate %></dd></div>
               <div><dt>Gateway</dt><dd><%= receipt.gateway %></dd></div>
@@ -33,30 +29,26 @@
               <% } %>
               <% } %>
             </dl>
-            <% if (balanceDue > 0) { %>
-            <p class="order-balance-note">After we deliver your project, you will receive a link to pay the remaining <strong>₹<%= balanceDue.toLocaleString("en-IN") %></strong> online.</p>
-            <% } %>
           <% } else { %>
-            <h1>Order not found</h1>
-            <p>If you just paid, wait a moment and refresh — or contact us on WhatsApp with your payment screenshot.</p>
+            <h1>Payment not found</h1>
+            <p>If you just paid, wait a moment and refresh — or contact us on WhatsApp.</p>
           <% } %>
           <div class="order-success-actions">
-            <% if (advanceOk) { %>
+            <% if (order && order.status === 'completed') { %>
             <a
               class="btn"
-              href="/order/receipt?id=<%= encodeURIComponent(order.public_id) %>&print=1"
+              href="/order/receipt?id=<%= encodeURIComponent(order.public_id) %>&phase=balance&print=1"
               target="_blank"
               rel="noopener noreferrer"
-            >Download advance receipt</a>
+            >Download balance receipt</a>
             <a
               class="btn btn-outline"
-              href="/order/receipt?id=<%= encodeURIComponent(order.public_id) %>"
+              href="/order/receipt?id=<%= encodeURIComponent(order.public_id) %>&phase=balance"
               target="_blank"
               rel="noopener noreferrer"
             >View receipt</a>
             <% } %>
             <a class="btn btn-outline" href="/">Back to home</a>
-            <a class="btn btn-outline" href="/pricing">View pricing</a>
           </div>
         </article>
       </div>

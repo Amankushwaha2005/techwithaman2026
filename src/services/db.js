@@ -155,6 +155,35 @@ async function migrate() {
       END IF;
     END $$;
   `);
+
+  await getPool().query(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'orders' AND column_name = 'advance_paid_inr'
+      ) THEN
+        ALTER TABLE orders ADD COLUMN advance_paid_inr INTEGER;
+        ALTER TABLE orders ADD COLUMN balance_paid_inr INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE orders ADD COLUMN delivered_at TIMESTAMPTZ;
+        ALTER TABLE orders ADD COLUMN razorpay_balance_order_id TEXT;
+        ALTER TABLE orders ADD COLUMN razorpay_balance_payment_id TEXT;
+        ALTER TABLE orders ADD COLUMN balance_paid_at TIMESTAMPTZ;
+        ALTER TABLE orders ADD COLUMN completed_at TIMESTAMPTZ;
+      END IF;
+    END $$;
+  `);
+
+  await getPool().query(`
+    UPDATE orders
+    SET status = 'advance_paid',
+        advance_paid_inr = amount_inr
+    WHERE status = 'paid' AND advance_paid_inr IS NULL
+  `);
+
+  await getPool().query(`
+    CREATE INDEX IF NOT EXISTS idx_orders_balance_razorpay ON orders(razorpay_balance_order_id)
+  `);
 }
 
 let initPromise = null;
