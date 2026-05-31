@@ -11,48 +11,17 @@
         <div class="login-left">
           <h1>Welcome!</h1>
           <p class="login-subtitle">Create your account</p>
-          <p class="login-helper">Choose your preferred social account for instant signup</p>
-          <% const googleOn = typeof googleLoginEnabled !== 'undefined' && googleLoginEnabled; %>
+          <p class="login-helper">Sign up with Gmail in one click or use email below</p>
 
-          <div class="login-social-list">
-            <a class="login-social-btn" href="/auth/google" aria-label="Continue with Google">
-              <span class="social-icon social-icon-google" aria-hidden="true">
-                <svg viewBox="0 0 24 24" role="img">
-                  <path fill="#EA4335" d="M12 11.2v3.9h5.5c-.2 1.3-1.5 3.8-5.5 3.8-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 4.4 14.6 3.5 12 3.5A8.5 8.5 0 1 0 12 20.5c4.9 0 8.1-3.4 8.1-8.2 0-.6-.1-1-.2-1.1H12Z"/>
-                  <path fill="#4285F4" d="M20.1 12.3c0-.6-.1-1-.2-1.1H12v3.9h5.5c-.3 1.4-1.1 2.5-2.3 3.2l3 2.3c1.8-1.7 2.9-4.1 2.9-8.3Z"/>
-                  <path fill="#FBBC05" d="M6 14.9A5.9 5.9 0 0 1 5.7 13c0-.7.1-1.3.3-1.9L3 8.8A8.4 8.4 0 0 0 3 17.2L6 14.9Z"/>
-                  <path fill="#34A853" d="M12 20.5c2.6 0 4.8-.9 6.4-2.4l-3-2.3c-.8.5-1.9.9-3.4.9-2.6 0-4.9-1.8-5.7-4.2l-3 2.3A8.5 8.5 0 0 0 12 20.5Z"/>
-                </svg>
-              </span>
-              Continue with Google
-            </a>
-            <a class="login-social-btn" href="/auth/google" aria-label="Continue with GitHub">
-              <span class="social-icon social-icon-github" aria-hidden="true">
-                <svg viewBox="0 0 24 24" role="img">
-                  <path fill="currentColor" d="M12 .5C5.73.5.75 5.7.75 12.2c0 5.2 3.44 9.6 8.2 11.17.6.12.82-.27.82-.6v-2.1c-3.33.75-4.03-1.66-4.03-1.66-.55-1.43-1.34-1.8-1.34-1.8-1.1-.78.08-.77.08-.77 1.22.09 1.86 1.3 1.86 1.3 1.08 1.9 2.83 1.35 3.52 1.03.11-.81.42-1.35.76-1.66-2.66-.32-5.46-1.38-5.46-6.14 0-1.36.46-2.47 1.22-3.34-.12-.32-.53-1.6.12-3.33 0 0 1-.33 3.3 1.27.96-.28 1.99-.42 3.02-.42 1.03 0 2.06.14 3.02.42 2.3-1.6 3.3-1.27 3.3-1.27.65 1.73.24 3.01.12 3.33.76.87 1.22 1.98 1.22 3.34 0 4.78-2.8 5.81-5.48 6.13.43.38.82 1.12.82 2.27v3.36c0 .33.22.73.83.6 4.75-1.58 8.18-5.97 8.18-11.16C23.25 5.7 18.27.5 12 .5z"/>
-                </svg>
-              </span>
-              Continue with GitHub
-            </a>
-            <a class="login-social-btn" href="/auth/google" aria-label="Continue with Microsoft">
-              <span class="social-icon social-icon-microsoft" aria-hidden="true">
-                <svg viewBox="0 0 24 24" role="img">
-                  <rect x="3" y="3" width="8" height="8" fill="#F25022"/>
-                  <rect x="13" y="3" width="8" height="8" fill="#7FBA00"/>
-                  <rect x="3" y="13" width="8" height="8" fill="#00A4EF"/>
-                  <rect x="13" y="13" width="8" height="8" fill="#FFB900"/>
-                </svg>
-              </span>
-              Continue with Microsoft
-            </a>
-          </div>
-          <% if (!googleOn) { %>
-            <p class="auth-hint auth-hint-small">Gmail signup: <code>.env</code> mein Google Client ID + Secret add karein, phir server restart.</p>
+          <% if (authError) { %>
+            <p class="auth-error" role="alert"><%= authError %></p>
           <% } %>
+
+          <%- include("../partials/google-auth", { googleAuthFrom: 'signup' }) %>
 
           <div class="login-divider"><span>Or</span></div>
 
-          <details class="login-email-block">
+          <details class="login-email-block" open>
             <summary>Signup via Email</summary>
             <form class="auth-form" action="/auth/signup" method="post">
               <input class="auth-input" type="text" name="name" placeholder="Full Name" required>
@@ -63,7 +32,7 @@
             </form>
           </details>
 
-          <p style="margin-top: 12px; font-size: 0.92rem;">Already have an account? <a href="/login" style="color: #c6d6ff; text-decoration: underline;">Login</a></p>
+          <p class="auth-switch-link">Already have an account? <a href="/login">Login</a></p>
         </div>
 
         <div class="login-right" aria-hidden="true">
@@ -75,4 +44,3 @@
 
 <%- include("../partials/footer", { brand, year }) %>
 <%- include("../partials/scripts") %>
-

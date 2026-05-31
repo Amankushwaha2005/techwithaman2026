@@ -75,6 +75,9 @@ function createApp() {
       hasRazorpayKey: !!getRazorpayKeyId(),
       advancePercent: getAdvancePercent(),
       baseUrl: process.env.BASE_URL || null,
+      googleLoginEnabled: !!(
+        process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim()
+      ),
     });
   });
 
@@ -105,7 +108,7 @@ function createApp() {
 
   app.use((req, res, next) => {
     res.locals.googleLoginEnabled = !!(
-      process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim()
     );
     res.locals.aiChatEnabled = true;
     res.locals.aiOpenAiConfigured = !!process.env.OPENAI_API_KEY?.trim();

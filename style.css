@@ -590,6 +590,39 @@ html[data-theme="light"] .auth-input {
   font-size: 0.8rem;
 }
 
+.login-google-block {
+  margin-top: 12px;
+}
+
+.login-social-btn--google-primary {
+  width: 100%;
+  justify-content: center;
+  font-size: 1rem;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.login-social-btn--google-primary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.login-social-btn--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.auth-switch-link {
+  margin-top: 14px;
+  font-size: 0.92rem;
+  color: rgba(243, 246, 255, 0.85);
+}
+
+.auth-switch-link a {
+  color: #c6d6ff;
+  text-decoration: underline;
+}
+
 .login-social-list {
   display: grid;
   gap: 10px;

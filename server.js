@@ -63,12 +63,22 @@ async function start() {
             "/admin/connect?secret=… (see ADMIN_BOOTSTRAP_SECRET in .env)",
         );
       }
-      if (isLiveKeyOnLocalhost()) {
-        console.log(
-          "[payments] WARNING: Live Razorpay keys on localhost — UPI/card payments will FAIL.\n" +
-            "           Use rzp_test_ keys in .env for local testing, or deploy + register domain.",
-        );
-      }
+    if (isLiveKeyOnLocalhost()) {
+      console.log(
+        "[payments] WARNING: Live Razorpay keys on localhost — UPI/card payments will FAIL.\n" +
+          "           Use rzp_test_ keys in .env for local testing, or deploy + register domain.",
+      );
+    }
+    const googleOn = !!(
+      process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim()
+    );
+    if (!googleOn) {
+      console.log(
+        "[auth] Google login OFF — set GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET (see GOOGLE-LOGIN-SETUP.md)",
+      );
+    } else {
+      console.log("[auth] Google login enabled");
+    }
     })
     .on("error", (err) => {
       if (err.code === "EADDRINUSE") {

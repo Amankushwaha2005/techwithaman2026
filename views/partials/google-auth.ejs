@@ -1,0 +1,39 @@
+<%# Partial: Google (Gmail) sign-in — used on login & signup %>
+<% const googleOn = typeof googleLoginEnabled !== 'undefined' && googleLoginEnabled; %>
+<% const fromPage = typeof googleAuthFrom !== 'undefined' ? googleAuthFrom : 'login'; %>
+
+<div class="login-google-block">
+  <% if (googleOn) { %>
+    <a
+      class="login-social-btn login-social-btn--google-primary"
+      href="/auth/google?from=<%= fromPage %>"
+      aria-label="Continue with Google Gmail"
+    >
+      <span class="social-icon social-icon-google" aria-hidden="true">
+        <svg viewBox="0 0 24 24" role="img">
+          <path fill="#EA4335" d="M12 11.2v3.9h5.5c-.2 1.3-1.5 3.8-5.5 3.8-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 4.4 14.6 3.5 12 3.5A8.5 8.5 0 1 0 12 20.5c4.9 0 8.1-3.4 8.1-8.2 0-.6-.1-1-.2-1.1H12Z"/>
+          <path fill="#4285F4" d="M20.1 12.3c0-.6-.1-1-.2-1.1H12v3.9h5.5c-.3 1.4-1.1 2.5-2.3 3.2l3 2.3c1.8-1.7 2.9-4.1 2.9-8.3Z"/>
+          <path fill="#FBBC05" d="M6 14.9A5.9 5.9 0 0 1 5.7 13c0-.7.1-1.3.3-1.9L3 8.8A8.4 8.4 0 0 0 3 17.2L6 14.9Z"/>
+          <path fill="#34A853" d="M12 20.5c2.6 0 4.8-.9 6.4-2.4l-3-2.3c-.8.5-1.9.9-3.4.9-2.6 0-4.9-1.8-5.7-4.2l-3 2.3A8.5 8.5 0 0 0 12 20.5Z"/>
+        </svg>
+      </span>
+      Continue with Google (Gmail)
+    </a>
+  <% } else { %>
+    <button type="button" class="login-social-btn login-social-btn--google-primary login-social-btn--disabled" disabled>
+      <span class="social-icon social-icon-google" aria-hidden="true">
+        <svg viewBox="0 0 24 24" role="img">
+          <path fill="#EA4335" d="M12 11.2v3.9h5.5c-.2 1.3-1.5 3.8-5.5 3.8-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 4.4 14.6 3.5 12 3.5A8.5 8.5 0 1 0 12 20.5c4.9 0 8.1-3.4 8.1-8.2 0-.6-.1-1-.2-1.1H12Z"/>
+          <path fill="#4285F4" d="M20.1 12.3c0-.6-.1-1-.2-1.1H12v3.9h5.5c-.3 1.4-1.1 2.5-2.3 3.2l3 2.3c1.8-1.7 2.9-4.1 2.9-8.3Z"/>
+          <path fill="#FBBC05" d="M6 14.9A5.9 5.9 0 0 1 5.7 13c0-.7.1-1.3.3-1.9L3 8.8A8.4 8.4 0 0 0 3 17.2L6 14.9Z"/>
+          <path fill="#34A853" d="M12 20.5c2.6 0 4.8-.9 6.4-2.4l-3-2.3c-.8.5-1.9.9-3.4.9-2.6 0-4.9-1.8-5.7-4.2l-3 2.3A8.5 8.5 0 0 0 12 20.5Z"/>
+        </svg>
+      </span>
+      Continue with Google (Gmail)
+    </button>
+    <p class="auth-hint auth-hint-small">
+      Google login is off until <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> are set on Render.
+      See <code>GOOGLE-LOGIN-SETUP.md</code> in the project repo.
+    </p>
+  <% } %>
+</div>
