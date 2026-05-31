@@ -242,6 +242,37 @@ async function markOrderDelivered(req, res) {
   return res.redirect("/admin?flash=delivered#inbox-orders");
 }
 
+async function syncOrderPayment(req, res) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.redirect("/admin?err=invalid");
+
+  const result = await paymentsService.syncOrderAdvanceById(id);
+  if (!result.synced) {
+    if (result.reason === "no_razorpay") {
+      return res.redirect("/admin?err=norazorpay#inbox-orders");
+    }
+    return res.redirect("/admin?err=nosync#inbox-orders");
+  }
+  return res.redirect("/admin?flash=synced#inbox-orders");
+}
+
+async function markOrderAdvancePaid(req, res) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.redirect("/admin?err=invalid");
+
+  const order = await paymentsService.markAdvancePaidManual(id);
+  if (!order) return res.redirect("/admin?err=notready#inbox-orders");
+  return res.redirect("/admin?flash=advancepaid#inbox-orders");
+}
+
+async function deleteOrder(req, res) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.redirect("/admin?err=invalid");
+
+  await paymentsService.deleteOrderById(id);
+  return res.redirect("/admin?flash=orderdeleted#inbox-orders");
+}
+
 async function setUserRole(req, res) {
   const id = Number(req.params.id);
   const role = String(req.body.role || "");
@@ -264,5 +295,8 @@ module.exports = {
   updateChatStatus,
   deleteChat,
   markOrderDelivered,
+  syncOrderPayment,
+  markOrderAdvancePaid,
+  deleteOrder,
   setUserRole,
 };

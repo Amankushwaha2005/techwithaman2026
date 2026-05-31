@@ -3187,6 +3187,11 @@ html[data-theme="light"] .admin-topbar {
   font-size: 0.95rem;
 }
 
+.admin-btn-danger {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.35);
+}
+
 .admin-section-desc {
   margin: -0.25rem 0 1rem;
   font-size: 0.9rem;

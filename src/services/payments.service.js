@@ -237,6 +237,89 @@ async function markOrderDelivered(orderId) {
   );
 }
 
+async function markAdvancePaidManual(orderId) {
+  return queryOne(
+    `UPDATE orders
+     SET status = 'advance_paid',
+         paid_at = NOW(),
+         advance_paid_inr = amount_inr,
+         razorpay_payment_id = COALESCE(NULLIF(razorpay_payment_id, ''), 'manual')
+     WHERE id = $1 AND status = 'pending'
+     RETURNING *`,
+    [orderId],
+  );
+}
+
+async function deleteOrderById(orderId) {
+  return queryOne(`DELETE FROM orders WHERE id = $1 RETURNING id`, [orderId]);
+}
+
+async function resumeAdvancePaymentOrder(publicId) {
+  const order = await getOrderByPublicId(publicId);
+  if (!order) throw new Error("Order not found.");
+  if (normalizeOrderStatus(order) !== "pending") {
+    throw new Error("Advance is already paid for this order.");
+  }
+
+  if (!isPaymentEnabled()) {
+    return {
+      order,
+      paymentConfigured: false,
+      message: "Online payment is not configured. Contact us on WhatsApp to pay advance.",
+    };
+  }
+
+  const amountPaise = order.amount_inr * 100;
+  let razorpayOrderId = order.razorpay_order_id;
+
+  if (!razorpayOrderId) {
+    const razorpay = getRazorpayClient();
+    const rzOrder = await razorpay.orders.create({
+      amount: amountPaise,
+      currency: "INR",
+      receipt: order.public_id.slice(0, 40),
+      notes: {
+        public_id: order.public_id,
+        phase: "advance",
+        service: order.service,
+        plan: order.plan,
+      },
+    });
+    razorpayOrderId = rzOrder.id;
+    await queryOne(
+      `UPDATE orders SET razorpay_order_id = $1 WHERE id = $2 RETURNING *`,
+      [razorpayOrderId, order.id],
+    );
+  }
+
+  return {
+    order,
+    paymentConfigured: true,
+    razorpayOrderId,
+    amountPaise,
+    amountInr: order.amount_inr,
+    keyId: getRazorpayKeyId(),
+  };
+}
+
+async function syncOrderAdvanceById(orderId) {
+  const order = await queryOne(`SELECT * FROM orders WHERE id = $1`, [orderId]);
+  if (!order) return { synced: false, reason: "not_found" };
+  if (normalizeOrderStatus(order) !== "pending") {
+    return { synced: false, reason: "already_paid", order };
+  }
+  if (!order.razorpay_order_id) {
+    return { synced: false, reason: "no_razorpay", order };
+  }
+
+  const updated = await syncAdvancePaymentForOrder(order.razorpay_order_id);
+  return {
+    synced: !!(updated && normalizeOrderStatus(updated) === "advance_paid"),
+    order: updated || order,
+    reason: updated ? "synced" : "not_paid",
+  };
+}
+
 async function completePayment({ razorpay_order_id, razorpay_payment_id, razorpay_signature }) {
   if (!isPaymentEnabled()) {
     throw new Error("Payment gateway is not configured.");
@@ -506,7 +589,11 @@ module.exports = {
   computeAdvanceInr,
   getAdvancePercent,
   markOrderDelivered,
-  syncCapturedPaymentForOrder,
+  markAdvancePaidManual,
+  deleteOrderById,
+  resumeAdvancePaymentOrder,
+  syncOrderAdvanceById,
+  syncAdvancePaymentForOrder,
   checkOrderPaymentStatus,
   checkBalancePaymentStatus,
   verifyWebhookSignature,

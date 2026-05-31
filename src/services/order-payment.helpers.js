@@ -45,7 +45,7 @@ function orderStatusLabel(order) {
     return "Balance due";
   }
   if (st === "advance_paid") return "Advance paid";
-  if (st === "pending") return "Pending";
+  if (st === "pending") return "Advance pending";
   return st;
 }
 

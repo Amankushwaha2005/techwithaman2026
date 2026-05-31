@@ -73,6 +73,27 @@ async function showOrderSuccess(req, res) {
   );
 }
 
+async function showPayAdvance(req, res) {
+  const id = typeof req.query.id === "string" ? req.query.id : "";
+  const order = id ? await paymentsService.getOrderByPublicId(id) : null;
+  const st = order ? paymentsService.normalizeOrderStatus(order) : "";
+  const canPay = st === "pending";
+  const alreadyPaid = st === "advance_paid" || st === "completed";
+
+  renderWithLayout(
+    res,
+    "pages/order-pay-advance",
+    { key: "order-pay-advance", title: "Pay Advance | #TechWithAman" },
+    {
+      order,
+      canPay,
+      alreadyPaid,
+      advanceDue: order ? Number(order.amount_inr) || 0 : 0,
+      orderStatusLabel: order ? orderStatusLabel(order) : "",
+    },
+  );
+}
+
 async function showPayBalance(req, res) {
   const id = typeof req.query.id === "string" ? req.query.id : "";
   const order = id ? await paymentsService.getOrderByPublicId(id) : null;
@@ -236,6 +257,50 @@ async function createBalanceOrder(req, res) {
   }
 }
 
+async function resumeAdvanceOrder(req, res) {
+  try {
+    const publicId =
+      typeof req.body?.publicId === "string"
+        ? req.body.publicId.trim()
+        : typeof req.query?.id === "string"
+          ? req.query.id.trim()
+          : "";
+
+    if (!publicId) {
+      return res.status(400).json({ ok: false, error: "Order ID is required." });
+    }
+
+    const result = await paymentsService.resumeAdvancePaymentOrder(publicId);
+
+    if (!result.paymentConfigured) {
+      return res.status(503).json({
+        ok: false,
+        error: result.message,
+        publicId: result.order.public_id,
+        amountInr: result.order.amount_inr,
+      });
+    }
+
+    return res.json({
+      ok: true,
+      publicId: result.order.public_id,
+      razorpayOrderId: result.razorpayOrderId,
+      amountPaise: result.amountPaise,
+      amountInr: result.amountInr,
+      keyId: result.keyId,
+      customer: {
+        name: result.order.name,
+        email: result.order.email,
+        contact: result.order.phone || "",
+      },
+      description: `${result.order.service} — ${result.order.plan} (advance)`,
+    });
+  } catch (err) {
+    console.error("[payments] resume-advance", err);
+    return res.status(400).json({ ok: false, error: err.message || "Could not resume advance payment." });
+  }
+}
+
 async function verifyPayment(req, res) {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body || {};
@@ -351,11 +416,13 @@ async function razorpayWebhook(req, res) {
 module.exports = {
   showOrder,
   showOrderSuccess,
+  showPayAdvance,
   showPayBalance,
   showBalanceSuccess,
   showOrderReceipt,
   createOrder,
   createBalanceOrder,
+  resumeAdvanceOrder,
   verifyPayment,
   verifyBalancePayment,
   paymentStatus,

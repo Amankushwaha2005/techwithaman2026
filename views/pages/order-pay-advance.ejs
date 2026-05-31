@@ -1,0 +1,76 @@
+<%# =============================================================================
+   PAY ADVANCE PAGE (resume pending order)
+   URL: /order/pay-advance
+   File: views/pages/order-pay-advance.ejs
+   ============================================================================= %>
+<%- include("../partials/head", { page }) %>
+<%- include("../partials/navbar", { navItems, brand, page }) %>
+
+  <main class="order-page">
+    <section class="page-hero order-page-hero">
+      <div class="container">
+        <span class="chip">Complete payment</span>
+        <h1>Pay advance</h1>
+        <p>Complete your pending order payment via Razorpay (UPI, card, netbanking).</p>
+      </div>
+    </section>
+
+    <section class="section order-page-section">
+      <div class="container order-layout">
+        <% if (!order) { %>
+          <article class="card order-success-card">
+            <h1>Order not found</h1>
+            <p>Check your order ID or start a new order from the pricing page.</p>
+            <a class="btn btn-outline" href="/pricing">View pricing</a>
+          </article>
+        <% } else if (alreadyPaid) { %>
+          <article class="card order-success-card">
+            <span class="chip">Already paid</span>
+            <h1>Advance already received</h1>
+            <p>Order <code><%= order.public_id %></code> — advance payment is already confirmed.</p>
+            <a class="btn" href="/order/success?id=<%= encodeURIComponent(order.public_id) %>">View confirmation</a>
+          </article>
+        <% } else if (canPay) { %>
+          <aside class="card order-summary-card">
+            <div class="order-summary-card__head">
+              <h2>Order summary</h2>
+              <span class="order-summary-badge">Pending payment</span>
+            </div>
+            <dl class="order-summary-list">
+              <div class="order-summary-row"><dt>Order ID</dt><dd><code><%= order.public_id %></code></dd></div>
+              <div class="order-summary-row"><dt>Service</dt><dd><%= order.service %></dd></div>
+              <div class="order-summary-row"><dt>Package</dt><dd><%= order.plan %></dd></div>
+              <div class="order-summary-row"><dt>Package total</dt><dd>₹<%= order.total_inr.toLocaleString("en-IN") %></dd></div>
+              <div class="order-summary-row order-summary-row--highlight">
+                <dt>Advance due now</dt>
+                <dd>₹<%= advanceDue.toLocaleString("en-IN") %></dd>
+              </div>
+            </dl>
+          </aside>
+
+          <div class="order-main">
+            <article
+              class="card order-payment-card"
+              id="advance-payment-panel"
+              data-public-id="<%= order.public_id %>"
+              data-payment-enabled="<%= paymentEnabled ? '1' : '0' %>"
+              data-live-on-local="<%= paymentLiveOnLocalhost ? '1' : '0' %>"
+              data-customer-name="<%= order.name %>"
+              data-customer-email="<%= order.email %>"
+              data-customer-phone="<%= order.phone || '' %>"
+            >
+              <h2>Pay advance online</h2>
+              <p class="order-payment-lead">Pay <strong>₹<%= advanceDue.toLocaleString("en-IN") %></strong> to confirm your booking.</p>
+              <p id="advance-form-error" class="form-error" hidden role="alert"></p>
+              <button type="button" class="btn order-pay-method" id="advance-pay-razorpay" <%= paymentEnabled ? '' : 'disabled' %>>
+                Pay with Razorpay
+              </button>
+            </article>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </main>
+
+<%- include("../partials/footer", { brand, year }) %>
+<%- include("../partials/scripts") %>
