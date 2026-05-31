@@ -26,7 +26,7 @@ $env:RENDER_API_KEY = "rnd_your_key_here"
 **Environment** tab mein ye add karo (`.env` se copy):
 
 ```
-RAZORPAY_KEY_ID=rzp_live_StbQRH4F0mPGpy
+RAZORPAY_KEY_ID=rzp_test_xxxxxxxx
 RAZORPAY_KEY_SECRET=(your secret)
 BASE_URL=https://techwithaman-website.onrender.com
 PAYMENT_ADVANCE_PERCENT=50
