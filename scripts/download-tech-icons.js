@@ -1,4 +1,12 @@
 /**
+ * =============================================================================
+ * BACKEND — download-tech-icons
+ * File: scripts/download-tech-icons.js
+ * Download tech stack SVG icons to assets
+ * =============================================================================
+ */
+
+/**
  * Downloads tech-stack icons into images/tech/ (offline use on any laptop).
  * Run: node scripts/download-tech-icons.js
  */

@@ -1,3 +1,9 @@
+# =============================================================================
+# BACKEND — Flask auth routes
+# File: backend/routes/auth.py
+# Legacy SQLite auth login/signup
+# =============================================================================
+
 import sqlite3
 from pathlib import Path
 

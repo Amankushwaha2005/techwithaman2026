@@ -1,3 +1,12 @@
+/**
+ * =============================================================================
+ * CLIENT — portfolio-data.js
+ * URL: /portfolio
+ * File: portfolio-data.js
+ * Portfolio project entries
+ * =============================================================================
+ */
+
 window.PORTFOLIO_DATA = {
   projects: [
     {

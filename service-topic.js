@@ -1,3 +1,12 @@
+/**
+ * =============================================================================
+ * CLIENT — service-topic.js
+ * URL: /service-topic
+ * File: service-topic.js
+ * Service topic detail page logic
+ * =============================================================================
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
   const root = document.getElementById("topic-root");
   const missing = document.getElementById("topic-missing");

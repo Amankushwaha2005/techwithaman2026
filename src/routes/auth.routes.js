@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — auth routes
+ * File: src/routes/auth.routes.js
+ * POST /auth/login, /auth/signup, Google OAuth
+ * =============================================================================
+ */
+
 const express = require("express");
 
 const authController = require("../controllers/auth.controller");

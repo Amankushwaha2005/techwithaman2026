@@ -1,4 +1,12 @@
 /**
+ * =============================================================================
+ * BACKEND — generate-service-topics-data
+ * File: scripts/generate-service-topics-data.js
+ * Generate service-topics-data.js from HTML
+ * =============================================================================
+ */
+
+/**
  * One-off generator: writes ../service-topics-data.js
  * Run from project root: node scripts/generate-service-topics-data.js
  */

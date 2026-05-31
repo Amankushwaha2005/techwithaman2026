@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — payments routes
+ * File: src/routes/payments.routes.js
+ * Order create, verify, status, webhook
+ * =============================================================================
+ */
+
 const express = require("express");
 
 const paymentsController = require("../controllers/payments.controller");

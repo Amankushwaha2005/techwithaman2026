@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — Express app factory
+ * File: src/app.js
+ * Middleware, session, routes, static files, 404
+ * =============================================================================
+ */
+
 const path = require("path");
 const express = require("express");
 const session = require("express-session");

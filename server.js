@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — server.js
+ * File: server.js
+ * Entry point: PostgreSQL init, npm start, listen PORT
+ * =============================================================================
+ */
+
 require("dotenv").config();
 
 const { isLiveKeyOnLocalhost } = require("./src/config/payments");

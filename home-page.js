@@ -1,3 +1,12 @@
+/**
+ * =============================================================================
+ * CLIENT — home-page.js
+ * URL: / (home)
+ * File: home-page.js
+ * Home carousel, card modal interactions
+ * =============================================================================
+ */
+
 (function () {
   function initHome() {
     const data = window.HOME_DATA;

@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — AI fallback service
+ * File: src/services/ai-fallback.js
+ * Rule-based replies when no API key
+ * =============================================================================
+ */
+
 const { SITE_KNOWLEDGE } = require("../config/site-knowledge");
 
 function normalize(text) {

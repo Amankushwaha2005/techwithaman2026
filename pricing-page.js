@@ -1,3 +1,12 @@
+/**
+ * =============================================================================
+ * CLIENT — pricing-page.js
+ * URL: /pricing
+ * File: pricing-page.js
+ * Pricing carousel, order links
+ * =============================================================================
+ */
+
 (function () {
   const data = window.PRICING_DATA;
   if (!data || !data.categories) return;

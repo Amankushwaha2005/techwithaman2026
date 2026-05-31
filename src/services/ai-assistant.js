@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — AI assistant service
+ * File: src/services/ai-assistant.js
+ * OpenAI/Groq chat completion calls
+ * =============================================================================
+ */
+
 const { SITE_KNOWLEDGE } = require("../config/site-knowledge");
 const { fallbackReply } = require("./ai-fallback");
 

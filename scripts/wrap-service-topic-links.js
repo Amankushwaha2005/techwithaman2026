@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — wrap-service-topic-links
+ * File: scripts/wrap-service-topic-links.js
+ * Wrap service links in HTML for topics
+ * =============================================================================
+ */
+
 const fs = require("fs");
 const path = require("path");
 const root = path.join(__dirname, "..");

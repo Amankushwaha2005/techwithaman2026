@@ -1,3 +1,9 @@
+# =============================================================================
+# BACKEND — Flask pages routes
+# File: backend/routes/pages.py
+# Legacy static page routes
+# =============================================================================
+
 from pathlib import Path
 
 from flask import Blueprint, abort, current_app, send_file

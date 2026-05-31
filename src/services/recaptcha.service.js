@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — reCAPTCHA service
+ * File: src/services/recaptcha.service.js
+ * Verify Google reCAPTCHA token
+ * =============================================================================
+ */
+
 const {
   getRecaptchaSecretKey,
   isRecaptchaEnabled,

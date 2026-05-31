@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * CLIENT — ai-chat-loader.js
+ * File: ai-chat-loader.js
+ * Lazy-load AI chat scripts
+ * =============================================================================
+ */
+
 (function () {
   if (document.getElementById("ai-chat-float")) {
     if (!document.querySelector('script[src*="ai-chat.js"]')) {

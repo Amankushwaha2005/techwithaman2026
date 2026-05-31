@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — auth controller
+ * File: src/controllers/auth.controller.js
+ * Login, signup, Google OAuth, logout
+ * =============================================================================
+ */
+
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 

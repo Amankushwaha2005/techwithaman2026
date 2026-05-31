@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * CLIENT — ai-chat.js
+ * File: ai-chat.js
+ * AI chat widget open/send logic
+ * =============================================================================
+ */
+
 (function () {
   const BRAND = "#TechWithAman";
   let panel;

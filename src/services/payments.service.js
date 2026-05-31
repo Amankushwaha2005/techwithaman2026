@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — payments service
+ * File: src/services/payments.service.js
+ * Orders CRUD, Razorpay create/verify
+ * =============================================================================
+ */
+
 const crypto = require("crypto");
 
 const Razorpay = require("razorpay");

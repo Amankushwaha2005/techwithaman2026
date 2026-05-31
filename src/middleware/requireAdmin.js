@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — requireAdmin middleware
+ * File: src/middleware/requireAdmin.js
+ * Protect /admin routes, check role
+ * =============================================================================
+ */
+
 const { queryOne } = require("../services/db");
 const { isAdminUser } = require("../config/admin");
 const { brand } = require("../config/site");

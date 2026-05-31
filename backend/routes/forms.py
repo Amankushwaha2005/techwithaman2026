@@ -1,3 +1,9 @@
+# =============================================================================
+# BACKEND — Flask forms routes
+# File: backend/routes/forms.py
+# Legacy contact/work form handlers
+# =============================================================================
+
 from flask import Blueprint, redirect, request
 
 

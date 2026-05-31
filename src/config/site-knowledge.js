@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — AI site knowledge
+ * File: src/config/site-knowledge.js
+ * Context for AI chat assistant replies
+ * =============================================================================
+ */
+
 /** Context for the AI assistant — keep in sync with site offerings */
 const SITE_KNOWLEDGE = `
 #TechWithAman — website development, apps, logo design & student projects (India).

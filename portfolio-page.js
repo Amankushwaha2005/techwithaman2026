@@ -1,3 +1,12 @@
+/**
+ * =============================================================================
+ * CLIENT — portfolio-page.js
+ * URL: /portfolio
+ * File: portfolio-page.js
+ * Portfolio filter and display
+ * =============================================================================
+ */
+
 (function () {
   function escapeHtml(text) {
     const div = document.createElement("div");

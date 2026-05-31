@@ -1,3 +1,8 @@
+<%# =============================================================================
+   PARTIAL — reCAPTCHA
+   File: views/partials/recaptcha-widget.ejs
+   Google reCAPTCHA or fallback checkbox
+   ============================================================================= %>
 <% if (typeof recaptchaSiteKey !== 'undefined' && recaptchaSiteKey) { %>
   <div class="recaptcha-wrap">
     <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>"></div>

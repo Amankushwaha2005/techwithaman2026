@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * CLIENT — form-toast.js
+ * File: form-toast.js
+ * Success/error popup after form submit
+ * =============================================================================
+ */
+
 (function () {
   var root = document.getElementById("form-toast-root");
   if (!root) return;

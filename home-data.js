@@ -1,3 +1,12 @@
+/**
+ * =============================================================================
+ * CLIENT — home-data.js
+ * URL: / (home)
+ * File: home-data.js
+ * Home page carousel and card data
+ * =============================================================================
+ */
+
 window.HOME_DATA = {
   pricingPlans: ["starter-plan", "professional-plan", "premium-plan"],
   items: {

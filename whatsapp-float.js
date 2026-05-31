@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * CLIENT — whatsapp-float.js
+ * File: whatsapp-float.js
+ * WhatsApp float button behavior
+ * =============================================================================
+ */
+
 (function () {
   const PHONE = "919528252099";
   const TEXT = "Hi #TechWithAman, I would like to discuss a project.";

@@ -1,3 +1,12 @@
+/**
+ * =============================================================================
+ * CLIENT — receipt-print.js
+ * URL: /order/receipt
+ * File: receipt-print.js
+ * Print receipt button handler
+ * =============================================================================
+ */
+
 (function () {
   const btn = document.getElementById("receipt-print-btn");
   if (!btn) return;

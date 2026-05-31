@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * CLIENT — chatbot.js
+ * File: chatbot.js
+ * Site chatbot form submit to API
+ * =============================================================================
+ */
+
 (function () {
   const WA_PHONE = "919528252099";
   const WA_URL = `https://wa.me/${WA_PHONE}?text=`;

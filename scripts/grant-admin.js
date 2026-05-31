@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — grant-admin script
+ * File: scripts/grant-admin.js
+ * CLI: promote user to admin by email
+ * =============================================================================
+ */
+
 #!/usr/bin/env node
 /**
  * Promote a user to admin by email (updates DB role).

@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — admin controller
+ * File: src/controllers/admin.controller.js
+ * Dashboard stats, inbox, users, orders
+ * =============================================================================
+ */
+
 const { query, queryOne } = require("../services/db");
 const { brand } = require("../config/site");
 

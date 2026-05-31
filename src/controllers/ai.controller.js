@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — AI controller
+ * File: src/controllers/ai.controller.js
+ * AI chat API endpoint handler
+ * =============================================================================
+ */
+
 const { getAssistantReply } = require("../services/ai-assistant");
 
 const hits = new Map();

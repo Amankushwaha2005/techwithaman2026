@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — payments controller
+ * File: src/controllers/payments.controller.js
+ * Order pages, Razorpay API, webhook
+ * =============================================================================
+ */
+
 const { brand, navItems, company } = require("../config/site");
 const {
   isPaymentEnabled,

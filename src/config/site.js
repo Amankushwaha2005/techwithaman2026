@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — site config
+ * File: src/config/site.js
+ * Brand name, nav items, company contact info
+ * =============================================================================
+ */
+
 const brand = "#TechWithAman";
 
 const company = {

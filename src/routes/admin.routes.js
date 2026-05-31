@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — admin routes
+ * File: src/routes/admin.routes.js
+ * GET /admin, inbox actions, user roles
+ * =============================================================================
+ */
+
 const { query, queryOne } = require("../services/db");
 const { requireAdmin } = require("../middleware/requireAdmin");
 const adminController = require("../controllers/admin.controller");

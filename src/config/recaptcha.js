@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — reCAPTCHA config
+ * File: src/config/recaptcha.js
+ * Google reCAPTCHA site/secret keys
+ * =============================================================================
+ */
+
 const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXJiZQyJ";
 const TEST_SECRET_KEY = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe";
 

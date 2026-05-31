@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * CLIENT — main.js
+ * File: main.js
+ * Theme toggle, mobile nav, scroll helpers (all pages)
+ * =============================================================================
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
   const navbars = document.querySelectorAll(".navbar");
 

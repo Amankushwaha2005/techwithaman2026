@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — admin config
+ * File: src/config/admin.js
+ * ADMIN_EMAILS check, isAdminUser helper
+ * =============================================================================
+ */
+
 function adminEmailSet() {
   const raw = process.env.ADMIN_EMAILS || "";
   return new Set(

@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — forms controller
+ * File: src/controllers/forms.controller.js
+ * Contact, work, chatbot form handlers
+ * =============================================================================
+ */
+
 const { query } = require("../services/db");
 const { validateFormRecaptcha } = require("../services/recaptcha.service");
 

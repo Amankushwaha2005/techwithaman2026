@@ -1,4 +1,12 @@
 /**
+ * =============================================================================
+ * BACKEND — sync-html-to-ejs
+ * File: scripts/sync-html-to-ejs.js
+ * Convert static HTML files to EJS views
+ * =============================================================================
+ */
+
+/**
  * Copies <main> from root *.html into views/pages/*.ejs (Express uses EJS, not .html).
  * Run: node scripts/sync-html-to-ejs.js
  */

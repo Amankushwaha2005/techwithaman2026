@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — smoke-admin-connect
+ * File: scripts/smoke-admin-connect.js
+ * Test admin bootstrap connect route
+ * =============================================================================
+ */
+
 require("dotenv").config();
 const http = require("http");
 const { createApp } = require("../src/app");

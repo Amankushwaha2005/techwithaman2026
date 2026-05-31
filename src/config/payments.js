@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — payments config
+ * File: src/config/payments.js
+ * Razorpay keys, advance percent, live key check
+ * =============================================================================
+ */
+
 function getRazorpayKeyId() {
   return (process.env.RAZORPAY_KEY_ID || "").trim();
 }

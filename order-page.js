@@ -1,3 +1,12 @@
+/**
+ * =============================================================================
+ * CLIENT — order-page.js
+ * URL: /order
+ * File: order-page.js
+ * Razorpay checkout and payment verify
+ * =============================================================================
+ */
+
 (function () {
   const form = document.getElementById("order-form");
   if (!form) return;

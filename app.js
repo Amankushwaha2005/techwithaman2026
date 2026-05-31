@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — legacy app.js (root)
+ * File: app.js
+ * Minimal Express static server (superseded by server.js)
+ * =============================================================================
+ */
+
 const express = require("express");
 
 function createApp() {

@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — pages controller
+ * File: src/controllers/pages.controller.js
+ * renderPage helper for EJS templates
+ * =============================================================================
+ */
+
 const { brand, navItems } = require("../config/site");
 
 function renderPage(req, res, view, page) {

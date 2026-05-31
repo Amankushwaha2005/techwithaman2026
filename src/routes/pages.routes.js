@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — pages routes
+ * File: src/routes/pages.routes.js
+ * GET /, /pricing, /contact, /login, etc.
+ * =============================================================================
+ */
+
 const express = require("express");
 
 const { renderPage } = require("../controllers/pages.controller");

@@ -1,3 +1,9 @@
+# =============================================================================
+# BACKEND — Flask config
+# File: backend/config.py
+# Flask configuration and paths
+# =============================================================================
+
 from pathlib import Path
 
 

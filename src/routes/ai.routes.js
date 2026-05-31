@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — AI routes
+ * File: src/routes/ai.routes.js
+ * POST AI chat message endpoint
+ * =============================================================================
+ */
+
 const express = require("express");
 const aiController = require("../controllers/ai.controller");
 

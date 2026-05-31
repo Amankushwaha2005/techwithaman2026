@@ -1,3 +1,12 @@
+/**
+ * =============================================================================
+ * CLIENT — pricing-data.js
+ * URL: /pricing
+ * File: pricing-data.js
+ * Pricing plans and package data
+ * =============================================================================
+ */
+
 /* Pricing categories + packages — loaded by pricing-page.js */
 window.PRICING_DATA = {
   categories: [

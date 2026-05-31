@@ -1,3 +1,9 @@
+# =============================================================================
+# BACKEND — Flask app factory
+# File: backend/create_app.py
+# Create Flask app, register blueprints
+# =============================================================================
+
 import os
 import secrets
 

@@ -1,3 +1,11 @@
+/**
+ * =============================================================================
+ * BACKEND — database service
+ * File: src/services/db.js
+ * PostgreSQL pool, migrations, query helpers
+ * =============================================================================
+ */
+
 const { Pool } = require("pg");
 
 function getPoolConfig() {
