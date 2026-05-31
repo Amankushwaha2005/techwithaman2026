@@ -50,5 +50,17 @@ services:
         sync: false
       - key: GOOGLE_REDIRECT_URI
         value: https://techwithaman-website-2026.onrender.com/auth/google/callback
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_REDIRECT_URI
+        value: https://techwithaman-website-2026.onrender.com/auth/github/callback
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_REDIRECT_URI
+        value: https://techwithaman-website-2026.onrender.com/auth/microsoft/callback
       - key: PGSSL
         value: "true"

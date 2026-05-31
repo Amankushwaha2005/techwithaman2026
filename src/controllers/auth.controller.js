@@ -2,7 +2,7 @@
  * =============================================================================
  * BACKEND — auth controller
  * File: src/controllers/auth.controller.js
- * Login, signup, Google OAuth, logout
+ * Login, signup, Google / GitHub / Microsoft OAuth, logout
  * =============================================================================
  */
 
@@ -11,26 +11,25 @@ const bcrypt = require("bcryptjs");
 
 const { query, queryOne } = require("../services/db");
 const { validateFormRecaptcha } = require("../services/recaptcha.service");
-
-const GOOGLE_AUTH_BASE = "https://accounts.google.com/o/oauth2/v2/auth";
-const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
-const GOOGLE_USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo";
-
-function getBaseUrl(req) {
-  return process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
-}
-
-function getGoogleConfig(req) {
-  const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
-  const baseUrl = (process.env.BASE_URL || getBaseUrl(req)).replace(/\/$/, "");
-  const redirectUri =
-    process.env.GOOGLE_REDIRECT_URI?.trim() || `${baseUrl}/auth/google/callback`;
-  return { clientId, clientSecret, redirectUri, baseUrl };
-}
+const { isProviderConfigured } = require("../config/oauth-providers");
+const {
+  getProviderConfig,
+  buildAuthUrl,
+  exchangeCode,
+  fetchProfile,
+  upsertOAuthUser,
+} = require("../services/oauth.service");
 
 function isGoogleOAuthReady() {
-  return Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim());
+  return isProviderConfigured("google");
+}
+
+function isGitHubOAuthReady() {
+  return isProviderConfigured("github");
+}
+
+function isMicrosoftOAuthReady() {
+  return isProviderConfigured("microsoft");
 }
 
 function authError(res, message, returnTo = "login") {
@@ -46,19 +45,32 @@ function signupError(res, message) {
   return authError(res, message, "signup");
 }
 
+function getReturnTo(req) {
+  return req.query.from === "signup" ? "signup" : "login";
+}
+
+function finishOAuthRedirect(req, res, returnTo) {
+  const next = req.session.afterLoginRedirect;
+  delete req.session.afterLoginRedirect;
+  const toast = returnTo === "signup" ? "signup" : "login";
+  if (typeof next === "string" && next.startsWith("/") && !next.startsWith("//")) {
+    const sep = next.includes("?") ? "&" : "?";
+    return res.redirect(`${next}${sep}toast=${toast}`);
+  }
+  return res.redirect(`/?toast=${toast}`);
+}
+
 async function login(req, res) {
   const captcha = await validateFormRecaptcha(req);
   if (!captcha.ok) return loginError(res, captcha.error);
 
   const { email, password } = req.body || {};
-  console.log("LOGIN request:", { email });
 
   if (!email || !password) return loginError(res, "Email and password are required.");
 
   const user = await queryOne(
     `SELECT id, provider, name, email, password_hash, picture
-     FROM users
-     WHERE email = $1`,
+     FROM users WHERE email = $1`,
     [String(email).trim().toLowerCase()],
   );
 
@@ -80,7 +92,6 @@ async function signup(req, res) {
   if (!captcha.ok) return signupError(res, captcha.error);
 
   const { name, email, password } = req.body || {};
-  console.log("SIGNUP request:", { name, email });
 
   if (!name || !email || !password) return signupError(res, "Name, email and password are required.");
 
@@ -105,125 +116,87 @@ async function signup(req, res) {
   return res.redirect("/?toast=signup");
 }
 
-function googleAuth(req, res) {
-  const from = req.query.from === "signup" ? "signup" : "login";
-  req.session.oauthReturnTo = from;
+function startOAuth(providerKey, req, res) {
+  const returnTo = getReturnTo(req);
+  req.session.oauthReturnTo = returnTo;
+  req.session.oauthProvider = providerKey;
 
-  const { clientId, clientSecret, redirectUri } = getGoogleConfig(req);
-  if (!clientId || !clientSecret) {
+  const config = getProviderConfig(req, providerKey);
+  if (!config?.clientId || !config?.clientSecret) {
+    const envHint =
+      providerKey === "google"
+        ? "GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET"
+        : providerKey === "github"
+          ? "GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET"
+          : "MICROSOFT_CLIENT_ID and MICROSOFT_CLIENT_SECRET";
     return authError(
       res,
-      "Google (Gmail) login is not configured. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET on Render, then redeploy.",
-      from,
+      `${config?.label || providerKey} login is not configured. Add ${envHint} on Render.`,
+      returnTo,
     );
   }
 
   const state = crypto.randomBytes(24).toString("hex");
   req.session.oauthState = state;
 
-  const params = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    response_type: "code",
-    scope: "openid email profile",
-    access_type: "online",
-    prompt: "select_account",
-    state,
-  });
-
-  return res.redirect(`${GOOGLE_AUTH_BASE}?${params.toString()}`);
+  return res.redirect(buildAuthUrl(providerKey, config, state));
 }
 
-async function googleCallback(req, res) {
+async function oauthCallback(providerKey, req, res) {
   const returnTo = req.session.oauthReturnTo === "signup" ? "signup" : "login";
   const { code, state } = req.query || {};
+
   if (!code || !state || state !== req.session.oauthState) {
-    return authError(res, "Google login failed. Please try again.", returnTo);
+    return authError(res, `${providerKey} login failed. Please try again.`, returnTo);
+  }
+
+  if (req.session.oauthProvider && req.session.oauthProvider !== providerKey) {
+    return authError(res, "Login session mismatch. Please try again.", returnTo);
   }
 
   delete req.session.oauthState;
   delete req.session.oauthReturnTo;
+  delete req.session.oauthProvider;
 
-  const { clientId, clientSecret, redirectUri } = getGoogleConfig(req);
-  if (!clientId || !clientSecret) {
-    return authError(res, "Google login is not configured yet.", returnTo);
+  const config = getProviderConfig(req, providerKey);
+  if (!config?.clientId || !config?.clientSecret) {
+    return authError(res, `${config.label} login is not configured yet.`, returnTo);
   }
 
   try {
-    const tokenResp = await fetch(GOOGLE_TOKEN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        code,
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
-        grant_type: "authorization_code",
-      }),
-    });
-
-    if (!tokenResp.ok) {
-      const errBody = await tokenResp.text().catch(() => "");
-      console.error("[google] token error", tokenResp.status, errBody);
-      return authError(res, "Could not verify Google account. Check redirect URI in Google Cloud.", returnTo);
-    }
-    const tokenJson = await tokenResp.json();
-    if (!tokenJson.access_token) return authError(res, "Google access token missing.", returnTo);
-
-    const profileResp = await fetch(GOOGLE_USERINFO_URL, {
-      headers: { Authorization: `Bearer ${tokenJson.access_token}` },
-    });
-    if (!profileResp.ok) return authError(res, "Could not fetch Google profile.", returnTo);
-
-    const profile = await profileResp.json();
-    const email = String(profile.email || "").trim().toLowerCase();
-    if (!email) return authError(res, "Google account email not available.", returnTo);
-
-    const providerId = String(profile.sub || "");
-    const name = profile.name || profile.given_name || "User";
-    const picture = profile.picture || "";
-
-    let user = await queryOne(
-      `SELECT id, provider, provider_id, name, email, picture
-       FROM users
-       WHERE email = $1`,
-      [email],
-    );
-
-    if (!user) {
-      const inserted = await queryOne(
-        `INSERT INTO users (provider, provider_id, name, email, picture)
-         VALUES ('google', $1, $2, $3, $4)
-         RETURNING id`,
-        [providerId || null, name, email, picture],
-      );
-      req.session.userId = inserted.id;
-    } else {
-      await query(
-        `UPDATE users
-         SET provider = 'google',
-             provider_id = COALESCE($1, provider_id),
-             name = $2,
-             picture = $3,
-             updated_at = NOW()
-         WHERE id = $4`,
-        [providerId || null, name, picture, user.id],
-      );
-
-      req.session.userId = user.id;
-    }
-
-    const next = req.session.afterLoginRedirect;
-    delete req.session.afterLoginRedirect;
-    if (typeof next === "string" && next.startsWith("/") && !next.startsWith("//")) {
-      const sep = next.includes("?") ? "&" : "?";
-      return res.redirect(`${next}${sep}toast=${returnTo === "signup" ? "signup" : "login"}`);
-    }
-    return res.redirect(`/?toast=${returnTo === "signup" ? "signup" : "login"}`);
+    const accessToken = await exchangeCode(providerKey, code, config);
+    const profile = await fetchProfile(providerKey, accessToken);
+    const userId = await upsertOAuthUser(providerKey, profile);
+    req.session.userId = userId;
+    return finishOAuthRedirect(req, res, returnTo);
   } catch (error) {
-    console.error("Google OAuth error:", error);
-    return authError(res, "Google login failed. Please try again.", returnTo);
+    console.error(`[oauth:${providerKey}]`, error.message);
+    return authError(res, error.message || `${config.label} login failed.`, returnTo);
   }
+}
+
+function googleAuth(req, res) {
+  return startOAuth("google", req, res);
+}
+
+function googleCallback(req, res) {
+  return oauthCallback("google", req, res);
+}
+
+function githubAuth(req, res) {
+  return startOAuth("github", req, res);
+}
+
+function githubCallback(req, res) {
+  return oauthCallback("github", req, res);
+}
+
+function microsoftAuth(req, res) {
+  return startOAuth("microsoft", req, res);
+}
+
+function microsoftCallback(req, res) {
+  return oauthCallback("microsoft", req, res);
 }
 
 function logout(req, res) {
@@ -233,4 +206,17 @@ function logout(req, res) {
   });
 }
 
-module.exports = { login, signup, googleAuth, googleCallback, logout, isGoogleOAuthReady };
+module.exports = {
+  login,
+  signup,
+  googleAuth,
+  googleCallback,
+  githubAuth,
+  githubCallback,
+  microsoftAuth,
+  microsoftCallback,
+  logout,
+  isGoogleOAuthReady,
+  isGitHubOAuthReady,
+  isMicrosoftOAuthReady,
+};

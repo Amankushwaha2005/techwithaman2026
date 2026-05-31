@@ -78,6 +78,12 @@ function createApp() {
       googleLoginEnabled: !!(
         process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim()
       ),
+      githubLoginEnabled: !!(
+        process.env.GITHUB_CLIENT_ID?.trim() && process.env.GITHUB_CLIENT_SECRET?.trim()
+      ),
+      microsoftLoginEnabled: !!(
+        process.env.MICROSOFT_CLIENT_ID?.trim() && process.env.MICROSOFT_CLIENT_SECRET?.trim()
+      ),
     });
   });
 
@@ -109,6 +115,12 @@ function createApp() {
   app.use((req, res, next) => {
     res.locals.googleLoginEnabled = !!(
       process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim()
+    );
+    res.locals.githubLoginEnabled = !!(
+      process.env.GITHUB_CLIENT_ID?.trim() && process.env.GITHUB_CLIENT_SECRET?.trim()
+    );
+    res.locals.microsoftLoginEnabled = !!(
+      process.env.MICROSOFT_CLIENT_ID?.trim() && process.env.MICROSOFT_CLIENT_SECRET?.trim()
     );
     res.locals.aiChatEnabled = true;
     res.locals.aiOpenAiConfigured = !!process.env.OPENAI_API_KEY?.trim();
