@@ -6,6 +6,7 @@ const crypto = require("crypto");
 
 const { query, queryOne } = require("./db");
 const { PROVIDERS, isProviderConfigured } = require("../config/oauth-providers");
+const { roleForEmail } = require("./user-role.service");
 
 function getBaseUrl(req) {
   return (process.env.BASE_URL || `${req.protocol}://${req.get("host")}`).replace(/\/$/, "");
@@ -138,16 +139,19 @@ async function fetchProfile(providerKey, accessToken) {
 async function upsertOAuthUser(providerKey, profile) {
   const { providerId, name, email, picture } = profile;
 
-  let user = await queryOne(`SELECT id, provider, provider_id, email FROM users WHERE email = $1`, [
-    email,
-  ]);
+  let user = await queryOne(
+    `SELECT id, provider, provider_id, email, role FROM users WHERE email = $1`,
+    [email],
+  );
+
+  const role = roleForEmail(email, user?.role || "user");
 
   if (!user) {
     const inserted = await queryOne(
-      `INSERT INTO users (provider, provider_id, name, email, picture)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO users (provider, provider_id, name, email, picture, role)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id`,
-      [providerKey, providerId || null, name, email, picture || null],
+      [providerKey, providerId || null, name, email, picture || null, role],
     );
     return inserted.id;
   }
@@ -158,9 +162,10 @@ async function upsertOAuthUser(providerKey, profile) {
          provider_id = COALESCE($2, provider_id),
          name = $3,
          picture = COALESCE(NULLIF($4, ''), picture),
+         role = $5,
          updated_at = NOW()
-     WHERE id = $5`,
-    [providerKey, providerId || null, name, picture || "", user.id],
+     WHERE id = $6`,
+    [providerKey, providerId || null, name, picture || "", role, user.id],
   );
   return user.id;
 }

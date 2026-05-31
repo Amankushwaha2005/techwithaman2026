@@ -40,7 +40,7 @@
       <header class="admin-topbar">
         <div>
           <h1 class="admin-title">Dashboard</h1>
-          <p class="admin-sub">Signed in as <%= authUser && authUser.name ? authUser.name : "Admin" %></p>
+          <p class="admin-sub">Signed in as <%= authUser && authUser.name ? authUser.name : "Admin" %><% if (authUser && authUser.role === 'admin') { %> · <strong>Admin</strong><% } %></p>
         </div>
         <button class="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme">
           <span class="theme-icon" aria-hidden="true">

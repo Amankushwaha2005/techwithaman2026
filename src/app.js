@@ -12,6 +12,7 @@ const session = require("express-session");
 
 const { queryOne } = require("./services/db");
 const { isAdminUser } = require("./config/admin");
+const { syncAdminRole } = require("./services/user-role.service");
 
 const pagesRoutes = require("./routes/pages.routes");
 const authRoutes = require("./routes/auth.routes");
@@ -145,8 +146,9 @@ function createApp() {
         [req.session.userId],
       );
 
-      res.locals.authUser = user || null;
-      res.locals.isAdmin = isAdminUser(user);
+      const synced = user ? await syncAdminRole(user) : null;
+      res.locals.authUser = synced || user || null;
+      res.locals.isAdmin = isAdminUser(synced || user);
     } catch (err) {
       console.error("[auth] Failed to load user session; clearing cookie.", err.message);
       res.locals.authUser = null;

@@ -11,6 +11,7 @@ const bcrypt = require("bcryptjs");
 
 const { query, queryOne } = require("../services/db");
 const { validateFormRecaptcha } = require("../services/recaptcha.service");
+const { roleForEmail, syncAdminRole } = require("../services/user-role.service");
 const { isProviderConfigured } = require("../config/oauth-providers");
 const {
   getProviderConfig,
@@ -69,7 +70,7 @@ async function login(req, res) {
   if (!email || !password) return loginError(res, "Email and password are required.");
 
   const user = await queryOne(
-    `SELECT id, provider, name, email, password_hash, picture
+    `SELECT id, provider, name, email, password_hash, picture, role
      FROM users WHERE email = $1`,
     [String(email).trim().toLowerCase()],
   );
@@ -78,7 +79,8 @@ async function login(req, res) {
   const ok = bcrypt.compareSync(String(password), user.password_hash);
   if (!ok) return loginError(res, "Invalid email or password.");
 
-  req.session.userId = user.id;
+  const synced = await syncAdminRole(user);
+  req.session.userId = synced.id;
   const next = req.body?.next;
   if (typeof next === "string" && next.startsWith("/") && !next.startsWith("//")) {
     const sep = next.includes("?") ? "&" : "?";
@@ -100,11 +102,12 @@ async function signup(req, res) {
   if (exists) return signupError(res, "Email already exists. Please login.");
 
   const passwordHash = bcrypt.hashSync(String(password), 10);
+  const role = roleForEmail(normalizedEmail, "user");
   const inserted = await queryOne(
-    `INSERT INTO users (provider, name, email, password_hash)
-     VALUES ('local', $1, $2, $3)
+    `INSERT INTO users (provider, name, email, password_hash, role)
+     VALUES ('local', $1, $2, $3, $4)
      RETURNING id`,
-    [String(name).trim(), normalizedEmail, passwordHash],
+    [String(name).trim(), normalizedEmail, passwordHash, role],
   );
 
   req.session.userId = inserted.id;

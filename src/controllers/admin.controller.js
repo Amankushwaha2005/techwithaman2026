@@ -9,6 +9,7 @@
 const { query, queryOne } = require("../services/db");
 const { brand } = require("../config/site");
 const paymentsService = require("../services/payments.service");
+const { adminEmailSet } = require("../config/admin");
 const { orderStatusLabel, getBalanceDue, normalizeOrderStatus } = require("../services/order-payment.helpers");
 
 const STATUSES = ["new", "read", "archived"];
@@ -70,6 +71,15 @@ async function buildChartSeries() {
 }
 
 async function dashboard(req, res) {
+  const adminEmails = [...adminEmailSet()];
+  if (adminEmails.length) {
+    await query(
+      `UPDATE users SET role = 'admin', updated_at = NOW()
+       WHERE LOWER(email) = ANY($1::text[]) AND role <> 'admin'`,
+      [adminEmails],
+    );
+  }
+
   const stats = {
     users: Number((await queryOne("SELECT COUNT(*)::int AS n FROM users")).n),
     usersWeek: Number(
