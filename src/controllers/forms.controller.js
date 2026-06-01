@@ -39,13 +39,20 @@ async function work(req, res) {
     return res.redirect("/work?error=" + encodeURIComponent(captcha.error));
   }
 
-  const { fullName, email, phone, resume, skill } = req.body || {};
+  const { fullName, email, phone, resume, category, skill } = req.body || {};
   const fn = String(fullName || "").trim();
   const em = String(email || "").trim().toLowerCase();
+  const cat = String(category || "").trim();
+  const sk = String(skill || "").trim();
 
   if (!fn || !em) {
     return res.redirect("/work?error=" + encodeURIComponent("Name and email are required."));
   }
+  if (!cat || !sk) {
+    return res.redirect("/work?error=" + encodeURIComponent("Please select category and role."));
+  }
+
+  const skillLabel = `${cat} — ${sk}`;
 
   await query(
     `INSERT INTO work_submissions (full_name, email, phone, resume, skill)
@@ -55,7 +62,7 @@ async function work(req, res) {
       em,
       String(phone || "").trim() || null,
       String(resume || "").trim() || null,
-      String(skill || "").trim() || null,
+      skillLabel,
     ],
   );
 

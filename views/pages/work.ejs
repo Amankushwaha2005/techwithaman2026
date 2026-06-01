@@ -27,6 +27,7 @@
               If your profile matches, submit your application with correct details.
             </p>
             <ul class="work-points">
+              <li class="work-points__highlight">App Development</li>
               <li>Development &amp; IT projects</li>
               <li>Design &amp; Creative tasks</li>
               <li>Admin &amp; Support operations</li>
@@ -61,22 +62,38 @@
               </div>
 
               <div class="form-row">
-                <label for="workCategory">Work Category</label>
-                <select id="workCategory" name="category" class="work-select" required>
-                  <option value="">Select a category</option>
-                  <option value="Development & IT">Development &amp; IT</option>
-                  <option value="Design & Creative">Design &amp; Creative</option>
-                  <option value="Admin & Support">Admin &amp; Support</option>
-                  <option value="Video & Audio">Video &amp; Audio</option>
-                  <option value="AI & Automation">AI &amp; Automation</option>
-                </select>
+                <label id="workCategoryLabel">Work Category</label>
+                <div class="work-picker" id="workCategoryPicker">
+                  <button
+                    type="button"
+                    class="work-picker__trigger"
+                    aria-expanded="false"
+                    aria-labelledby="workCategoryLabel"
+                  >
+                    <span class="work-picker__value">Select a category</span>
+                    <span class="work-picker__chev" aria-hidden="true"></span>
+                  </button>
+                  <div class="work-picker__menu" role="listbox" hidden></div>
+                  <input type="hidden" name="category" id="workCategory" value="" required>
+                </div>
               </div>
 
               <div class="form-row">
-                <label for="workSkill">Choose Role / Skill</label>
-                <select id="workSkill" name="skill" class="work-select" disabled required>
-                  <option value="">First select a category</option>
-                </select>
+                <label id="workSkillLabel">Choose Role / Skill</label>
+                <div class="work-picker work-picker--skill is-disabled" id="workSkillPicker">
+                  <button
+                    type="button"
+                    class="work-picker__trigger"
+                    aria-expanded="false"
+                    aria-labelledby="workSkillLabel"
+                    disabled
+                  >
+                    <span class="work-picker__value">First select a category</span>
+                    <span class="work-picker__chev" aria-hidden="true"></span>
+                  </button>
+                  <div class="work-picker__menu" role="listbox" hidden></div>
+                  <input type="hidden" name="skill" id="workSkill" value="" required>
+                </div>
               </div>
 
               <%- include("../partials/recaptcha-widget") %>
@@ -91,4 +108,3 @@
 
 <%- include("../partials/footer", { brand, year }) %>
 <%- include("../partials/scripts") %>
-
