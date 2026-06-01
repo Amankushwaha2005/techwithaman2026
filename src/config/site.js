@@ -21,7 +21,6 @@ const navItems = [
   { href: "/services", label: "Services", key: "services" },
   { href: "/portfolio", label: "Portfolio", key: "portfolio" },
   { href: "/about", label: "About", key: "about" },
-  { href: "/work", label: "Work", key: "work" },
   { href: "/contact", label: "Contact", key: "contact" },
 ];
 
