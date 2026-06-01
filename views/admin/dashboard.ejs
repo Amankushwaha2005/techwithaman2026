@@ -394,7 +394,6 @@
               <tbody>
                 <% recentWork.forEach((row, skillIdx) => {
                   const skillText = row.skill ? String(row.skill).trim() : "";
-                  const skillPreview = skillText.length > 36 ? skillText.slice(0, 36) + "…" : skillText;
                 %>
                   <tr>
                     <td><%= row.id %></td>
@@ -411,13 +410,13 @@
                         aria-haspopup="dialog"
                       >
                         <span class="admin-msg-num"><%= skillIdx + 1 %></span>
-                        <span class="admin-msg-label">Skill <%= skillIdx + 1 %></span>
-                        <span class="admin-msg-hint"><%= skillPreview %></span>
+                        <span class="admin-msg-label">Message <%= skillIdx + 1 %></span>
+                        <span class="admin-msg-hint">Click to read</span>
                       </button>
                       <div class="admin-msg-store" id="work-<%= row.id %>" hidden aria-hidden="true">
                         <span
                           class="admin-msg-meta"
-                          data-title="Work application skill <%= skillIdx + 1 %>"
+                          data-title="Message <%= skillIdx + 1 %>"
                           data-field-label="Skill"
                           data-name="<%= row.full_name %>"
                           data-email="<%= row.email %>"
