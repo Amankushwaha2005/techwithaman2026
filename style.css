@@ -4701,6 +4701,52 @@ html[data-theme="light"] .twa-chatbot__msg--bot p {
   color: var(--muted);
 }
 
+.about-hire-section {
+  padding-top: 0;
+  padding-bottom: 40px;
+}
+
+.about-hire-card {
+  padding: 28px 30px;
+  border: 1px solid rgba(86, 139, 255, 0.35);
+  background: linear-gradient(135deg, rgba(47, 110, 251, 0.12), rgba(8, 13, 30, 0.2));
+}
+
+.about-hire-copy h2 {
+  margin: 12px 0 10px;
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  line-height: 1.2;
+}
+
+.about-hire-copy > p {
+  margin: 0;
+  max-width: 62ch;
+  line-height: 1.6;
+}
+
+.about-hire-points {
+  margin: 18px 0 22px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.about-hire-points li {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(47, 110, 251, 0.1);
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+html[data-theme="light"] .about-hire-card {
+  background: linear-gradient(135deg, rgba(47, 110, 251, 0.08), #ffffff);
+}
+
 .about-topics-section {
   padding-top: 20px;
 }
