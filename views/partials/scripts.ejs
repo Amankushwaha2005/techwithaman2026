@@ -38,6 +38,9 @@
   <script src="/portfolio-data.js"></script>
   <script src="/portfolio-page.js"></script>
   <% } %>
+  <% if (page && page.key === 'work') { %>
+  <script src="/work-page.js" defer></script>
+  <% } %>
 
   <!-- React (CDN) widget: demo + easy to upgrade later -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
