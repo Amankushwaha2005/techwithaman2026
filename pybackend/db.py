@@ -67,12 +67,20 @@ def close_pool() -> None:
         _pool = None
 
 
+def execute(sql: str, params: Iterable[Any] | Mapping[str, Any] | None = None) -> None:
+    """Run SQL that does not return rows (DDL, DO blocks, etc.)."""
+    with get_pool().connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql, params)
+
+
 def query(sql: str, params: Iterable[Any] | Mapping[str, Any] | None = None) -> list[dict[str, Any]]:
     with get_pool().connection() as conn:
         with conn.cursor() as cur:
             cur.execute(sql, params)
-            rows = cur.fetchall()
-            return list(rows or [])
+            if cur.description is None:
+                return []
+            return list(cur.fetchall() or [])
 
 
 def query_one(sql: str, params: Iterable[Any] | Mapping[str, Any] | None = None) -> Optional[dict[str, Any]]:

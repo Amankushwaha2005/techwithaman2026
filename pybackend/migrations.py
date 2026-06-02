@@ -1,9 +1,9 @@
-from pybackend.db import query
+from pybackend.db import execute, query
 
 
 def migrate() -> None:
     # Keep in sync with legacy Node migrate() logic to preserve schema shape.
-    query(
+    execute(
         """
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
@@ -86,7 +86,7 @@ def migrate() -> None:
         """
     )
 
-    query(
+    execute(
         """
     DO $$
     BEGIN
@@ -100,7 +100,7 @@ def migrate() -> None:
         """
     )
 
-    query(
+    execute(
         """
     DO $$
     BEGIN
@@ -120,7 +120,7 @@ def migrate() -> None:
         """
     )
 
-    query(
+    execute(
         """
     UPDATE orders
     SET status = 'advance_paid',
@@ -129,7 +129,7 @@ def migrate() -> None:
         """
     )
 
-    query(
+    execute(
         """
     CREATE INDEX IF NOT EXISTS idx_orders_balance_razorpay ON orders(razorpay_balance_order_id)
         """
