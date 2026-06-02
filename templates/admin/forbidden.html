@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin access denied | {{ brand }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="admin-body">
+  <main class="container" style="padding: 48px 0;">
+    <article class="card" style="padding: 24px;">
+      <h1>Access denied</h1>
+      <p>You are not allowed to view the admin dashboard.</p>
+      <p>Fix: set <code>ADMIN_EMAILS</code> in environment variables to include your login email.</p>
+      <div style="margin-top: 18px;">
+        <a class="btn btn-outline" href="/">Back to site</a>
+      </div>
+    </article>
+  </main>
+</body>
+</html>
+

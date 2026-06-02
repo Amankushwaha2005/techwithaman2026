@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+  <main>
+    <section class="section order-success-section">
+      <div class="container">
+        <article class="card order-success-card">
+          {% if order and order.status == 'completed' %}
+            <span class="chip">Project fully paid</span>
+            <h1>Thank you, {{ order.name }}!</h1>
+            <p>Your balance payment is confirmed. The project is now fully paid — thank you for choosing us!</p>
+            <dl class="order-summary-list">
+              <div><dt>Order ID</dt><dd><code>{{ order.public_id }}</code></dd></div>
+              <div><dt>Service</dt><dd>{{ order.service }}</dd></div>
+              <div><dt>Package</dt><dd>{{ order.plan }}</dd></div>
+              <div><dt>Balance paid</dt><dd>₹{{ order.balance_paid_inr or 0 }}</dd></div>
+              <div><dt>Total paid</dt><dd>₹{{ order.total_inr }}</dd></div>
+              {% if receipt %}
+              <div><dt>Payment date</dt><dd>{{ receipt.paymentDate }}</dd></div>
+              <div><dt>Gateway</dt><dd>{{ receipt.gateway }}</dd></div>
+              {% if receipt.paymentId and receipt.paymentId != '—' %}
+              <div><dt>Payment ID</dt><dd><code>{{ receipt.paymentId }}</code></dd></div>
+              {% endif %}
+              {% endif %}
+            </dl>
+          {% else %}
+            <h1>Payment not found</h1>
+            <p>If you just paid, wait a moment and refresh — or contact us on WhatsApp.</p>
+          {% endif %}
+          <div class="order-success-actions">
+            {% if order and order.status == 'completed' %}
+            <a
+              class="btn"
+              href="/order/receipt?id={{ order.public_id|urlencode }}&phase=balance&print=1"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Download balance receipt</a>
+            <a
+              class="btn btn-outline"
+              href="/order/receipt?id={{ order.public_id|urlencode }}&phase=balance"
+              target="_blank"
+              rel="noopener noreferrer"
+            >View receipt</a>
+            {% endif %}
+            <a class="btn btn-outline" href="/">Back to home</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+{% endblock %}
+

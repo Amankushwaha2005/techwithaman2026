@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+  <main>
+    <section class="section order-success-section">
+      <div class="container">
+        <article class="card order-success-card">
+          {% if advanceOk %}
+            <span class="chip">Advance received</span>
+            <h1>Thank you, {{ order.name }}!</h1>
+            <p>Your advance payment is confirmed. We will contact you shortly to start your project.</p>
+            <dl class="order-summary-list">
+              <div><dt>Order ID</dt><dd><code>{{ order.public_id }}</code></dd></div>
+              <div><dt>Service</dt><dd>{{ order.service }}</dd></div>
+              <div><dt>Package</dt><dd>{{ order.plan }}</dd></div>
+              <div><dt>Paid (advance)</dt><dd>₹{{ order.advance_paid_inr or order.amount_inr }}</dd></div>
+              <div><dt>Package total</dt><dd>₹{{ order.total_inr }}</dd></div>
+              {% if balanceDue and balanceDue > 0 %}
+              <div><dt>Balance (after delivery)</dt><dd>₹{{ balanceDue }}</dd></div>
+              {% endif %}
+              {% if receipt %}
+              <div><dt>Payment date</dt><dd>{{ receipt.paymentDate }}</dd></div>
+              <div><dt>Gateway</dt><dd>{{ receipt.gateway }}</dd></div>
+              {% if receipt.paymentId and receipt.paymentId != '—' %}
+              <div><dt>Payment ID</dt><dd><code>{{ receipt.paymentId }}</code></dd></div>
+              {% endif %}
+              {% endif %}
+            </dl>
+            {% if balanceDue and balanceDue > 0 %}
+            <p class="order-balance-note">After we deliver your project, you will receive a link to pay the remaining <strong>₹{{ balanceDue }}</strong> online.</p>
+            {% endif %}
+          {% else %}
+            <h1>Order not found</h1>
+            <p>If you just paid, wait a moment and refresh — or contact us on WhatsApp with your payment screenshot.</p>
+          {% endif %}
+          <div class="order-success-actions">
+            {% if advanceOk %}
+            <a
+              class="btn"
+              href="/order/receipt?id={{ order.public_id|urlencode }}&print=1"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Download advance receipt</a>
+            <a
+              class="btn btn-outline"
+              href="/order/receipt?id={{ order.public_id|urlencode }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >View receipt</a>
+            {% endif %}
+            <a class="btn btn-outline" href="/">Back to home</a>
+            <a class="btn btn-outline" href="/pricing">View pricing</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+{% endblock %}
+

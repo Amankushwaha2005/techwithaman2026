@@ -11,18 +11,18 @@ databases:
 services:
   - type: web
     name: techwithaman-website
-    runtime: node
+    runtime: python
     plan: free
     region: singapore
     branch: main
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn pybackend.wsgi:app --bind 0.0.0.0:$PORT
     healthCheckPath: /health
     autoDeploy: true
     envVars:
-      - key: NODE_VERSION
-        value: 22.12.0
-      - key: NODE_ENV
+      - key: PYTHON_VERSION
+        value: 3.12.4
+      - key: FLASK_ENV
         value: production
       - key: DATABASE_URL
         fromDatabase:

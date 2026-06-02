@@ -1,41 +1,39 @@
 # TechWithAman Website
 
-A full-stack web application built with Express.js and EJS, featuring user authentication, session management, and SQLite database integration.
+A full-stack web application built with **Flask (Python)** and **PostgreSQL**, with server-rendered pages (Jinja2 templates), user authentication, admin dashboard, and Razorpay payments.
 
 ## 🌟 Features
 
-- **User Authentication**: Secure login/registration system with bcryptjs password hashing
-- **Session Management**: Express session-based user session handling
+- **User Authentication**: Secure login/registration system with bcrypt password hashing
+- **Session Management**: Flask session-based user session handling
 - **Database**: PostgreSQL for persistent data storage
-- **Template Engine**: EJS for dynamic server-side rendering
+- **Template Engine**: Jinja2 for dynamic server-side rendering
 - **Admin Tools**: Grant admin privileges to users via command-line scripts
-- **Page Synchronization**: HTML to EJS template conversion utility
+- **Payments**: Razorpay advance + balance payment flow
 
 ## 🛠️ Tech Stack
 
 | Technology | Purpose | Version |
 |------------|---------|---------|
-| **Node.js** | Runtime | 20.x |
-| **Express** | Web framework | ^5.2.1 |
-| **EJS** | Template engine | ^5.0.2 |
+| **Python** | Runtime | 3.12+ |
+| **Flask** | Web framework | 3.x |
+| **Jinja2** | Template engine | 3.x |
 | **PostgreSQL** | Database | 14+ |
-| **pg** | Node PostgreSQL client | ^8.16.0 |
-| **bcryptjs** | Password hashing | ^3.0.2 |
-| **express-session** | Session middleware | ^1.18.2 |
-| **dotenv** | Environment configuration | ^17.4.2 |
+| **psycopg** | PostgreSQL client | 3.x |
+| **bcrypt** | Password hashing | 4.x |
+| **gunicorn** | Production server | 22.x |
 
 ### Language Composition
 - **JavaScript**: 36.9%
 - **HTML**: 25.7%
-- **EJS**: 19.0%
+- **Templates**: Jinja2
 - **CSS**: 15.8%
-- **Python**: 2.4%
 - **Batchfile**: 0.2%
 
 ## 📋 Prerequisites
 
-- Node.js 20.x or higher
-- npm (Node Package Manager)
+- Python 3.12+ (local)
+- PostgreSQL 14+ (local)
 
 ## 🚀 Installation
 
@@ -47,7 +45,7 @@ A full-stack web application built with Express.js and EJS, featuring user authe
 
 2. **Install dependencies**
    ```bash
-   npm install
+   pip install -r requirements.txt
    ```
 
 3. **Install and start PostgreSQL**, then create a database:
@@ -64,7 +62,7 @@ A full-stack web application built with Express.js and EJS, featuring user authe
 
 5. **Start the application**
    ```bash
-   npm start
+   python -m pybackend.app
    ```
 
 The server will start and be available at `http://localhost:3000` (or your configured port).
@@ -93,7 +91,7 @@ techwithaman-website/
 ├── scripts/               # Utility scripts
 │   ├── grant-admin.js     # Admin privilege script
 │   └── sync-html-to-ejs.js # HTML to EJS converter
-├── data/                  # Legacy SQLite backups (optional, not used by Node app)
+├── data/                  # Local runtime/generated files (optional)
 ├── .env.example           # Environment variables template
 └── README.md              # This file
 ```

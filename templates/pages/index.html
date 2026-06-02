@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block content %}
+  <main>
+    <section class="hero" id="home">
+      <div class="overlay"></div>
+      <div class="container hero-content">
+        <h1>Welcome to TechWithAman</h1>
+        <p class="hero-rotate">
+          <span class="hero-rotate-label">I can help you with </span>
+          <span
+            id="typewriter"
+            class="typewriter"
+            data-words='["Web Development","App Development","Logo Design","Student Projects","Project Mentoring"]'
+            data-type-speed="38"
+            data-delete-speed="18"
+            data-pause="2000"
+          ></span>
+        </p>
+        <p>
+          Client website, app development, logo design aur student projects ke liye trusted place.
+          Professional design, fast delivery aur proper guidance.
+        </p>
+        <div class="hero-actions">
+          <a class="btn" href="/pricing">View Pricing</a>
+          <a class="btn btn-outline" href="/services">View Services</a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <h3>100+</h3>
+            <p>Projects</p>
+          </div>
+          <div>
+            <h3>500K+</h3>
+            <p>Clients</p>
+          </div>
+          <div>
+            <h3>4.2</h3>
+            <p>Rating</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="home-showcase" class="section home-showcase-section" aria-label="Featured work carousel">
+      <div class="container home-showcase-head">
+        <p class="small-heading">Portfolio</p>
+        <h2>Actions speak louder than words</h2>
+      </div>
+      <div class="home-showcase-stage">
+        <button type="button" class="home-showcase-arrow home-showcase-prev" aria-label="Previous project">‹</button>
+        <div class="home-showcase-viewport">
+          <div id="home-showcase-track" class="home-showcase-slider"></div>
+        </div>
+        <button type="button" class="home-showcase-arrow home-showcase-next" aria-label="Next project">›</button>
+      </div>
+      <div class="container">
+        <div id="home-showcase-dots" class="home-showcase-dots" role="tablist" aria-label="Project slides"></div>
+      </div>
+    </section>
+
+    <section class="section" id="pricing">
+      <div class="container">
+        <p class="small-heading">Pricing</p>
+        <h2>Choose a Plan That Fits You</h2>
+        <div class="home-showcase-wrap home-pricing-wrap">
+          <button type="button" class="home-showcase-arrow home-pricing-prev" aria-label="Previous plan">‹</button>
+          <div class="home-showcase-viewport home-pricing-viewport">
+            <div id="home-pricing-track" class="home-showcase-slider"></div>
+          </div>
+          <button type="button" class="home-showcase-arrow home-pricing-next" aria-label="Next plan">›</button>
+        </div>
+        <div id="home-pricing-dots" class="home-showcase-dots" role="tablist" aria-label="Pricing slides"></div>
+      </div>
+    </section>
+
+    <section class="section dark" id="services">
+      <div class="container">
+        <h2>Client Services</h2>
+        <div class="grid two">
+          <article class="card home-card" data-home-id="website-dev">
+            <div class="home-card__media">
+              <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&w=900&q=80" width="900" height="563" loading="lazy" decoding="async" alt="Website development">
+            </div>
+            <div class="home-card__body">
+              <h3>Website Development</h3>
+              <p>Business, portfolio, landing and e-commerce website.</p>
+              <span class="home-card__link">View details →</span>
+            </div>
+          </article>
+          <article class="card home-card" data-home-id="app-dev">
+            <div class="home-card__media">
+              <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=80" width="900" height="563" loading="lazy" decoding="async" alt="App development">
+            </div>
+            <div class="home-card__body">
+              <h3>App Development</h3>
+              <p>Web app and Android app with clean and modern UI.</p>
+              <span class="home-card__link">View details →</span>
+            </div>
+          </article>
+          <article class="card home-card" data-home-id="logo-design">
+            <div class="home-card__media">
+              <img src="https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=900&q=80" width="900" height="563" loading="lazy" decoding="async" alt="Logo design">
+            </div>
+            <div class="home-card__body">
+              <h3>Logo Design</h3>
+              <p>Professional logo and branding kit creation.</p>
+              <span class="home-card__link">View details →</span>
+            </div>
+          </article>
+          <article class="card home-card" data-home-id="student-projects">
+            <div class="home-card__media">
+              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=80" width="900" height="563" loading="lazy" decoding="async" alt="Student projects">
+            </div>
+            <div class="home-card__body">
+              <h3>Student Projects</h3>
+              <p>Final year projects with report and presentation support.</p>
+              <span class="home-card__link">View details →</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section twa-promo" id="techwithaman">
+      <div class="twa-promo__bg" aria-hidden="true"></div>
+      <div class="twa-promo__overlay" aria-hidden="true"></div>
+      <div class="container twa-promo__content">
+        <p class="twa-promo__brand">#TechWithAman</p>
+        <h2>To enhance your web presence — website developers for small businesses worldwide</h2>
+        <p>
+          #TechWithAman is a trusted name for website development, app builds, logo design and student
+          projects. We help startups, local shops and professionals go online with clean design, fast
+          delivery and clear communication.
+        </p>
+        <p>
+          Whether you need a business site, e-commerce store, portfolio or final-year project — we plan with
+          you, build step-by-step, and support you after launch so your brand looks professional on every device.
+        </p>
+        <a class="btn twa-promo__btn" href="/contact">Enquire Now</a>
+      </div>
+    </section>
+
+    {% include "partials/tech-stack.html" %}
+  </main>
+
+  <div id="home-detail-modal" class="home-detail-modal" hidden role="dialog" aria-modal="true" aria-labelledby="home-detail-title">
+    <div class="home-detail-backdrop"></div>
+    <div class="home-detail-dialog">
+      <button type="button" class="home-detail-close" aria-label="Close details">×</button>
+      <div id="home-detail-body"></div>
+    </div>
+  </div>
+{% endblock %}
+

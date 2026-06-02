@@ -41,7 +41,7 @@ Render par ye message **matlab service band (suspend) hai** — aksar galti se *
 
 Common fixes:
 
-- **better-sqlite3 error** → Build command mein `npm rebuild better-sqlite3` hona chahiye  
+- **Build fail** → Build command `npm install` rakho, phir redeploy karo  
 - **Port** → Start command `npm start` (Render `PORT` khud deta hai)  
 - **Env** → `BASE_URL` = `https://YOUR-NAME.onrender.com` (apna exact URL)  
 

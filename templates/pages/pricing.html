@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+  <main class="pricing-main">
+    <section class="pricing-hero">
+      <div class="overlay"></div>
+      <div class="container pricing-hero-content">
+        <span class="chip">Pricing</span>
+        <h1>Transparent pricing for every service</h1>
+        <p>Choose a category below — each option opens detailed packages with features, add-ons and enquiry.</p>
+        <div class="pricing-hero-actions">
+          <a class="btn" href="/order">Book &amp; Pay Advance</a>
+          <a class="btn btn-outline" href="/contact">Enquire Only</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing-picker" class="section">
+      <div class="container">
+        <p class="small-heading">All services</p>
+        <h2 class="pricing-section-title">Select a pricing option</h2>
+        <p class="pricing-section-lead">Click any card to view packages, prices and what is included — same style as professional agency pricing pages.</p>
+        <div id="pricing-category-grid" class="pricing-category-grid" role="list"></div>
+      </div>
+    </section>
+
+    <section id="pricing-detail" class="section pricing-detail-section" hidden>
+      <div class="container">
+        <button type="button" class="pricing-back-btn">← All pricing options</button>
+        <header id="pricing-detail-header" class="pricing-detail-header"></header>
+        <div id="pricing-packages" class="pricing-packages-grid"></div>
+        <div id="pricing-extra" class="pricing-extra-block" hidden></div>
+      </div>
+    </section>
+  </main>
+{% endblock %}
+

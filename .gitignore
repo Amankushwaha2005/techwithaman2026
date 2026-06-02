@@ -3,7 +3,7 @@ node_modules/
 .env.local
 .env.*.local
 
-# Local SQLite databases (do not upload)
+# Local runtime DB files (do not commit)
 data/*.sqlite
 data/*.sqlite-shm
 data/*.sqlite-wal
@@ -13,3 +13,7 @@ data/*.sqlite3
 .DS_Store
 Thumbs.db
 *.log
+
+# Python caches
+__pycache__/
+*.pyc

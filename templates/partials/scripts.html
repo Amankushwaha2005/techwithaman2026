@@ -1,0 +1,62 @@
+  {% include "partials/whatsapp-float.html" %}
+  {% include "partials/ai-chat.html" %}
+  {% include "partials/form-toast.html" %}
+  {% if recaptchaSiteKey %}
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  {% endif %}
+  <script src="/main.js"></script>
+  <script src="/form-toast.js"></script>
+  <script src="/whatsapp-float.js"></script>
+  <script src="/ai-chat.js"></script>
+  {% if page and page.key == 'pricing' %}
+  <script>window.PAYMENT_ADVANCE_PERCENT = {{ paymentAdvancePercent|default(50) }};</script>
+  <script src="/pricing-data.js"></script>
+  <script src="/pricing-page.js"></script>
+  {% endif %}
+  {% if page and page.key == 'order' %}
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+  <script src="/order-page.js" defer></script>
+  {% endif %}
+  {% if page and page.key == 'order-pay-advance' %}
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+  <script src="/order-advance-page.js" defer></script>
+  {% endif %}
+  {% if page and page.key == 'order-pay-balance' %}
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+  <script src="/order-balance-page.js" defer></script>
+  {% endif %}
+  {% if page and page.key == 'home' %}
+  <script src="/home-data.js"></script>
+  <script src="/home-page.js"></script>
+  {% endif %}
+  {% if page and page.key == 'portfolio' %}
+  <script src="/portfolio-data.js"></script>
+  <script src="/portfolio-page.js"></script>
+  {% endif %}
+  {% if page and page.key == 'work' %}
+  <script src="/work-page.js" defer></script>
+  {% endif %}
+
+  <!-- React (CDN) widget: demo + easy to upgrade later -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script>
+    (function () {
+      var mount = document.getElementById("react-widget");
+      if (!mount || (mount.closest && mount.closest(".pricing-main"))) return;
+
+      var e = React.createElement;
+      function Widget(props) {
+        return e(
+          "div",
+          { className: "card", style: { marginTop: "18px" } },
+          e("h3", null, "React Widget"),
+          e("p", null, "Current page: ", props.pageLabel),
+          e("p", null, "This widget is rendered by React.")
+        );
+      }
+
+      ReactDOM.createRoot(mount).render(e(Widget, { pageLabel: mount.getAttribute("data-page") || "Unknown" }));
+    })();
+  </script>
+

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block content %}
+  <main class="order-page">
+    <section class="page-hero order-page-hero">
+      <div class="container">
+        <span class="chip">Order &amp; Pay</span>
+        <h1>Book your project</h1>
+        <p>
+          Fill your details, then choose UPI, card, or WhatsApp to pay the
+          <strong>{{ paymentAdvancePercent }}%</strong> advance. Balance before final delivery.
+        </p>
+      </div>
+    </section>
+
+    <section class="section order-page-section">
+      <div class="container order-layout">
+        <aside class="card order-summary-card" id="order-summary" aria-live="polite">
+          <div class="order-summary-card__head">
+            <h2>Order summary</h2>
+            <span class="order-summary-badge">Secure checkout</span>
+          </div>
+          <dl class="order-summary-list">
+            <div class="order-summary-row">
+              <dt>Service</dt>
+              <dd id="summary-service">{{ orderPrefill.service or "—" }}</dd>
+            </div>
+            <div class="order-summary-row">
+              <dt>Package</dt>
+              <dd id="summary-plan">{{ orderPrefill.plan or "—" }}</dd>
+            </div>
+            <div class="order-summary-row">
+              <dt>Package total</dt>
+              <dd id="summary-total">
+                {% if orderPrefill.total_inr and orderPrefill.total_inr > 0 %}
+                  ₹{{ orderPrefill.total_inr }}
+                {% else %}
+                  <a href="/pricing">View pricing</a>
+                {% endif %}
+              </dd>
+            </div>
+            <div class="order-summary-row order-summary-row--highlight">
+              <dt>Advance due now ({{ paymentAdvancePercent }}%)</dt>
+              <dd id="summary-advance">
+                {% if orderPrefill.amount_inr and orderPrefill.amount_inr > 0 %}
+                  ₹{{ orderPrefill.amount_inr }}
+                {% else %}
+                  —
+                {% endif %}
+              </dd>
+            </div>
+          </dl>
+          <ul class="order-trust-list">
+            <li>Razorpay — UPI, cards, netbanking, wallets</li>
+            <li>Instant confirmation after payment</li>
+            <li>Invoice &amp; kickoff on WhatsApp</li>
+          </ul>
+          {% if not paymentEnabled %}
+            <p class="order-setup-hint">
+              Add <code>RAZORPAY_KEY_ID</code> and <code>RAZORPAY_KEY_SECRET</code> in
+              <code>.env</code> to enable card/UPI checkout here. WhatsApp pay works now.
+            </p>
+          {% endif %}
+          {% if paymentLiveOnLocalhost %}
+            <p class="order-setup-hint order-setup-hint--warn">
+              <strong>Local testing:</strong> Live Razorpay keys block payments on
+              <code>127.0.0.1</code>. Use <strong>Test keys</strong> in <code>.env</code> for localhost,
+              or deploy on your real domain and add it in Razorpay Dashboard → Website settings.
+            </p>
+          {% endif %}
+        </aside>
+
+        <div class="order-main">
+          <form
+            class="order-form card"
+            id="order-form"
+            novalidate
+            data-payment-enabled="{{ '1' if paymentEnabled else '0' }}"
+            data-live-on-local="{{ '1' if paymentLiveOnLocalhost else '0' }}"
+            data-razorpay-key="{{ razorpayKeyId or '' }}"
+            data-advance-percent="{{ paymentAdvancePercent }}"
+          >
+            <div class="order-form__header">
+              <h2>Your details</h2>
+              <p class="order-form__sub">Fields marked <span class="order-required">*</span> are required.</p>
+            </div>
+
+            <div class="order-field-box">
+              <h3 class="order-field-box__title">Contact information</h3>
+              <div class="order-form-grid order-form-grid--2">
+                <div class="order-field">
+                  <label for="order-name">Full name <span class="order-required">*</span></label>
+                  <input id="order-name" name="name" type="text" placeholder="e.g. Rahul Sharma" required autocomplete="name">
+                </div>
+                <div class="order-field">
+                  <label for="order-email">Email <span class="order-required">*</span></label>
+                  <input id="order-email" name="email" type="email" placeholder="you@email.com" required autocomplete="email">
+                </div>
+                <div class="order-field order-field--full">
+                  <label for="order-phone">Phone (WhatsApp) <span class="order-required">*</span></label>
+                  <input id="order-phone" name="phone" type="tel" placeholder="10-digit mobile" inputmode="tel" required autocomplete="tel">
+                </div>
+              </div>
+            </div>
+
+            <div class="order-field-box">
+              <h3 class="order-field-box__title">Project &amp; package</h3>
+              <div class="order-form-grid order-form-grid--2">
+                <div class="order-field">
+                  <label for="order-service">Service <span class="order-required">*</span></label>
+                  <input id="order-service" name="service" type="text" placeholder="e.g. Web Design" required value="{{ orderPrefill.service or '' }}">
+                </div>
+                <div class="order-field">
+                  <label for="order-plan">Package / plan <span class="order-required">*</span></label>
+                  <input id="order-plan" name="plan" type="text" placeholder="e.g. For Startups" required value="{{ orderPrefill.plan or '' }}">
+                </div>
+                <div class="order-field">
+                  <label for="order-total">Package total (₹) <span class="order-required">*</span></label>
+                  <input id="order-total" name="total_inr" type="number" min="1" step="1" placeholder="Amount from pricing" required value="{{ orderPrefill.total_inr if orderPrefill.total_inr and orderPrefill.total_inr > 0 else '' }}">
+                  <p class="order-field-hint"><a href="/pricing">Open pricing</a> to copy the correct amount.</p>
+                </div>
+                <div class="order-field order-field--full">
+                  <label for="order-notes">Project notes <span class="order-optional">(optional)</span></label>
+                  <textarea id="order-notes" name="notes" rows="3" placeholder="Timeline, pages, features, reference links…"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <p class="order-form-error" id="order-form-error" hidden role="alert"></p>
+
+            <button class="btn order-pay-btn" type="submit" id="order-pay-btn">
+              Continue to payment
+            </button>
+
+            <div class="order-payment-panel" id="order-payment-panel" hidden>
+              <div class="order-payment-panel__head">
+                <h3>Choose payment method</h3>
+                <p class="order-payment-panel__amount">
+                  Advance: <strong id="order-panel-amount">—</strong>
+                </p>
+              </div>
+              <div class="order-pay-methods" role="group" aria-label="Payment methods">
+                {% if paymentEnabled %}
+                <button type="button" class="order-pay-method" id="order-method-razorpay">
+                  <span class="order-pay-method__icon" aria-hidden="true">💳</span>
+                  <span class="order-pay-method__text">
+                    <strong>Pay online (Razorpay)</strong>
+                    <small>UPI · Credit/Debit card · Netbanking · Wallets</small>
+                  </span>
+                  <span class="order-pay-method__arrow" aria-hidden="true">→</span>
+                </button>
+                {% endif %}
+                <a
+                  class="order-pay-method order-pay-method--whatsapp"
+                  id="order-method-whatsapp"
+                  href="https://web.whatsapp.com/send?phone=919528252099"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="order-pay-method__icon" aria-hidden="true">
+                    <img src="/images/whatsapp-float.svg" width="28" height="28" alt="">
+                  </span>
+                  <span class="order-pay-method__text">
+                    <strong>Pay via WhatsApp</strong>
+                    <small>Send advance screenshot — we confirm your slot</small>
+                  </span>
+                  <span class="order-pay-method__arrow" aria-hidden="true">→</span>
+                </a>
+              </div>
+              <p class="order-payment-panel__secure">
+                <span aria-hidden="true">🔒</span> Payments are processed securely. Order ref: <code id="order-public-id">—</code>
+              </p>
+              <button type="button" class="order-payment-back" id="order-payment-back">← Edit details</button>
+            </div>
+
+            <p class="order-form-alt">
+              Prefer to talk first? <a href="/contact">Send an enquiry</a>
+            </p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+{% endblock %}
+

@@ -4,10 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "db:init": "node -e \"require('dotenv').config();require('./src/services/db').initDb().then(()=>{console.log('PostgreSQL schema ready');process.exit(0)}).catch(e=>{console.error(e);process.exit(1)})\"",
-    "grant-admin": "node scripts/grant-admin.js",
+    "start": "python -m pybackend.app",
+    "dev": "python -m pybackend.app",
     "sync-pages": "node scripts/sync-html-to-ejs.js",
     "download-tech-icons": "node scripts/download-tech-icons.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,15 +17,7 @@
     "node": ">=20"
   },
   "type": "commonjs",
-  "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "dotenv": "^17.4.2",
-    "ejs": "^5.0.2",
-    "express": "^5.2.1",
-    "express-session": "^1.18.2",
-    "pg": "^8.21.0",
-    "razorpay": "^2.9.6"
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Amankushwaha2005/techwithaman-website.git"

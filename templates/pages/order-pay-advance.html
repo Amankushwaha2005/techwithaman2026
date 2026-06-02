@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+  <main class="order-page">
+    <section class="page-hero order-page-hero">
+      <div class="container">
+        <span class="chip">Complete payment</span>
+        <h1>Pay advance</h1>
+        <p>Complete your pending order payment via Razorpay (UPI, card, netbanking).</p>
+      </div>
+    </section>
+
+    <section class="section order-page-section">
+      <div class="container order-layout">
+        {% if not order %}
+          <article class="card order-success-card">
+            <h1>Order not found</h1>
+            <p>Check your order ID or start a new order from the pricing page.</p>
+            <a class="btn btn-outline" href="/pricing">View pricing</a>
+          </article>
+        {% elif alreadyPaid %}
+          <article class="card order-success-card">
+            <span class="chip">Already paid</span>
+            <h1>Advance already received</h1>
+            <p>Order <code>{{ order.public_id }}</code> — advance payment is already confirmed.</p>
+            <a class="btn" href="/order/success?id={{ order.public_id|urlencode }}">View confirmation</a>
+          </article>
+        {% elif canPay %}
+          <aside class="card order-summary-card">
+            <div class="order-summary-card__head">
+              <h2>Order summary</h2>
+              <span class="order-summary-badge">Pending payment</span>
+            </div>
+            <dl class="order-summary-list">
+              <div class="order-summary-row"><dt>Order ID</dt><dd><code>{{ order.public_id }}</code></dd></div>
+              <div class="order-summary-row"><dt>Service</dt><dd>{{ order.service }}</dd></div>
+              <div class="order-summary-row"><dt>Package</dt><dd>{{ order.plan }}</dd></div>
+              <div class="order-summary-row"><dt>Package total</dt><dd>₹{{ order.total_inr }}</dd></div>
+              <div class="order-summary-row order-summary-row--highlight">
+                <dt>Advance due now</dt>
+                <dd>₹{{ advanceDue }}</dd>
+              </div>
+            </dl>
+          </aside>
+
+          <div class="order-main">
+            <article
+              class="card order-payment-card"
+              id="advance-payment-panel"
+              data-public-id="{{ order.public_id }}"
+              data-payment-enabled="{{ '1' if paymentEnabled else '0' }}"
+              data-live-on-local="{{ '1' if paymentLiveOnLocalhost else '0' }}"
+              data-customer-name="{{ order.name }}"
+              data-customer-email="{{ order.email }}"
+              data-customer-phone="{{ order.phone or '' }}"
+            >
+              <h2>Pay advance online</h2>
+              <p class="order-payment-lead">Pay <strong>₹{{ advanceDue }}</strong> to confirm your booking.</p>
+              <p id="advance-form-error" class="form-error" hidden role="alert"></p>
+              <button type="button" class="btn order-pay-method" id="advance-pay-razorpay" {% if not paymentEnabled %}disabled{% endif %}>
+                Pay with Razorpay
+              </button>
+            </article>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+{% endblock %}
+

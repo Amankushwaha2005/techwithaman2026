@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title }}</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="receipt-page-body">
+  <div class="receipt-toolbar no-print">
+    <button type="button" class="btn btn-small" id="receipt-print-btn">Download / Print receipt</button>
+    <a class="btn btn-small btn-outline" href="{{ '/order/balance-success?id=' ~ receipt.orderId|urlencode if receipt.phase == 'balance' else '/order/success?id=' ~ receipt.orderId|urlencode }}">Back to confirmation</a>
+  </div>
+
+  <article class="payment-receipt" id="payment-receipt">
+    <header class="payment-receipt__header">
+      <h1 class="payment-receipt__company">{{ company.name }}</h1>
+      <p class="payment-receipt__tagline">{{ company.tagline }}</p>
+      <p class="payment-receipt__contact">
+        {{ company.email }} · {{ company.phone }}
+      </p>
+      <h2 class="payment-receipt__title">{{ receipt.receiptTitle }}</h2>
+    </header>
+
+    <table class="payment-receipt__table">
+      <tbody>
+        <tr>
+          <th scope="row">Payee Name</th>
+          <td>{{ receipt.payeeName }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Status</th>
+          <td><span class="payment-receipt__status">{{ receipt.status }}</span></td>
+        </tr>
+        <tr>
+          <th scope="row">Payment Date</th>
+          <td>{{ receipt.paymentDate }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Transaction No</th>
+          <td><code class="payment-receipt__mono">{{ receipt.transactionNo }}</code></td>
+        </tr>
+        <tr>
+          <th scope="row">Gateway</th>
+          <td>{{ receipt.gateway }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Payment ID</th>
+          <td><code class="payment-receipt__mono">{{ receipt.paymentId }}</code></td>
+        </tr>
+        <tr>
+          <th scope="row">Amount (in ₹)</th>
+          <td><strong class="payment-receipt__amount">{{ receipt.amountFormatted }}</strong></td>
+        </tr>
+        <tr>
+          <th scope="row">Order ID</th>
+          <td><code class="payment-receipt__mono">{{ receipt.orderId }}</code></td>
+        </tr>
+        <tr>
+          <th scope="row">Service</th>
+          <td>{{ receipt.service }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Package</th>
+          <td>{{ receipt.plan }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Package total</th>
+          <td>{{ receipt.totalFormatted }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Email</th>
+          <td>{{ receipt.email }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <footer class="payment-receipt__footer">
+      {% if receipt.phase == 'balance' %}
+      <p>This is a computer-generated receipt for your balance payment. Your order is now fully paid.</p>
+      {% else %}
+      <p>This is a computer-generated receipt for your advance payment. Remaining balance is due after project delivery.</p>
+      {% endif %}
+      <p class="payment-receipt__footer-meta">{{ company.name }} · {{ year }}</p>
+    </footer>
+  </article>
+
+  <script src="/receipt-print.js"></script>
+</body>
+</html>
+

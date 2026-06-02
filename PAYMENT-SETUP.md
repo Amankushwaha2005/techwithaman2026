@@ -41,7 +41,7 @@ PAYMENT_ADVANCE_PERCENT=50
 
 ## 4. Where money / orders are stored
 
-- Paid orders: SQLite table `orders` in `data/app.sqlite`
+- Paid orders: PostgreSQL table `orders` (configured via `DATABASE_URL`)
 - Fields: service, plan, amount, Razorpay IDs, status `paid`
 
 ## 5. Without Razorpay keys

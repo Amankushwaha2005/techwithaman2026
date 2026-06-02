@@ -1,17 +1,13 @@
-# =============================================================================
-# BACKEND — Flask config
-# File: backend/config.py
-# Flask configuration and paths
-# =============================================================================
+brand = "#TechWithAman"
 
-from pathlib import Path
+company = {
+    "name": "#TechWithAman",
+    "tagline": "Websites · Apps · Logo Design · Student Projects",
+    "email": "hello@techwithaman.com",
+    "phone": "+91 95282 52099",
+}
 
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-BRAND = "#TechWithAman"
-
-NAV_ITEMS = [
+navItems = [
     {"href": "/", "label": "Home", "key": "home"},
     {"href": "/pricing", "label": "Pricing", "key": "pricing"},
     {"href": "/services", "label": "Services", "key": "services"},

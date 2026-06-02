@@ -106,13 +106,6 @@ const FILES = [
   ["scripts/smoke-admin-connect.js", "js", "BACKEND — smoke-admin-connect", null, "Test admin bootstrap connect route"],
   ["scripts/wrap-service-topic-links.js", "js", "BACKEND — wrap-service-topic-links", null, "Wrap service links in HTML for topics"],
   ["scripts/generate-service-topics-data.js", "js", "BACKEND — generate-service-topics-data", null, "Generate service-topics-data.js from HTML"],
-  // ── Backend — Python Flask (legacy) ──
-  ["app.py", "py", "BACKEND — Flask entry (app.py)", null, "Legacy Python server entry point"],
-  ["backend/create_app.py", "py", "BACKEND — Flask app factory", null, "Create Flask app, register blueprints"],
-  ["backend/config.py", "py", "BACKEND — Flask config", null, "Flask configuration and paths"],
-  ["backend/routes/pages.py", "py", "BACKEND — Flask pages routes", null, "Legacy static page routes"],
-  ["backend/routes/auth.py", "py", "BACKEND — Flask auth routes", null, "Legacy SQLite auth login/signup"],
-  ["backend/routes/forms.py", "py", "BACKEND — Flask forms routes", null, "Legacy contact/work form handlers"],
 ];
 
 function buildHeader(type, title, url, file, desc) {

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" crossorigin></script>
+</head>
+<body class="admin-body">
+  <div class="admin-app">
+    <aside class="admin-sidebar" aria-label="Admin navigation">
+      <a class="admin-brand" href="/admin">{{ brand }}</a>
+      <p class="admin-sidebar-tag">Control center</p>
+      <nav class="admin-side-nav">
+        <a href="#overview">Overview</a>
+        <a href="#activity">Activity chart</a>
+        <a href="#inbox-orders">Payments &amp; orders</a>
+        <a href="#users">Users</a>
+      </nav>
+      <div class="admin-sidebar-foot">
+        <a class="admin-sidebar-link" href="/">View site</a>
+        <a class="admin-sidebar-link" href="/auth/logout">Logout</a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div>
+          <h1 class="admin-title">Dashboard</h1>
+          <p class="admin-sub">
+            Signed in as {{ authUser.name if authUser and authUser.name else "Admin" }}
+            {% if authUser and authUser.role == 'admin' %} · <strong>Admin</strong>{% endif %}
+          </p>
+        </div>
+        <button class="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-icon" aria-hidden="true">
+            <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 14.5a8.5 8.5 0 0 1-11.6-11A9.5 9.5 0 1 0 21 14.5Z"/></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24"><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12Zm0-16a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm0 18a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1ZM3 11h1a1 1 0 1 1 0 2H3a1 1 0 1 1 0-2Zm17 0h1a1 1 0 1 1 0 2h-1a1 1 0 1 1 0-2ZM5.6 4.2a1 1 0 0 1 1.4 0l.7.7a1 1 0 0 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4Zm10.7 10.7a1 1 0 0 1 1.4 0l.7.7a1 1 0 0 1-1.4 1.4l-.7-.7a1 1 0 0 1 0-1.4ZM18.4 4.2a1 1 0 0 1 0 1.4l-.7.7a1 1 0 0 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0ZM7.7 14.9a1 1 0 0 1 0 1.4l-.7.7a1 1 0 1 1-1.4-1.4l.7-.7a1 1 0 0 1 1.4 0Z"/></svg>
+          </span>
+        </button>
+      </header>
+
+      <div class="admin-content">
+        <section class="admin-section" id="overview">
+          <h2 class="admin-h2">Overview</h2>
+          <div class="admin-kpi-grid">
+            <article class="admin-kpi">
+              <span class="admin-kpi-label">Total users</span>
+              <strong class="admin-kpi-value">{{ stats.users }}</strong>
+              <span class="admin-kpi-meta">{{ stats.usersWeek }} new (7 days)</span>
+            </article>
+            <article class="admin-kpi">
+              <span class="admin-kpi-label">Contact messages</span>
+              <strong class="admin-kpi-value">{{ stats.contacts }}</strong>
+              <span class="admin-kpi-meta admin-kpi-warn">{{ stats.contactsNew }} new</span>
+            </article>
+            <article class="admin-kpi">
+              <span class="admin-kpi-label">Work applications</span>
+              <strong class="admin-kpi-value">{{ stats.work }}</strong>
+              <span class="admin-kpi-meta admin-kpi-warn">{{ stats.workNew }} new</span>
+            </article>
+            <article class="admin-kpi">
+              <span class="admin-kpi-label">Chatbot messages</span>
+              <strong class="admin-kpi-value">{{ stats.chats }}</strong>
+              <span class="admin-kpi-meta admin-kpi-warn">{{ stats.chatsNew }} new</span>
+            </article>
+            <article class="admin-kpi admin-kpi-accent">
+              <span class="admin-kpi-label">Orders (total)</span>
+              <strong class="admin-kpi-value">{{ stats.orders }}</strong>
+              <span class="admin-kpi-meta">{{ stats.ordersAdvancePaid }} with payment · {{ stats.ordersCompleted }} fully paid</span>
+            </article>
+            <article class="admin-kpi admin-kpi-accent">
+              <span class="admin-kpi-label">Revenue collected</span>
+              <strong class="admin-kpi-value">₹{{ stats.revenuePaid }}</strong>
+              <span class="admin-kpi-meta">{{ stats.ordersBalanceDue }} awaiting balance payment</span>
+            </article>
+          </div>
+        </section>
+
+        <section class="admin-section" id="activity">
+          <h2 class="admin-h2">Submissions (last 14 days)</h2>
+          <div class="admin-chart-card">
+            <canvas id="adminChart" height="120" aria-label="Submissions chart"></canvas>
+          </div>
+        </section>
+
+        <section class="admin-section" id="inbox-orders">
+          <h2 class="admin-h2">Payments &amp; orders</h2>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>When</th>
+                  <th>Status</th>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Service / plan</th>
+                  <th>Advance</th>
+                  <th>Balance</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for o in orders %}
+                  <tr>
+                    <td>{{ o.id }}</td>
+                    <td>{{ o.created_at }}</td>
+                    <td>{{ o.status }}</td>
+                    <td><code>{{ o.public_id }}</code></td>
+                    <td>{{ o.name }}<br><small>{{ o.email }}</small></td>
+                    <td>{{ o.service }}<br><small>{{ o.plan }}</small></td>
+                    <td>₹{{ o.advance_paid_inr or o.amount_inr }}</td>
+                    <td>₹{{ o.balance_paid_inr }}</td>
+                    <td>₹{{ o.total_inr }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="admin-section" id="users">
+          <h2 class="admin-h2">Users</h2>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for u in users %}
+                  <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.role }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="/main.js"></script>
+  <script>
+    (function () {
+      var ctx = document.getElementById("adminChart");
+      if (!ctx) return;
+      var labels = {{ chart.labels|tojson }};
+      var contact = {{ chart.contact|tojson }};
+      var work = {{ chart.work|tojson }};
+      var chat = {{ chart.chat|tojson }};
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [
+            { label: "Contact", data: contact },
+            { label: "Work", data: work },
+            { label: "Chat", data: chat }
+          ],
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    })();
+  </script>
+</body>
+</html>
+

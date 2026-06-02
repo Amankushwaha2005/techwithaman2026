@@ -24,7 +24,7 @@ Render is often still running **old code** even after GitHub push.
 
 1. **Settings** → **Build & Deploy** → confirm:
    - Branch: `main`
-   - Build: `npm install && npm rebuild better-sqlite3`
+   - Build: `npm install`
    - Start: `npm start`
 2. **Manual Deploy** → **Clear build cache & deploy**
 3. **Logs** → wait for **Build succeeded** + `Server running`

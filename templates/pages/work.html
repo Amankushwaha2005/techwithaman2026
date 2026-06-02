@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+  <main class="work-page">
+    <section class="page-hero work-hero">
+      <div class="work-hero-overlay"></div>
+      <div class="container">
+        <span class="chip">Work</span>
+        <h1>We are hiring!</h1>
+        <p>Apply to work with {{ brand }}</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="work-grid">
+          <div class="work-left">
+            <h2>We are hiring!</h2>
+            <p class="work-copy">
+              We are looking for serious freelancers who can deliver quality work on time.
+              If your profile matches, submit your application with correct details.
+            </p>
+            <ul class="work-points">
+              <li class="work-points__highlight">App Development</li>
+              <li>Development &amp; IT projects</li>
+              <li>Design &amp; Creative tasks</li>
+              <li>Admin &amp; Support operations</li>
+              <li>Video &amp; Audio editing work</li>
+              <li>AI &amp; Automation assignments</li>
+            </ul>
+          </div>
+
+          <div class="work-right">
+            <form class="card work-form" action="/work" method="post">
+              <p class="work-tag">India Only</p>
+              <h3>Apply Now</h3>
+
+              <div class="form-row">
+                <label for="fullName">Full Name</label>
+                <input id="fullName" name="fullName" type="text" placeholder="Full Name" required>
+              </div>
+
+              <div class="form-row">
+                <label for="workEmail">Email</label>
+                <input id="workEmail" name="email" type="email" placeholder="Email" required>
+              </div>
+
+              <div class="form-row">
+                <label for="workPhone">Phone Number</label>
+                <input id="workPhone" name="phone" type="tel" placeholder="Phone Number">
+              </div>
+
+              <div class="form-row">
+                <label for="resume">Link to your Resume</label>
+                <input id="resume" name="resume" type="url" placeholder="https://...">
+              </div>
+
+              <div class="form-row">
+                <label id="workCategoryLabel">Work Category</label>
+                <div class="work-picker" id="workCategoryPicker">
+                  <button
+                    type="button"
+                    class="work-picker__trigger"
+                    aria-expanded="false"
+                    aria-labelledby="workCategoryLabel"
+                  >
+                    <span class="work-picker__value">Select a category</span>
+                    <span class="work-picker__chev" aria-hidden="true"></span>
+                  </button>
+                  <div class="work-picker__menu" role="listbox" hidden></div>
+                  <input type="hidden" name="category" id="workCategory" value="" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <label id="workSkillLabel">Choose Role / Skill</label>
+                <div class="work-picker work-picker--skill is-disabled" id="workSkillPicker">
+                  <button
+                    type="button"
+                    class="work-picker__trigger"
+                    aria-expanded="false"
+                    aria-labelledby="workSkillLabel"
+                    disabled
+                  >
+                    <span class="work-picker__value">First select a category</span>
+                    <span class="work-picker__chev" aria-hidden="true"></span>
+                  </button>
+                  <div class="work-picker__menu" role="listbox" hidden></div>
+                  <input type="hidden" name="skill" id="workSkill" value="" required>
+                </div>
+              </div>
+
+              {% include "partials/recaptcha-widget.html" %}
+
+              <button class="btn" type="submit">Submit Application</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+{% endblock %}
+
