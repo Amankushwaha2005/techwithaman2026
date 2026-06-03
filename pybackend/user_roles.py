@@ -1,12 +1,39 @@
 from __future__ import annotations
 
-from pybackend.db import query_one
+from pybackend.db import query, query_one
+
+
+def admin_email_set(admin_emails: str | None) -> set[str]:
+    return _admin_email_set(admin_emails)
 
 
 def _admin_email_set(admin_emails: str | None) -> set[str]:
     if not admin_emails:
         return set()
     return {e.strip().lower() for e in admin_emails.split(",") if e.strip()}
+
+
+def is_admin_user(user: dict | None, admin_emails: str | None) -> bool:
+    if not user:
+        return False
+    if user.get("role") == "admin":
+        return True
+    em = (user.get("email") or "").strip().lower()
+    return bool(em and em in _admin_email_set(admin_emails))
+
+
+def promote_admin_emails(admin_emails: str | None) -> None:
+    emails = list(_admin_email_set(admin_emails))
+    if not emails:
+        return
+    query(
+        """
+        UPDATE users
+        SET role = 'admin', updated_at = NOW()
+        WHERE LOWER(email) = ANY(%s) AND role IS DISTINCT FROM 'admin'
+        """,
+        (emails,),
+    )
 
 
 def role_for_email(email: str, current_role: str, admin_emails: str | None) -> str:

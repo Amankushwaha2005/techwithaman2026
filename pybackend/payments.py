@@ -9,6 +9,7 @@ from typing import Any
 import requests
 from flask import Blueprint, current_app, render_template, request
 
+from pybackend.auth_context import auth_template_flags
 from pybackend.db import query, query_one
 from pybackend.site import brand, company, navItems
 
@@ -94,8 +95,7 @@ def show_order():
         navItems=navItems,
         brand=brand,
         year=__import__("datetime").datetime.utcnow().year,
-        authUser=None,
-        isAdmin=False,
+        **auth_template_flags(),
         googleLoginEnabled=bool(settings.google_client_id and settings.google_client_secret),
         githubLoginEnabled=bool(settings.github_client_id and settings.github_client_secret),
         microsoftLoginEnabled=bool(settings.microsoft_client_id and settings.microsoft_client_secret),
@@ -141,8 +141,7 @@ def show_order_success():
         navItems=navItems,
         brand=brand,
         year=datetime.utcnow().year,
-        authUser=None,
-        isAdmin=False,
+        **auth_template_flags(),
         googleLoginEnabled=bool(settings.google_client_id and settings.google_client_secret),
         githubLoginEnabled=bool(settings.github_client_id and settings.github_client_secret),
         microsoftLoginEnabled=bool(settings.microsoft_client_id and settings.microsoft_client_secret),
@@ -352,8 +351,7 @@ def show_pay_advance():
         navItems=navItems,
         brand=brand,
         year=datetime.utcnow().year,
-        authUser=None,
-        isAdmin=False,
+        **auth_template_flags(),
         googleLoginEnabled=bool(settings.google_client_id and settings.google_client_secret),
         githubLoginEnabled=bool(settings.github_client_id and settings.github_client_secret),
         microsoftLoginEnabled=bool(settings.microsoft_client_id and settings.microsoft_client_secret),
@@ -393,8 +391,7 @@ def show_pay_balance():
         navItems=navItems,
         brand=brand,
         year=datetime.utcnow().year,
-        authUser=None,
-        isAdmin=False,
+        **auth_template_flags(),
         googleLoginEnabled=bool(settings.google_client_id and settings.google_client_secret),
         githubLoginEnabled=bool(settings.github_client_id and settings.github_client_secret),
         microsoftLoginEnabled=bool(settings.microsoft_client_id and settings.microsoft_client_secret),
@@ -508,8 +505,7 @@ def show_balance_success():
         navItems=navItems,
         brand=brand,
         year=datetime.utcnow().year,
-        authUser=None,
-        isAdmin=False,
+        **auth_template_flags(),
         googleLoginEnabled=bool(settings.google_client_id and settings.google_client_secret),
         githubLoginEnabled=bool(settings.github_client_id and settings.github_client_secret),
         microsoftLoginEnabled=bool(settings.microsoft_client_id and settings.microsoft_client_secret),

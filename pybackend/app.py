@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from authlib.integrations.flask_client import OAuth
-from flask import Flask, jsonify, redirect
+from flask import Flask, jsonify, redirect, session
 
 from pybackend.settings import Settings
 from pybackend.db import close_pool
@@ -12,6 +12,7 @@ from pybackend.auth import auth_bp
 from pybackend.forms import forms_bp
 from pybackend.payments import payments_bp
 from pybackend.admin import admin_bp
+from pybackend.auth_context import refresh_session_user
 
 
 def create_app() -> Flask:
@@ -50,6 +51,17 @@ def create_app() -> Flask:
     if settings.is_production:
         # Render/Proxy setups need this for correct scheme/host in redirects.
         app.config["PREFERRED_URL_SCHEME"] = "https"
+
+    if settings.is_production and not settings.admin_emails:
+        app.logger.warning(
+            "ADMIN_EMAILS is not set — Google login will not grant admin access. "
+            "Add your Gmail in Render Environment."
+        )
+
+    @app.before_request
+    def _sync_logged_in_user():
+        if session.get("user_id"):
+            refresh_session_user()
 
     @app.get("/health")
     def health():

@@ -14,7 +14,14 @@
     <article class="card" style="padding: 24px;">
       <h1>Access denied</h1>
       <p>You are not allowed to view the admin dashboard.</p>
-      <p>Fix: set <code>ADMIN_EMAILS</code> in environment variables to include your login email.</p>
+      {% if loginEmail %}
+        <p>Logged in as: <strong>{{ loginEmail }}</strong></p>
+      {% endif %}
+      {% if not adminEmailsConfigured %}
+        <p>On Render → <strong>Environment</strong>, add <code>ADMIN_EMAILS</code> with the same email you use for Google login (example: <code>you@gmail.com</code>). Save, redeploy, then log out and log in again.</p>
+      {% else %}
+        <p>Your email must be listed in <code>ADMIN_EMAILS</code> on the server (comma-separated if more than one). After updating, log out and sign in with Google again.</p>
+      {% endif %}
       <div style="margin-top: 18px;">
         <a class="btn btn-outline" href="/">Back to site</a>
       </div>

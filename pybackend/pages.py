@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from flask import Blueprint, current_app, redirect, render_template, request, session
 
-from pybackend.db import query_one
+from pybackend.auth_context import auth_template_flags
 from pybackend.site import brand, navItems
-from pybackend.user_roles import sync_admin_role
 
 
 pages_bp = Blueprint("pages", __name__)
@@ -12,22 +11,6 @@ pages_bp = Blueprint("pages", __name__)
 
 def _common_template_context(page: dict) -> dict:
     settings = current_app.config["SETTINGS"]
-
-    auth_user = None
-    is_admin = False
-    if session.get("user_id"):
-        user = query_one(
-            "SELECT id, provider, name, email, picture, role FROM users WHERE id = %s",
-            (session["user_id"],),
-        )
-        user = sync_admin_role(user, settings.admin_emails)
-        if user:
-            session["user"] = user
-            auth_user = user
-            is_admin = user.get("role") == "admin"
-        else:
-            session.pop("user_id", None)
-            session.pop("user", None)
 
     next_raw = request.args.get("next", "")
     login_next = next_raw if next_raw.startswith("/") and not next_raw.startswith("//") else ""
@@ -37,8 +20,7 @@ def _common_template_context(page: dict) -> dict:
         "navItems": navItems,
         "brand": brand,
         "year": __import__("datetime").datetime.utcnow().year,
-        "authUser": auth_user,
-        "isAdmin": is_admin,
+        **auth_template_flags(),
         "authError": request.args.get("error", ""),
         "loginNext": login_next,
         "googleLoginEnabled": bool(settings.google_client_id and settings.google_client_secret),

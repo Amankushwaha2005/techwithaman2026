@@ -7,6 +7,7 @@ from flask import Blueprint, current_app, redirect, render_template, request, se
 from pybackend.authz import require_admin
 from pybackend.db import query, query_one
 from pybackend.site import brand
+from pybackend.user_roles import promote_admin_emails
 
 
 admin_bp = Blueprint("admin", __name__)
@@ -15,6 +16,9 @@ admin_bp = Blueprint("admin", __name__)
 @admin_bp.get("/admin")
 @require_admin
 def dashboard():
+    settings = current_app.config["SETTINGS"]
+    promote_admin_emails(settings.admin_emails)
+
     stats = {}
 
     stats["users"] = int(query_one("SELECT COUNT(*) AS c FROM users")["c"])
