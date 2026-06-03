@@ -4103,12 +4103,17 @@ html[data-theme="light"] .pricing-package-card {
   pointer-events: none;
 }
 
-.whatsapp-float__icon {
+.whatsapp-float__icon,
+.whatsapp-float__btn > svg {
   position: relative;
   z-index: 1;
   display: block;
   width: 30px;
   height: 30px;
+}
+
+.whatsapp-float__btn > svg path {
+  fill: #fff;
 }
 
 .whatsapp-float:hover,
@@ -4346,7 +4351,8 @@ html[data-theme="light"] .twa-chatbot__msg--bot p {
     height: 54px;
   }
 
-  .whatsapp-float__icon {
+  .whatsapp-float__icon,
+  .whatsapp-float__btn > svg {
     width: 28px;
     height: 28px;
   }
