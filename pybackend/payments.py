@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import secrets
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 import requests
@@ -34,6 +34,17 @@ def _compute_advance_inr(total_inr: int) -> int:
 
 def _public_id() -> str:
     return secrets.token_hex(4) + "-" + secrets.token_hex(4)
+
+
+def _format_receipt_date(value: Any) -> str:
+    if not value:
+        return ""
+    if isinstance(value, datetime):
+        return value.strftime("%Y-%m-%d %H:%M:%S")
+    if isinstance(value, date):
+        return value.strftime("%Y-%m-%d")
+    s = str(value)
+    return s[:19] if len(s) > 19 else s
 
 
 def _rzp_auth() -> tuple[str, str]:
@@ -104,6 +115,7 @@ def show_order():
 
 @payments_bp.get("/order/success")
 def show_order_success():
+    settings = current_app.config["SETTINGS"]
     public_id = (request.args.get("id") or "").strip()
     order = (
         query_one("SELECT * FROM orders WHERE public_id = %s", (public_id,)) if public_id else None
@@ -118,7 +130,7 @@ def show_order_success():
     receipt = None
     if order and status in ("advance_paid", "completed"):
         receipt = {
-            "paymentDate": (order.get("paid_at") or order.get("created_at") or "")[:19],
+            "paymentDate": _format_receipt_date(order.get("paid_at") or order.get("created_at")),
             "gateway": "Razorpay",
             "paymentId": order.get("razorpay_payment_id") or "—",
         }
@@ -166,7 +178,9 @@ def show_order_receipt():
         "receiptTitle": "Balance Payment Receipt" if phase == "balance" else "Advance Payment Receipt",
         "payeeName": order.get("name") or "—",
         "status": "PAID",
-        "paymentDate": (order.get("paid_at") or order.get("balance_paid_at") or order.get("created_at") or "")[:19],
+        "paymentDate": _format_receipt_date(
+            order.get("paid_at") or order.get("balance_paid_at") or order.get("created_at")
+        ),
         "transactionNo": order.get("razorpay_payment_id") or order.get("razorpay_balance_payment_id") or "—",
         "gateway": "Razorpay",
         "paymentId": order.get("razorpay_payment_id") if phase == "advance" else order.get("razorpay_balance_payment_id"),
@@ -484,7 +498,7 @@ def show_balance_success():
     receipt = None
     if order and order.get("status") == "completed":
         receipt = {
-            "paymentDate": (order.get("balance_paid_at") or "")[:19],
+            "paymentDate": _format_receipt_date(order.get("balance_paid_at")),
             "gateway": "Razorpay",
             "paymentId": order.get("razorpay_balance_payment_id") or "—",
         }
